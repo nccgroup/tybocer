@@ -1,0 +1,17 @@
+﻿<!--
+Released as open source by NCC Group Plc - http://www.nccgroup.com/
+
+Developed by Felix Ingram, (felix.ingram@nccgroup.com)
+
+http://www.github.com/nccgroup/tybocer
+
+Released under AGPL see LICENSE for more information
+-->
+<Application x:Class="CodeNaviWPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>

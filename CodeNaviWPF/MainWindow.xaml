@@ -1,0 +1,61 @@
+﻿<!--
+ * Released as open source by NCC Group Plc - http://www.nccgroup.com/
+ * 
+ * Developed by Felix Ingram, (felix.ingram@nccgroup.com)
+ * 
+ * http://www.github.com/nccgroup/tybocer
+ * 
+ * Released under AGPL. See LICENSE for more information
+-->
+<Window x:Class="CodeNaviWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:graph="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
+        xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
+        xmlns:Model="clr-namespace:CodeNaviWPF.Models"
+        Title="GraphView" Height="865" Width="991"
+        x:Name="root"
+    >
+    <Window.Resources>
+
+        <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
+                                  ItemsSource="{Binding Items}">
+            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+        </HierarchicalDataTemplate>
+
+        <DataTemplate DataType="{x:Type Model:FileItem}">
+            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+        </DataTemplate>
+
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <TextBlock x:Name="FBTextBlock" />
+                <Button x:Name="FBButton" Content="Browse" Click="FBButton_Click"/>
+            </StackPanel>
+            <TreeView ItemsSource="{Binding}" Height="300"/>
+            <!--<StackPanel Orientation="Horizontal">
+                <Label Content="Pick layout type" />
+                <ComboBox ItemsSource="{Binding Path=LayoutAlgorithmTypes}" 
+                      SelectedItem="{Binding Path=LayoutAlgorithmType, Mode=TwoWay}" 
+                      />
+            </StackPanel>-->
+            <!--<fb:FileBrowser x:Name="FB" />-->
+        </StackPanel>
+        <!--<zoom:ZoomControl Grid.Row="1">
+            <graph:GraphLayout x:Name="graphLayout" 
+                    Graph="{Binding Path=GraphToVisualise}" 
+                    LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType, Mode=OneWay}"
+                    OverlapRemovalAlgorithmType="FSA"
+                    HighlightAlgorithmType="Simple"
+                    >
+            </graph:GraphLayout>
+        </zoom:ZoomControl>-->
+    </Grid>
+</Window>
