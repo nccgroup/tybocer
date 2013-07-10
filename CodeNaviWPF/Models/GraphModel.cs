@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using GraphSharp.Controls;
 
@@ -126,7 +127,10 @@ namespace CodeNaviWPF.Models
 
         internal void AddFileView(FileItem f)
         {
-            PocVertex v = new PocVertex(f.Name, f.Path, f.Name);
+            FileVertex v = new FileVertex(f.Name, f.Path, f.Name);
+            StreamReader sr = new StreamReader(f.Path);
+            String s = sr.ReadToEnd();
+            v.FileText = s;
             Graph.AddVertex(v);
             Graph.AddEdge(new PocEdge("Open...", root, v));
             NotifyPropertyChanged("Graph");

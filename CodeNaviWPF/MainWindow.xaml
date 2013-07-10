@@ -28,6 +28,30 @@
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </DataTemplate>
 
+        <DataTemplate x:Key="fileBrowserTemplate">
+            <StackPanel>
+                <Button Name="FilePicke2r" Content="Choose root directory" Click="FilePicker_Click"/>
+                <TreeView Name="FileView2" ItemsSource="{Binding Files}" Height="300" Width="400">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
+                            <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                </TreeView>
+            </StackPanel>
+        </DataTemplate>
+        
+        <DataTemplate x:Key="fileContentView">
+            <StackPanel>
+                <TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />
+            </StackPanel>
+        </DataTemplate>
+
+        <local:MyContentTemplateSelector
+            x:Key="myContentTemplateSelector" 
+            FileBrowserTemplate="{StaticResource fileBrowserTemplate}"
+            FileContentView="{StaticResource fileContentView}"/>
         <!-- DataTemplate x:Key="demoTemplate" DataType="{x:Type Model:PocVertex}">
             <StackPanel Orientation="Horizontal" Margin="5">
                 <Image x:Name="img" Source="../Images/boy.ico" Width="20" Height="20" />
@@ -53,7 +77,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type graph:VertexControl}">
-                        <StackPanel Orientation="Vertical">
+                        <ContentControl Name="TestControl" ContentTemplateSelector="{StaticResource myContentTemplateSelector}" Content="{Binding}"/>
+                        <!--<StackPanel Orientation="Vertical">
                             <Button Name="FilePicker" Content="Choose root directory" Click="FilePicker_Click"/>
                             <TreeView Name="FileView" ItemsSource="{Binding Files}" Height="300" Width="400">
                                 <TreeView.ItemContainerStyle>
@@ -63,24 +88,19 @@
                                     </Style>
                                 </TreeView.ItemContainerStyle>
                             </TreeView>
-                        </StackPanel>
+                            <TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />
+                        </StackPanel>-->
                         <!--<Border BorderBrush="White" 
                                     Background="Black"
                                     BorderThickness="2"
                                     CornerRadius="10,10,10,10"
                                     Padding="{TemplateBinding Padding}">
-
                             <StackPanel Orientation="Vertical">
                                 <TreeView ItemsSource="{Binding Path=Files}" Height="300" Width="200"/>
                                 <Expander IsExpanded="True">
-                                    <ContentPresenter Content="{TemplateBinding Vertex}" 
-                                            ContentTemplate="{StaticResource demoTemplate}"/>
+                                    <ContentPresenter Content="{TemplateBinding Vertex}" ContentTemplate="{StaticResource demoTemplate}"/>
                                 </Expander>
                             </StackPanel>
-
-
-
-
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="2" Color="LightGray" 
                                     Opacity="0.3" Direction="315"/>
@@ -90,10 +110,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -102,8 +120,8 @@
         <Button x:Name="FBButton" Content="Browse" Click="FBButton_Click"/>
         <zoom:ZoomControl Name="Zoomer" Grid.Row="1" Mode="Fill">
 
-      
-        <!--<StackPanel Orientation="Vertical" Grid.Row="0">
+
+            <!--<StackPanel Orientation="Vertical" Grid.Row="0">
             <StackPanel Orientation="Horizontal" Grid.Row="0">
                 <TextBlock x:Name="FBTextBlock" Text="{Binding Path=Test}"/>
             </StackPanel>
@@ -133,7 +151,8 @@
                     HighlightAlgorithmType="Simple"
                     >
             </Model:PocGraphLayout>
-    </zoom:ZoomControl>
+        </zoom:ZoomControl>
 
     </Grid>
+
 </Window>

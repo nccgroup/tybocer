@@ -25,8 +25,9 @@ namespace CodeNaviWPF.Models
     [DebuggerDisplay("{ID} - {FilePath}")]
     public class PocVertex : INotifyPropertyChanged
     {
-        public string ID { get; private set; }
+        public string ID;
         private ItemProvider ip;
+        public String FileText { get; set; }
         private List<Item> files;
         private string file_path;
         public string FilePath
@@ -52,6 +53,7 @@ namespace CodeNaviWPF.Models
         {
             ID = id;
             file_path = path;
+            FileText = "";
             Text = text;
             files = new List<Item>();
             ip = new ItemProvider();
@@ -125,5 +127,10 @@ namespace CodeNaviWPF.Models
 
         public PocGraph(bool allowParallelEdges, int vertexCapacity)
             : base(allowParallelEdges, vertexCapacity) { }
+    }
+
+    public class FileVertex : PocVertex
+    {
+        public FileVertex(string id, string path, string text) : base(id, path, text) { }
     }
 }
