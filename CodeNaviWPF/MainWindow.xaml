@@ -13,6 +13,7 @@
         xmlns:graph="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
         xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
         xmlns:Model="clr-namespace:CodeNaviWPF.Models"
+        xmlns:local="clr-namespace:CodeNaviWPF"
         Title="GraphView" Height="865" Width="991"
         x:Name="root"
     >
@@ -23,39 +24,121 @@
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </HierarchicalDataTemplate>
 
-        <DataTemplate DataType="{x:Type Model:FileItem}">
+        <HierarchicalDataTemplate DataType="{x:Type Model:DummyItem}"
+                                  ItemsSource="{Binding Items}">
+            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+        </HierarchicalDataTemplate>
+
+        <DataTemplate DataType="{x:Type Model:FileItem}" >
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </DataTemplate>
 
+        <!-- DataTemplate x:Key="demoTemplate" DataType="{x:Type Model:PocVertex}">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Image x:Name="img" Source="../Images/boy.ico" Width="20" Height="20" />
+                <TextBlock Text="{Binding Path=ID, Mode=OneWay}" Foreground="Blue" />
+                <TreeView ItemsSource="{Binding}" Height="300" Width="200"/>
+                <avalon:TextEditor 
+                    FontFamily="Monaco" 
+                    Name="TextArea" 
+                    Height="100" 
+                    Width="500" 
+                    >
+                </avalon:TextEditor>
+                <WebBrowser Source="http://www.google.com/" />
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsMale}" Value="false">
+                    <Setter TargetName="img" Property="Source"
+                                Value="../Images/girl.ico" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>-->
+        <Style TargetType="{x:Type graph:VertexControl}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type graph:VertexControl}">
+                        <StackPanel Orientation="Vertical">
+                            <Button Name="FilePicker" Content="Choose root directory" Click="FilePicker_Click"/>
+                            <TreeView Name="FileView" ItemsSource="{Binding Files}" Height="300" Width="400">
+                                <TreeView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type TreeViewItem}">
+                                        <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
+                                        <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
+                                    </Style>
+                                </TreeView.ItemContainerStyle>
+                            </TreeView>
+                        </StackPanel>
+                        <!--<Border BorderBrush="White" 
+                                    Background="Black"
+                                    BorderThickness="2"
+                                    CornerRadius="10,10,10,10"
+                                    Padding="{TemplateBinding Padding}">
+
+                            <StackPanel Orientation="Vertical">
+                                <TreeView ItemsSource="{Binding Path=Files}" Height="300" Width="200"/>
+                                <Expander IsExpanded="True">
+                                    <ContentPresenter Content="{TemplateBinding Vertex}" 
+                                            ContentTemplate="{StaticResource demoTemplate}"/>
+                                </Expander>
+                            </StackPanel>
+
+
+
+
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="2" Color="LightGray" 
+                                    Opacity="0.3" Direction="315"/>
+                            </Border.Effect>
+                        </Border>-->
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
     </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Button x:Name="FBButton" Content="Browse" Click="FBButton_Click"/>
+        <zoom:ZoomControl Name="Zoomer" Grid.Row="1" Mode="Fill">
 
-        <StackPanel Orientation="Vertical" Grid.Row="0">
+      
+        <!--<StackPanel Orientation="Vertical" Grid.Row="0">
             <StackPanel Orientation="Horizontal" Grid.Row="0">
-                <TextBlock x:Name="FBTextBlock" />
-                <Button x:Name="FBButton" Content="Browse" Click="FBButton_Click"/>
+                <TextBlock x:Name="FBTextBlock" Text="{Binding Path=Test}"/>
             </StackPanel>
             <TreeView ItemsSource="{Binding}" Height="300"/>
-            <!--<StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
                 <Label Content="Pick layout type" />
                 <ComboBox ItemsSource="{Binding Path=LayoutAlgorithmTypes}" 
                       SelectedItem="{Binding Path=LayoutAlgorithmType, Mode=TwoWay}" 
                       />
-            </StackPanel>-->
-            <!--<fb:FileBrowser x:Name="FB" />-->
-        </StackPanel>
-        <!--<zoom:ZoomControl Grid.Row="1">
-            <graph:GraphLayout x:Name="graphLayout" 
-                    Graph="{Binding Path=GraphToVisualise}" 
-                    LayoutAlgorithmType="{Binding Path=LayoutAlgorithmType, Mode=OneWay}"
+            </StackPanel>
+            <fb:FileBrowser x:Name="FB" />
+        </StackPanel>-->
+
+            <!--LayoutAlgorithmType="Circular"
+                    LayoutAlgorithmType="CompundFDP"
+                    LayoutAlgorithmType="EfficientSugiyama"
+                    LayoutAlgorithmType="FR"
+                    LayoutAlgorithmType="ISOM"
+                    LayoutAlgorithmType="KK"
+                    LayoutAlgorithmType="LinLog"
+                    LayoutAlgorithmType="Tree"-->
+
+            <Model:PocGraphLayout x:Name="graphLayout" 
+                    Graph="{Binding Path=Graph}" 
+                    LayoutAlgorithmType="EfficientSugiyama"
                     OverlapRemovalAlgorithmType="FSA"
                     HighlightAlgorithmType="Simple"
                     >
-            </graph:GraphLayout>
-        </zoom:ZoomControl>-->
+            </Model:PocGraphLayout>
+    </zoom:ZoomControl>
+
     </Grid>
 </Window>

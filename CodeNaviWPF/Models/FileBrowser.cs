@@ -27,6 +27,18 @@ namespace CodeNaviWPF.Models
     {
 
     }
+    public class DummyItem : DirectoryItem
+    {
+        public DummyItem()
+            : base()
+        {
+            Items.Add(new FileItem
+            {
+                Name = "DummyName",
+                Path = "DummyPath"
+            });
+        }
+    }
     public class DirectoryItem : Item
     {
         public List<Item> Items { get; set; }
@@ -58,16 +70,31 @@ namespace CodeNaviWPF.Models
         public List<Item> GetItems(string value)
         {
             List<Item> items = new List<Item>();
+            if (!System.IO.Directory.Exists(value)) { return items; }
             var dirinfo = new DirectoryInfo(value);
             foreach (DirectoryInfo d in dirinfo.GetDirectories())
             {
-                var item = new DirectoryItem
+                try
                 {
-                    Name = d.Name,
-                    Path = d.FullName,
-                    Items = GetItems(d.FullName)
-                };
-                items.Add(item);
+
+                    var item = new DummyItem
+                    {
+                        Name = d.Name,
+                        Path = d.FullName,
+                        //Items = GetItems(d.FullName)
+                    };
+                    items.Add(item);
+
+                }
+                catch (System.UnauthorizedAccessException)
+                {
+                    var item = new DirectoryItem
+                    {
+                        Name = "Access Denied",
+                        Path = value,
+                        Items = new List<Item>()
+                    };
+                }
             }
             foreach (FileInfo f in dirinfo.GetFiles())
             {

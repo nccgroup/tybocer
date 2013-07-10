@@ -32,23 +32,60 @@ namespace CodeNaviWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private GraphProvider gp;
         public MainWindow()
         {
-            InitializeComponent();
-            var graphProvider = new GraphProvider();
+            gp = new GraphProvider();
 
-            DataContext = graphProvider;
+            this.DataContext = gp;
+            InitializeComponent();
+            Zoomer.ZoomToOriginal();
         }
 
         private void FBButton_Click(object sender, RoutedEventArgs e)
         {
-            string folderPath = "";
+            gp.ReLayoutGraph();
+            //string folderPath = "";
+            //FolderBrowserDialog dialog = new FolderBrowserDialog();
+            //if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //{
+            //    var itemProvider = new ItemProvider();
+            //    var items = itemProvider.GetItems(dialog.SelectedPath);
+            //    DataContext = items;
+            //}
+        }
+
+        private void FilePicker_Click(object sender, RoutedEventArgs e)
+        {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var itemProvider = new ItemProvider();
-                var items = itemProvider.GetItems(dialog.SelectedPath);
-                DataContext = items;
+                gp.UpdateRoot(dialog.SelectedPath);
+            }
+
+        }
+        private void OnTreeNodeDoubleClick(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            if (item != null)
+            {
+                FileItem fi = item.Header as FileItem;
+                if (fi != null)
+                {
+                    gp.AddFileView(fi);
+                }
+            }
+        }
+        private void OnTreeItemExpand(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            if (item != null)
+            {
+                DirectoryItem di = item.Header as DirectoryItem;
+                if (di != null)
+                {
+                    gp.ExpandDirectory(di);
+                }
             }
         }
     }
