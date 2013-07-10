@@ -27,18 +27,7 @@ namespace CodeNaviWPF.Models
     {
 
     }
-    public class DummyItem : DirectoryItem
-    {
-        public DummyItem()
-            : base()
-        {
-            Items.Add(new FileItem
-            {
-                Name = "DummyName",
-                Path = "DummyPath"
-            });
-        }
-    }
+
     public class DirectoryItem : Item
     {
         public List<Item> Items { get; set; }
@@ -46,6 +35,11 @@ namespace CodeNaviWPF.Models
         public DirectoryItem()
         {
             Items = new List<Item>();
+            Items.Add(new FileItem
+            {
+                Name = "DummyName",
+                Path = "DummyPath"
+            });
         }
     }
 
@@ -77,7 +71,7 @@ namespace CodeNaviWPF.Models
                 try
                 {
 
-                    var item = new DummyItem
+                    var item = new DirectoryItem
                     {
                         Name = d.Name,
                         Path = d.FullName,

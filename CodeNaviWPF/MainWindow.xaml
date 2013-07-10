@@ -24,11 +24,6 @@
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </HierarchicalDataTemplate>
 
-        <HierarchicalDataTemplate DataType="{x:Type Model:DummyItem}"
-                                  ItemsSource="{Binding Items}">
-            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
-        </HierarchicalDataTemplate>
-
         <DataTemplate DataType="{x:Type Model:FileItem}" >
             <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
         </DataTemplate>
