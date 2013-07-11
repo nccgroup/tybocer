@@ -23,17 +23,12 @@ namespace CodeNaviWPF.Models
 
     public class GraphProvider : INotifyPropertyChanged
     {
-        static Random random = new Random();
         private ItemProvider ip;
-        public List<Item> Files
-        {
-            get { var items = ip.GetItems("c:\\temp"); return items; }
-        }
-        public string Test = "sdsfsdfsfd";
         private PocGraph graph;
         private PocVertex root;
         private string _rootdir;
         private string layoutAlgorithmType;
+        
         public string LayoutAlgorithmType
         {
             get { return layoutAlgorithmType; }
@@ -43,17 +38,6 @@ namespace CodeNaviWPF.Models
                 NotifyPropertyChanged("LayoutAlgorithmType");
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(String info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
 
         public PocGraph Graph
         {
@@ -68,55 +52,25 @@ namespace CodeNaviWPF.Models
         public string RootDir
         {
             get { return _rootdir; }
-            set
-            {
-                _rootdir = value;
-            }
+            set { _rootdir = value; }
         }
 
         public GraphProvider()
         {
             ip = new ItemProvider();
             Graph = new PocGraph(true);
-            root = new PocVertex("ROOT", "", "sdfsdfsdf");
+            root = new PocVertex("ROOT", "");
             graph.AddVertex(root);
-            //List<PocVertex> existingVertices = new List<PocVertex>();
-            //existingVertices.Add(new PocVertex("Sacha Barber", "sdfsdf", "My Test string")); //0
-            //existingVertices.Add(new PocVertex("Sarah Barber", false, "My Test string")); //1
-            //existingVertices.Add(new PocVertex("Marlon Grech", true, "My Test string")); //2
-
-
-            //foreach (PocVertex vertex in existingVertices)
-            //    Graph.AddVertex(vertex);
-            //Graph.AddVertex(new PocVertex("hgfhfghff", false, "87ffyfyff"));
+            layoutAlgorithmType = "EfficientSugiyama";
+            //LayoutAlgorithmType="Circular"
+            //LayoutAlgorithmType="CompundFDP"
+            //LayoutAlgorithmType="EfficientSugiyama"
+            //LayoutAlgorithmType="FR"
+            //LayoutAlgorithmType="ISOM"
+            //LayoutAlgorithmType="KK"
+            //LayoutAlgorithmType="LinLog"
+            //LayoutAlgorithmType="Tree"
             NotifyPropertyChanged("Graph");
-        }
-
-        public void ReLayoutGraph()
-        {
-            //graph = new PocGraph(true);
-            
-            //List<PocVertex> existingVertices = new List<PocVertex>();
-            //existingVertices.Add(new PocVertex("Barn Rubble{0}", true, "My Test string")); //0
-            ////existingVertices.Add(new PocVertex(String.Format("Frank Zappa{0}", count), false, "My Test string")); //1
-            ////existingVertices.Add(new PocVertex(String.Format("Gerty CrinckleBottom{0}", count), true, "My Test string")); //2
-
-
-            //foreach (PocVertex vertex in existingVertices)
-            //    Graph.AddVertex(vertex);
-
-
-            //add some edges to the graph
-            //AddNewGraphEdge(existingVertices[0], existingVertices[1]);
-            //AddNewGraphEdge(existingVertices[0], existingVertices[2]);
-
-            PocVertex v = new PocVertex("sdfsdfsd", "", "sdfsdfsdfdsfsdf");
-            Graph.AddVertex(v);
-            int r = random.Next(Graph.Vertices.Count());
-            Graph.AddEdge(new PocEdge("sdsdf", v, Graph.Vertices.ToList()[r]));
-
-            NotifyPropertyChanged("Graph");
-
         }
 
         internal void UpdateRoot(string p)
@@ -127,7 +81,7 @@ namespace CodeNaviWPF.Models
 
         internal void AddFileView(FileItem f)
         {
-            FileVertex v = new FileVertex(f.Name, f.Path, f.Name);
+            FileVertex v = new FileVertex(f.Name, f.Path);
             StreamReader sr = new StreamReader(f.Path);
             v.Document.Text = sr.ReadToEnd();
             Graph.AddVertex(v);
@@ -144,5 +98,18 @@ namespace CodeNaviWPF.Models
                 di.Items.Add(i);
             }
         }
+
+        #region Property Changed Stuff
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+        #endregion
     }
+
 }

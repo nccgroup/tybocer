@@ -42,20 +42,7 @@ namespace CodeNaviWPF
             Zoomer.ZoomToOriginal();
         }
 
-        private void FBButton_Click(object sender, RoutedEventArgs e)
-        {
-            gp.ReLayoutGraph();
-            //string folderPath = "";
-            //FolderBrowserDialog dialog = new FolderBrowserDialog();
-            //if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            //{
-            //    var itemProvider = new ItemProvider();
-            //    var items = itemProvider.GetItems(dialog.SelectedPath);
-            //    DataContext = items;
-            //}
-        }
-
-        private void FilePicker_Click(object sender, RoutedEventArgs e)
+        private void DirPicker_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)

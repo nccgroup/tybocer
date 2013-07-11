@@ -31,8 +31,8 @@
 
         <DataTemplate x:Key="fileBrowserTemplate">
             <StackPanel>
-                <Button Name="FilePicke2r" Content="Choose root directory" Click="FilePicker_Click"/>
-                <TreeView Name="FileView2" ItemsSource="{Binding Files}" Height="300" Width="400">
+                <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
+                <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="{x:Type TreeViewItem}">
                             <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
@@ -42,74 +42,26 @@
                 </TreeView>
             </StackPanel>
         </DataTemplate>
-        
+
         <DataTemplate x:Key="fileContentView">
             <StackPanel>
-                <Border BorderThickness="3" BorderBrush="BlueViolet">
+                <Border BorderThickness="3" BorderBrush="BurlyWood">
                     <avalonEdit:TextEditor Width="400" Height="400" Document="{Binding Path=Document}" IsReadOnly="True" />
                 </Border>
-                <!--<TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />-->
             </StackPanel>
         </DataTemplate>
 
-        <local:MyContentTemplateSelector
-            x:Key="myContentTemplateSelector" 
+        <local:VertexTemplateSelector
+            x:Key="vertexTemplateSelector" 
             FileBrowserTemplate="{StaticResource fileBrowserTemplate}"
-            FileContentView="{StaticResource fileContentView}"/>
-        <!-- DataTemplate x:Key="demoTemplate" DataType="{x:Type Model:PocVertex}">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <Image x:Name="img" Source="../Images/boy.ico" Width="20" Height="20" />
-                <TextBlock Text="{Binding Path=ID, Mode=OneWay}" Foreground="Blue" />
-                <TreeView ItemsSource="{Binding}" Height="300" Width="200"/>
-                <avalon:TextEditor 
-                    FontFamily="Monaco" 
-                    Name="TextArea" 
-                    Height="100" 
-                    Width="500" 
-                    >
-                </avalon:TextEditor>
-                <WebBrowser Source="http://www.google.com/" />
-            </StackPanel>
-            <DataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsMale}" Value="false">
-                    <Setter TargetName="img" Property="Source"
-                                Value="../Images/girl.ico" />
-                </DataTrigger>
-            </DataTemplate.Triggers>
-        </DataTemplate>-->
+            FileContentView="{StaticResource fileContentView}"
+            />
+
         <Style TargetType="{x:Type graph:VertexControl}">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type graph:VertexControl}">
-                        <ContentControl Name="TestControl" ContentTemplateSelector="{StaticResource myContentTemplateSelector}" Content="{Binding}"/>
-                        <!--<StackPanel Orientation="Vertical">
-                            <Button Name="FilePicker" Content="Choose root directory" Click="FilePicker_Click"/>
-                            <TreeView Name="FileView" ItemsSource="{Binding Files}" Height="300" Width="400">
-                                <TreeView.ItemContainerStyle>
-                                    <Style TargetType="{x:Type TreeViewItem}">
-                                        <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
-                                        <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
-                                    </Style>
-                                </TreeView.ItemContainerStyle>
-                            </TreeView>
-                            <TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />
-                        </StackPanel>-->
-                        <!--<Border BorderBrush="White" 
-                                    Background="Black"
-                                    BorderThickness="2"
-                                    CornerRadius="10,10,10,10"
-                                    Padding="{TemplateBinding Padding}">
-                            <StackPanel Orientation="Vertical">
-                                <TreeView ItemsSource="{Binding Path=Files}" Height="300" Width="200"/>
-                                <Expander IsExpanded="True">
-                                    <ContentPresenter Content="{TemplateBinding Vertex}" ContentTemplate="{StaticResource demoTemplate}"/>
-                                </Expander>
-                            </StackPanel>
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="2" Color="LightGray" 
-                                    Opacity="0.3" Direction="315"/>
-                            </Border.Effect>
-                        </Border>-->
+                        <ContentControl Name="TestControl" ContentTemplateSelector="{StaticResource vertexTemplateSelector}" Content="{Binding}"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -121,42 +73,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button x:Name="FBButton" Content="Browse" Click="FBButton_Click"/>
         <zoom:ZoomControl Name="Zoomer" Grid.Row="1" Mode="Fill">
-
-
-            <!--<StackPanel Orientation="Vertical" Grid.Row="0">
-            <StackPanel Orientation="Horizontal" Grid.Row="0">
-                <TextBlock x:Name="FBTextBlock" Text="{Binding Path=Test}"/>
-            </StackPanel>
-            <TreeView ItemsSource="{Binding}" Height="300"/>
-            <StackPanel Orientation="Horizontal">
-                <Label Content="Pick layout type" />
-                <ComboBox ItemsSource="{Binding Path=LayoutAlgorithmTypes}" 
-                      SelectedItem="{Binding Path=LayoutAlgorithmType, Mode=TwoWay}" 
-                      />
-            </StackPanel>
-            <fb:FileBrowser x:Name="FB" />
-        </StackPanel>-->
-
-            <!--LayoutAlgorithmType="Circular"
-                    LayoutAlgorithmType="CompundFDP"
-                    LayoutAlgorithmType="EfficientSugiyama"
-                    LayoutAlgorithmType="FR"
-                    LayoutAlgorithmType="ISOM"
-                    LayoutAlgorithmType="KK"
-                    LayoutAlgorithmType="LinLog"
-                    LayoutAlgorithmType="Tree"-->
-
             <Model:PocGraphLayout x:Name="graphLayout" 
                     Graph="{Binding Path=Graph}" 
-                    LayoutAlgorithmType="EfficientSugiyama"
+                    LayoutAlgorithmType="{Binding LayoutAlgorithmType}"
                     OverlapRemovalAlgorithmType="FSA"
                     HighlightAlgorithmType="Simple"
                     >
             </Model:PocGraphLayout>
         </zoom:ZoomControl>
-
     </Grid>
-
 </Window>

@@ -20,15 +20,10 @@ using ICSharpCode.AvalonEdit.Document;
 
 namespace CodeNaviWPF.Models
 {
-    /// <summary>
-    /// A simple identifiable vertex.
-    /// </summary>
-    [DebuggerDisplay("{ID} - {FilePath}")]
     public class PocVertex : INotifyPropertyChanged
     {
         public string ID;
         private ItemProvider ip;
-        public String FileText { get; set; }
         private List<Item> files;
         private string file_path;
         public string FilePath
@@ -41,21 +36,12 @@ namespace CodeNaviWPF.Models
                 NotifyPropertyChanged("Files");
             }
         }
-        public String Text { get; private set; }
-        public List<Item> Files
-        {
-            get
-            {
-                return files;
-            }
-        }
+        public List<Item> Files { get { return files; } }
 
-        public PocVertex(string id, string path, string text)
+        public PocVertex(string id, string path)
         {
             ID = id;
             file_path = path;
-            FileText = "";
-            Text = text;
             files = new List<Item>();
             ip = new ItemProvider();
             files = ip.GetItems(path);
@@ -80,10 +66,7 @@ namespace CodeNaviWPF.Models
 
         #endregion
     }
-    /// <summary>
-    /// A simple identifiable edge.
-    /// </summary>
-    [DebuggerDisplay("{Source.ID} -> {Target.ID}")]
+
     public class PocEdge : Edge<PocVertex>, INotifyPropertyChanged
     {
         private string id;
@@ -133,8 +116,8 @@ namespace CodeNaviWPF.Models
     public class FileVertex : PocVertex
     {
         public TextDocument Document { get; set; }
-        public FileVertex(string id, string path, string text)
-            : base(id, path, text)
+        public FileVertex(string id, string path)
+            : base(id, path)
         {
             Document = new TextDocument();
         }

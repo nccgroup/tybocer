@@ -19,7 +19,7 @@ using CodeNaviWPF.Models;
 
 namespace CodeNaviWPF
 {
-    public class MyContentTemplateSelector : DataTemplateSelector
+    public class VertexTemplateSelector : DataTemplateSelector
     {
         public DataTemplate FileBrowserTemplate
         { get; set; }

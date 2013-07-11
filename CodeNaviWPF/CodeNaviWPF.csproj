@@ -103,7 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\PocGraph.cs" />
-    <Compile Include="MyContentTemplateSelector.cs" />
+    <Compile Include="VertexTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
