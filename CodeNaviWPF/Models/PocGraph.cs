@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using QuickGraph;
+using ICSharpCode.AvalonEdit.Document;
 
 namespace CodeNaviWPF.Models
 {
@@ -32,7 +33,7 @@ namespace CodeNaviWPF.Models
         private string file_path;
         public string FilePath
         {
-            get {return file_path;}
+            get { return file_path; }
             set
             {
                 file_path = value;
@@ -131,6 +132,11 @@ namespace CodeNaviWPF.Models
 
     public class FileVertex : PocVertex
     {
-        public FileVertex(string id, string path, string text) : base(id, path, text) { }
+        public TextDocument Document { get; set; }
+        public FileVertex(string id, string path, string text)
+            : base(id, path, text)
+        {
+            Document = new TextDocument();
+        }
     }
 }

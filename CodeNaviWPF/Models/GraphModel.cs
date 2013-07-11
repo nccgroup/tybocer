@@ -129,8 +129,7 @@ namespace CodeNaviWPF.Models
         {
             FileVertex v = new FileVertex(f.Name, f.Path, f.Name);
             StreamReader sr = new StreamReader(f.Path);
-            String s = sr.ReadToEnd();
-            v.FileText = s;
+            v.Document.Text = sr.ReadToEnd();
             Graph.AddVertex(v);
             Graph.AddEdge(new PocEdge("Open...", root, v));
             NotifyPropertyChanged("Graph");

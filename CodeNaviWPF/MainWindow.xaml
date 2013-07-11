@@ -14,6 +14,7 @@
         xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
         xmlns:Model="clr-namespace:CodeNaviWPF.Models"
         xmlns:local="clr-namespace:CodeNaviWPF"
+        xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         Title="GraphView" Height="865" Width="991"
         x:Name="root"
     >
@@ -44,7 +45,10 @@
         
         <DataTemplate x:Key="fileContentView">
             <StackPanel>
-                <TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />
+                <Border BorderThickness="3" BorderBrush="BlueViolet">
+                    <avalonEdit:TextEditor Width="400" Height="400" Document="{Binding Path=Document}" IsReadOnly="True" />
+                </Border>
+                <!--<TextBlock TextWrapping="WrapWithOverflow" MaxHeight="500" MaxWidth="400" Text="{Binding Path=FileText}" FontFamily="Monaco" FontSize="9" />-->
             </StackPanel>
         </DataTemplate>
 
