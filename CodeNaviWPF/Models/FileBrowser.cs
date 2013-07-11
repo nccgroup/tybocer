@@ -23,10 +23,8 @@ namespace CodeNaviWPF.Models
         public string Name { get; set; }
         public string Path { get; set; }
     }
-    public class FileItem : Item
-    {
 
-    }
+    public class FileItem : Item { }
 
     public class DirectoryItem : Item
     {
@@ -35,18 +33,10 @@ namespace CodeNaviWPF.Models
         public DirectoryItem()
         {
             Items = new List<Item>();
-            Items.Add(new FileItem
-            {
-                Name = "DummyName",
-                Path = "DummyPath"
-            });
+            Items.Add(new FileItem { Name = "DummyName", Path = "DummyPath"});
         }
     }
 
-
-    /// <summary>
-    /// Interaction logic for FileBrowser.xaml
-    /// </summary>
     public partial class ItemProvider
     {
         private string _rootdir;
@@ -70,15 +60,10 @@ namespace CodeNaviWPF.Models
             {
                 try
                 {
-
-                    var item = new DirectoryItem
-                    {
-                        Name = d.Name,
-                        Path = d.FullName,
-                        //Items = GetItems(d.FullName)
+                    var item = new DirectoryItem { 
+                        Name = d.Name, Path = d.FullName
                     };
                     items.Add(item);
-
                 }
                 catch (System.UnauthorizedAccessException)
                 {
@@ -90,6 +75,7 @@ namespace CodeNaviWPF.Models
                     };
                 }
             }
+
             foreach (FileInfo f in dirinfo.GetFiles())
             {
                 var item = new FileItem
@@ -108,7 +94,6 @@ namespace CodeNaviWPF.Models
             get { return _files; }
             set { }
         }
-
     }
 }
 
