@@ -18,6 +18,9 @@
         Title="GraphView" Height="865" Width="991"
         x:Name="root"
     >
+    <Window.CommandBindings>
+        <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
+    </Window.CommandBindings>
     <Window.Resources>
 
         <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
@@ -46,7 +49,19 @@
         <DataTemplate x:Key="fileContentView">
             <StackPanel>
                 <Border BorderThickness="3" BorderBrush="BurlyWood">
-                    <avalonEdit:TextEditor Width="400" Height="400" Document="{Binding Path=Document}" IsReadOnly="True" />
+                    <avalonEdit:TextEditor 
+                        Width="400" 
+                        Height="400" 
+                        Document="{Binding Path=Document}" 
+                        IsReadOnly="True"
+                        Tag="{Binding ElementName=root}">
+                        <avalonEdit:TextEditor.ContextMenu>
+                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Search..." Command="local:Commands.SearchString" />
+                                    <!--Command="{Binding Path=Parent.PlacementTarget.Tag.SearchString, RelativeSource={RelativeSource Self}}" />-->
+                            </ContextMenu>
+                        </avalonEdit:TextEditor.ContextMenu>
+                    </avalonEdit:TextEditor>
                 </Border>
             </StackPanel>
         </DataTemplate>

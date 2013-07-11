@@ -24,15 +24,16 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
 using CodeNaviWPF.Models;
+using ICSharpCode;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Editing;
 
 namespace CodeNaviWPF
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private GraphProvider gp;
+     
         public MainWindow()
         {
             gp = new GraphProvider();
@@ -51,6 +52,7 @@ namespace CodeNaviWPF
             }
 
         }
+
         private void OnTreeNodeDoubleClick(object sender, RoutedEventArgs e)
         {
             TreeViewItem item = sender as TreeViewItem;
@@ -75,5 +77,20 @@ namespace CodeNaviWPF
                 }
             }
         }
+
+        private void SearchString(object sender, RoutedEventArgs e)
+        {
+            TextArea textarea = e.OriginalSource as TextArea;
+            if (textarea != null)
+            {
+                textarea = null;
+            }
+            throw new NotImplementedException();
+        }
+    }
+
+    public static class Commands
+    {
+        public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
     }
 }
