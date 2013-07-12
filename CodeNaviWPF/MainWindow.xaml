@@ -15,7 +15,11 @@
         xmlns:Model="clr-namespace:CodeNaviWPF.Models"
         xmlns:local="clr-namespace:CodeNaviWPF"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-        Title="GraphView" Height="865" Width="991"
+        Title="GraphView" 
+        Height="900" 
+        Width="1500"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Normal"
         x:Name="root"
     >
     <Window.CommandBindings>
@@ -54,14 +58,32 @@
                         Height="400" 
                         Document="{Binding Path=Document}" 
                         IsReadOnly="True"
-                        Tag="{Binding ElementName=root}">
+                        Tag="{Binding ElementName=root}"
+                        SyntaxHighlighting="C#"
+                        FontFamily="Monaco">
                         <avalonEdit:TextEditor.ContextMenu>
-                            <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                            <ContextMenu>
                                 <MenuItem Header="Search..." Command="local:Commands.SearchString" />
-                                    <!--Command="{Binding Path=Parent.PlacementTarget.Tag.SearchString, RelativeSource={RelativeSource Self}}" />-->
                             </ContextMenu>
                         </avalonEdit:TextEditor.ContextMenu>
                     </avalonEdit:TextEditor>
+                </Border>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="searchResultsView">
+            <StackPanel>
+                <Border BorderThickness="3" BorderBrush="BurlyWood">
+
+                    <DataGrid ItemsSource="{Binding Results}" Width="500" Height="500">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Path" Binding="{Binding Path=Path}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="File" Binding="{Binding Path=File}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Ext" Binding="{Binding Path=Ext}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Border>
             </StackPanel>
         </DataTemplate>
@@ -70,6 +92,7 @@
             x:Key="vertexTemplateSelector" 
             FileBrowserTemplate="{StaticResource fileBrowserTemplate}"
             FileContentView="{StaticResource fileContentView}"
+            SearchResultsView="{StaticResource searchResultsView}"
             />
 
         <Style TargetType="{x:Type graph:VertexControl}">

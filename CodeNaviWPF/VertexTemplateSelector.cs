@@ -27,9 +27,13 @@ namespace CodeNaviWPF
         public DataTemplate FileContentView
         { get; set; }
 
+        public DataTemplate SearchResultsView
+        { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is FileVertex) return FileContentView;
+            if (item is SearchResultsVertex) return SearchResultsView;
             if (item is PocVertex) return FileBrowserTemplate;
             return base.SelectTemplate(item, container);
         }

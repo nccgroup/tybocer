@@ -122,4 +122,30 @@ namespace CodeNaviWPF.Models
             Document = new TextDocument();
         }
     }
+
+    public class SearchResultsVertex: PocVertex
+    {
+        public string SearchString { get; set; }
+        private List<SearchResult> results;
+        public List<SearchResult> Results
+        {
+            get { return results; }
+            set { results = value; }
+        }
+        public SearchResultsVertex(string id, string search_term)
+            : base(id, search_term)
+        {
+            SearchString = search_term;
+            results = new List<SearchResult>();
+        }
+    }
+
+    public class SearchResult
+    {
+        public string Path { get; set; }
+        public string File { get; set; }
+        public string Ext { get; set; }
+        public string Line { get; set; }
+        public int LineNumber { get; set; }
+    }
 }

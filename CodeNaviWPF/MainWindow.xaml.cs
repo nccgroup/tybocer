@@ -27,6 +27,8 @@ using CodeNaviWPF.Models;
 using ICSharpCode;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
+using GraphSharp;
+using GraphSharp.Controls;
 
 namespace CodeNaviWPF
 {
@@ -81,11 +83,15 @@ namespace CodeNaviWPF
         private void SearchString(object sender, RoutedEventArgs e)
         {
             TextArea textarea = e.OriginalSource as TextArea;
+            PocVertex v = (PocVertex)((VertexControl)e.Source).Vertex;
             if (textarea != null)
             {
-                textarea = null;
+                string selected_text = textarea.Selection.GetText();
+                if (selected_text != null && selected_text != "")
+                {
+                    gp.PerformSearch(selected_text, v);
+                }
             }
-            throw new NotImplementedException();
         }
     }
 
