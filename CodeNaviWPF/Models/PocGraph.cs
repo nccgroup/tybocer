@@ -142,9 +142,10 @@ namespace CodeNaviWPF.Models
 
     public class SearchResult
     {
-        public string Path { get; set; }
-        public string File { get; set; }
-        public string Ext { get; set; }
+        public string FullPath { get; set; }
+        public string RelPath { get; set; }
+        public string FileName { get; set; }
+        public string Extension { get; set; }
         public string Line { get; set; }
         public int LineNumber { get; set; }
     }

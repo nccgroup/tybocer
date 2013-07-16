@@ -29,11 +29,11 @@
 
         <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
-            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+            <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
         </HierarchicalDataTemplate>
 
         <DataTemplate DataType="{x:Type Model:FileItem}" >
-            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+            <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
         </DataTemplate>
 
         <DataTemplate x:Key="fileBrowserTemplate">
@@ -58,9 +58,11 @@
                         Height="400" 
                         Document="{Binding Path=Document}" 
                         IsReadOnly="True"
+                        ShowLineNumbers="True"
                         Tag="{Binding ElementName=root}"
                         SyntaxHighlighting="C#"
-                        FontFamily="Monaco">
+                        FontFamily="Courier New"
+                        >
                         <avalonEdit:TextEditor.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Search..." Command="local:Commands.SearchString" />
@@ -74,14 +76,19 @@
         <DataTemplate x:Key="searchResultsView">
             <StackPanel>
                 <Border BorderThickness="3" BorderBrush="BurlyWood">
-
-                    <DataGrid ItemsSource="{Binding Results}" Width="500" Height="500">
+                    <DataGrid ItemsSource="{Binding Results}" Width="800" Height="500" IsReadOnly="True" AutoGenerateColumns="False">
+                        <DataGrid.ItemContainerStyle>
+                            <Style TargetType="DataGridRow">
+                                <EventSetter Event="MouseDoubleClick"
+                        Handler="DataGrid_MouseDoubleClick" />
+                            </Style>
+                        </DataGrid.ItemContainerStyle>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Path" Binding="{Binding Path=Path}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="File" Binding="{Binding Path=File}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="Ext" Binding="{Binding Path=Ext}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
                             <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}" Width="200"></DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Border>

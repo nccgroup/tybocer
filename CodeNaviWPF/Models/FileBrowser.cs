@@ -18,13 +18,18 @@ using System.Windows.Forms;
 
 namespace CodeNaviWPF.Models
 {
+
     public class Item
     {
-        public string Name { get; set; }
-        public string Path { get; set; }
+        public string FullPath { get; set; }
+        public string RelPath { get; set; }
+        public string FileName { get; set; }
     }
 
-    public class FileItem : Item { }
+    public class FileItem : Item
+    {
+        public string Extension { get; set; }
+    }
 
     public class DirectoryItem : Item
     {
@@ -33,23 +38,31 @@ namespace CodeNaviWPF.Models
         public DirectoryItem()
         {
             Items = new List<Item>();
-            Items.Add(new FileItem { Name = "DummyName", Path = "DummyPath"});
+            Items.Add(new FileItem { FullPath = "DummyName", RelPath = "DummyPath" });
         }
     }
 
     public partial class ItemProvider
     {
-        private string _rootdir;
-        public string RootDir
+        public static string GetRelativePath(string fromPath, string toPath)
         {
-            get { return _rootdir; }
-            set
+            if (!fromPath.EndsWith("\\"))
             {
-                _rootdir = value;
-                _files.Clear();
-                _files = GetItems(value);
+                fromPath += "\\";
             }
+            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+
+            Uri fromUri = new Uri(fromPath);
+            Uri toUri = new Uri(toPath);
+
+            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+            return relativePath.Replace('/', Path.DirectorySeparatorChar);
         }
+
+        public string RootDir { get; set; }
 
         public List<Item> GetItems(string value)
         {
@@ -60,8 +73,11 @@ namespace CodeNaviWPF.Models
             {
                 try
                 {
-                    var item = new DirectoryItem { 
-                        Name = d.Name, Path = d.FullName
+                    var item = new DirectoryItem
+                    {
+                        FileName = d.Name,
+                        RelPath = d.Name,
+                        FullPath = d.FullName
                     };
                     items.Add(item);
                 }
@@ -69,8 +85,8 @@ namespace CodeNaviWPF.Models
                 {
                     var item = new DirectoryItem
                     {
-                        Name = "Access Denied",
-                        Path = value,
+                        RelPath = "Access Denied",
+                        FullPath = value,
                         Items = new List<Item>()
                     };
                 }
@@ -80,8 +96,8 @@ namespace CodeNaviWPF.Models
             {
                 var item = new FileItem
                 {
-                    Name = f.Name,
-                    Path = f.FullName
+                    FileName = f.Name,
+                    FullPath = f.FullName
                 };
                 items.Add(item);
             }

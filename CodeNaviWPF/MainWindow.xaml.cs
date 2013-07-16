@@ -35,6 +35,7 @@ namespace CodeNaviWPF
     public partial class MainWindow : Window
     {
         private GraphProvider gp;
+        private bool shownBox = false;
      
         public MainWindow()
         {
@@ -92,6 +93,14 @@ namespace CodeNaviWPF
                     gp.PerformSearch(selected_text, v);
                 }
             }
+        }
+
+        private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
+            gp.AddFileView(new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath });
+            if (!shownBox) System.Windows.MessageBox.Show("Obviously that new box should be attached to the search results... TODO");
+            shownBox = true;
         }
     }
 

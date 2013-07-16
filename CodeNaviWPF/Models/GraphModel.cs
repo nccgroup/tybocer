@@ -71,50 +71,34 @@ namespace CodeNaviWPF.Models
             root.FilePath = p;
             NotifyPropertyChanged("Graph");
         }
-
-        internal string GetRelativePath(string toPath)
-        {
-            string fromPath = root.FilePath;
-            if (!fromPath.EndsWith("\\"))
-            {
-                fromPath += "\\";
-            }
-            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
-            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
-
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(toPath);
-
-            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-
-            return relativePath.Replace('/', Path.DirectorySeparatorChar);
-        }
-
         internal void AddFileView(FileItem f)
+        {
+            AddFileView(f, root);
+        }
+        internal void AddFileView(FileItem f, PocVertex from_vertex)
         {
             FileVertex new_vertex = null;
             foreach (PocVertex v in graph.Vertices)
             {
-                if (v is FileVertex && v.FilePath == f.Path)
+                if (v is FileVertex && v.FilePath == f.FullPath)
                 {
                     new_vertex = (FileVertex)v;
                 }
             }
             if (new_vertex == null)
             {
-                new_vertex = new FileVertex(f.Name, f.Path);
-                StreamReader sr = new StreamReader(f.Path);
+                new_vertex = new FileVertex(f.FileName, f.FullPath);
+                StreamReader sr = new StreamReader(f.FullPath);
                 new_vertex.Document.Text = sr.ReadToEnd();
                 Graph.AddVertex(new_vertex);
-                Graph.AddEdge(new PocEdge("Open...", root, new_vertex));
+                Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
             }
             NotifyPropertyChanged("Graph");
         }
 
         internal void ExpandDirectory(DirectoryItem di)
         {
-            List<Item> items = ip.GetItems(di.Path);
+            List<Item> items = ip.GetItems(di.FullPath);
             di.Items.Clear();
             foreach (Item i in items)
             {
@@ -141,20 +125,31 @@ namespace CodeNaviWPF.Models
             {
                 if (i is FileItem)
                 {
-                    FileInfo f = new FileInfo(i.Path);
+                    FileItem new_i = i as FileItem;
+                    FileInfo f = new FileInfo(i.FullPath);
                     int count = 0;
-                    foreach (string line in File.ReadAllLines(i.Path, Encoding.UTF8))
+                    foreach (string line in File.ReadAllLines(i.FullPath, Encoding.UTF8))
                     {
                         count++;
                         if (line.Contains(selected_text))
                         {
+                            string line_copy;
+                            if (line.Length > 500)
+                            {
+                                line_copy = line.Substring(0, 500);
+                            }
+                            else
+                            {
+                                line_copy = line;
+                            }
                             s.Add(new SearchResult
                             {
-                                Path = i.Path,
-                                File = i.Path,
-                                Ext = i.Path,
+                                RelPath = Path.GetDirectoryName(ItemProvider.GetRelativePath(root.FilePath, new_i.FullPath)),
+                                FullPath = new_i.FullPath,
+                                FileName = new_i.FileName,
+                                Extension = new_i.Extension,
                                 LineNumber = count,
-                                Line = line
+                                Line = line_copy
                             });
                         }
                     }
