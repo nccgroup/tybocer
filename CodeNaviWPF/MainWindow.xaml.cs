@@ -27,23 +27,32 @@ using CodeNaviWPF.Models;
 using ICSharpCode;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
-using GraphSharp;
-using GraphSharp.Controls;
+using GraphX;
+using GraphX.Controls;
+using GraphX.Models;
+using Xceed.Wpf.Toolkit.Zoombox;
 
 namespace CodeNaviWPF
 {
     public partial class MainWindow : Window
     {
         private GraphProvider gp;
-        private bool shownBox = false;
-     
+
         public MainWindow()
         {
             gp = new GraphProvider();
 
-            this.DataContext = gp;
+            this.DataContext = gp.Graph;
             InitializeComponent();
-            Zoomer.ZoomToOriginal();
+            tg_Area.AsyncAlgorithmCompute = true;
+            tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.KK;
+            tg_Area.DefaultOverlapRemovalAlgorithm = GraphX.OverlapRemovalAlgorithmTypeEnum.FSA;
+            tg_Area.Graph = gp.Graph;
+            tg_Area.GenerateGraph(gp.Graph);
+            tg_Area.DefaultLayoutAlgorithmParams = tg_Area.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.EfficientSugiyama);
+            tg_Area.RelayoutGraph(true);
+
+            Zoombox.SetViewFinderVisibility(tg_zoomctrl, System.Windows.Visibility.Visible);
         }
 
         private void DirPicker_Click(object sender, RoutedEventArgs e)

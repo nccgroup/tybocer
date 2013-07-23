@@ -15,11 +15,13 @@ using System.ComponentModel;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
-using GraphSharp.Controls;
+//using GraphSharp.Controls;
+using GraphX;
+using QuickGraph;
 
 namespace CodeNaviWPF.Models
 {
-    public class PocGraphLayout : GraphLayout<PocVertex, PocEdge, PocGraph> { }
+    public class PocGraphLayout : GraphArea<PocVertex, PocEdge, PocGraph> { }
 
     public class GraphProvider : INotifyPropertyChanged
     {
@@ -27,7 +29,7 @@ namespace CodeNaviWPF.Models
         private PocGraph graph;
         private PocVertex root;
         private string layoutAlgorithmType;
-        
+
         public string LayoutAlgorithmType
         {
             get { return layoutAlgorithmType; }
