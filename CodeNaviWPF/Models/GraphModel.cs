@@ -121,6 +121,16 @@ namespace CodeNaviWPF.Models
         }
         #endregion
 
+        private List<string> extensions_to_skip = new List<string> { 
+            ".exe",
+            ".pdb", 
+            ".dll", 
+            ".zip",
+            ".cache", 
+            ".suo",
+            ".resources",
+            ".baml",
+        };
         internal List<SearchResult> SearchItems(List<Item> items, string selected_text)
         {
             List<SearchResult> s = new List<SearchResult>();
@@ -130,30 +140,33 @@ namespace CodeNaviWPF.Models
                 {
                     FileItem new_i = i as FileItem;
                     FileInfo f = new FileInfo(i.FullPath);
-                    int count = 0;
-                    foreach (string line in File.ReadAllLines(i.FullPath, Encoding.UTF8))
+                    if (!extensions_to_skip.Contains(f.Extension))
                     {
-                        count++;
-                        if (line.Contains(selected_text))
+                        int count = 0;
+                        foreach (string line in File.ReadAllLines(i.FullPath, Encoding.UTF8))
                         {
-                            string line_copy;
-                            if (line.Length > 500)
+                            count++;
+                            if (line.Contains(selected_text))
                             {
-                                line_copy = line.Substring(0, 500);
+                                string line_copy;
+                                if (line.Length > 500)
+                                {
+                                    line_copy = line.Substring(0, 500);
+                                }
+                                else
+                                {
+                                    line_copy = line;
+                                }
+                                s.Add(new SearchResult
+                                {
+                                    RelPath = Path.GetDirectoryName(ItemProvider.GetRelativePath(root.FilePath, new_i.FullPath)),
+                                    FullPath = new_i.FullPath,
+                                    FileName = new_i.FileName,
+                                    Extension = new_i.Extension,
+                                    LineNumber = count,
+                                    Line = line_copy
+                                });
                             }
-                            else
-                            {
-                                line_copy = line;
-                            }
-                            s.Add(new SearchResult
-                            {
-                                RelPath = Path.GetDirectoryName(ItemProvider.GetRelativePath(root.FilePath, new_i.FullPath)),
-                                FullPath = new_i.FullPath,
-                                FileName = new_i.FileName,
-                                Extension = new_i.Extension,
-                                LineNumber = count,
-                                Line = line_copy
-                            });
                         }
                     }
                 }
