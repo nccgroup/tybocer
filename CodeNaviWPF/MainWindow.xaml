@@ -76,21 +76,24 @@
         <DataTemplate x:Key="searchResultsView">
             <StackPanel>
                 <Border BorderThickness="3" BorderBrush="BurlyWood">
-                    <DataGrid ItemsSource="{Binding Results}" Width="800" Height="500" IsReadOnly="True" AutoGenerateColumns="False">
-                        <DataGrid.ItemContainerStyle>
-                            <Style TargetType="DataGridRow">
-                                <EventSetter Event="MouseDoubleClick"
-                        Handler="DataGrid_MouseDoubleClick" />
-                            </Style>
-                        </DataGrid.ItemContainerStyle>
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
-                            <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}" Width="200"></DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                        <DataGrid ItemsSource="{Binding Results}" Height="500" IsReadOnly="True" AutoGenerateColumns="False">
+                            <DataGrid.ItemContainerStyle>
+                                <Style TargetType="DataGridRow">
+                                    <EventSetter Event="MouseDoubleClick"
+                            Handler="DataGrid_MouseDoubleClick" />
+                                </Style>
+                            </DataGrid.ItemContainerStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+
                 </Border>
             </StackPanel>
         </DataTemplate>
