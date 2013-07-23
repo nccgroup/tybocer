@@ -73,10 +73,15 @@ namespace CodeNaviWPF
                 FileItem fi = item.Header as FileItem;
                 if (fi != null)
                 {
-                    gp.AddFileView(fi);
+                    FileVertex v = gp.AddFileView(fi);
+                    tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
+                    tg_Area.AddVertex(v, new VertexControl(v) { DataContext = v });
+                    tg_Area.RelayoutGraph(true);
+                    tg_zoomctrl.FitToBounds();
                 }
             }
         }
+
         private void OnTreeItemExpand(object sender, RoutedEventArgs e)
         {
             TreeViewItem item = sender as TreeViewItem;
@@ -99,17 +104,46 @@ namespace CodeNaviWPF
                 string selected_text = textarea.Selection.GetText();
                 if (selected_text != null && selected_text != "")
                 {
-                    gp.PerformSearch(selected_text, v);
+                    SearchResultsVertex s = gp.PerformSearch(selected_text, v);
+                    VertexControl to_vertex_control = new VertexControl(s) { DataContext = s };
+                    VertexControl from_vertex_control = (VertexControl)e.Source;
+                    tg_Area.AddVertex(s, to_vertex_control);
+                    PocEdge new_edge = new PocEdge("sdfsdfdsf", v, s);
+                    tg_Area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
+                    tg_Area.RelayoutGraph(true);
+                    tg_zoomctrl.FitToBounds();
+
                 }
             }
         }
 
+        static T FindVisualParent<T>(UIElement element) where T : UIElement
+        {
+            UIElement parent = element;
+            while (parent != null)
+            {
+                T correctlyTyped = parent as T;
+                if (correctlyTyped != null)
+                {
+                    return correctlyTyped;
+                }
+
+                parent = VisualTreeHelper.GetParent(parent) as UIElement;
+            }
+            return null;
+        } 
+
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            VertexControl sv = FindVisualParent<VertexControl>(sender as DataGridRow);
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
-            gp.AddFileView(new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath });
-            if (!shownBox) System.Windows.MessageBox.Show("Obviously that new box should be attached to the search results... TODO");
-            shownBox = true;
+            FileVertex f = gp.AddFileView(new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath }, (PocVertex)sv.Vertex);
+            VertexControl to_vertex_control = new VertexControl(f) { DataContext = f };
+            tg_Area.AddVertex(f, to_vertex_control);
+            PocEdge new_edge = new PocEdge("sdfsdfdsf", (PocVertex)sv.Vertex, f);
+            tg_Area.InsertEdge(new_edge, new EdgeControl(sv, to_vertex_control, new_edge));
+            tg_Area.RelayoutGraph(true);
+            tg_zoomctrl.FitToBounds();
         }
     }
 

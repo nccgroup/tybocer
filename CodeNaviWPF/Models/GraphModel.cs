@@ -73,11 +73,12 @@ namespace CodeNaviWPF.Models
             root.FilePath = p;
             NotifyPropertyChanged("Graph");
         }
-        internal void AddFileView(FileItem f)
+        internal FileVertex AddFileView(FileItem f)
         {
-            AddFileView(f, root);
+            return AddFileView(f, root);
         }
-        internal void AddFileView(FileItem f, PocVertex from_vertex)
+
+        internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
             FileVertex new_vertex = null;
             foreach (PocVertex v in graph.Vertices)
@@ -95,7 +96,7 @@ namespace CodeNaviWPF.Models
                 Graph.AddVertex(new_vertex);
                 Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
             }
-            NotifyPropertyChanged("Graph");
+            return new_vertex;
         }
 
         internal void ExpandDirectory(DirectoryItem di)
@@ -165,13 +166,14 @@ namespace CodeNaviWPF.Models
             return s;
         }
 
-        internal void PerformSearch(string selected_text, PocVertex source_vertex)
+        internal SearchResultsVertex PerformSearch(string selected_text, PocVertex source_vertex)
         {
             SearchResultsVertex s = new SearchResultsVertex("some search", selected_text);
             s.Results = SearchItems(ip.GetItems(root.FilePath), selected_text);
             Graph.AddVertex(s);
             Graph.AddEdge(new PocEdge("Search", source_vertex, s));
             NotifyPropertyChanged("Graph");
+            return s;
         }
     }
 
