@@ -17,12 +17,13 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using QuickGraph;
 using ICSharpCode.AvalonEdit.Document;
+using GraphX;
 
 namespace CodeNaviWPF.Models
 {
-    public class PocVertex : INotifyPropertyChanged
+    public class PocVertex : VertexBase, INotifyPropertyChanged
     {
-        public string ID;
+        //public string ID;
         private ItemProvider ip;
         private List<Item> files;
         private string file_path;
@@ -40,7 +41,7 @@ namespace CodeNaviWPF.Models
 
         public PocVertex(string id, string path)
         {
-            ID = id;
+            //ID = id;
             file_path = path;
             files = new List<Item>();
             ip = new ItemProvider();
@@ -67,24 +68,24 @@ namespace CodeNaviWPF.Models
         #endregion
     }
 
-    public class PocEdge : Edge<PocVertex>, INotifyPropertyChanged
+    public class PocEdge : EdgeBase<PocVertex>, INotifyPropertyChanged
     {
-        private string id;
+        //private string id;
 
-        public string ID
-        {
-            get { return id; }
-            set
-            {
-                id = value;
-                NotifyPropertyChanged("ID");
-            }
-        }
+        //public string ID
+        //{
+        //    get { return id; }
+        //    set
+        //    {
+        //        id = value;
+        //        NotifyPropertyChanged("ID");
+        //    }
+        //}
 
         public PocEdge(string id, PocVertex source, PocVertex target)
             : base(source, target)
         {
-            ID = id;
+            //ID = id;
         }
 
 
