@@ -12,11 +12,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:graph="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
         xmlns:gxl="clr-namespace:GraphX;assembly=GraphX"
-        xmlns:zoom="clr-namespace:WPFExtensions.Controls;assembly=WPFExtensions"
         xmlns:Model="clr-namespace:CodeNaviWPF.Models"
         xmlns:local="clr-namespace:CodeNaviWPF"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-        xmlns:zb="clr-namespace:Xceed.Wpf.Toolkit.Zoombox;assembly=GraphX"
+        xmlns:zb="clr-namespace:GraphX.Xceed.Wpf.Toolkit.Zoombox;assembly=GraphX"
         Title="GraphView" 
         Height="900" 
         Width="1500"
@@ -237,6 +236,6 @@
                     </ResourceDictionary>-->
                 </Model:PocGraphLayout.Resources>
             </Model:PocGraphLayout>
-        </zb:Zoombox>
+        </zb:Zoombox> 
     </Grid>
 </Window>

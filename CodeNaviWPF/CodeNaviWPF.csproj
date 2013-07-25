@@ -75,7 +75,8 @@
     <Reference Include="GraphSharp.Controls">
       <HintPath>..\packages\GraphSharp.1.1.0.0\lib\net40\GraphSharp.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="GraphX">
+    <Reference Include="GraphX, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\GraphX\GraphX.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.AvalonEdit">
