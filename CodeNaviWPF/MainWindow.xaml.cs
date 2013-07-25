@@ -30,13 +30,15 @@ using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Controls;
 using GraphX.Models;
-using Xceed.Wpf.Toolkit.Zoombox;
+using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 
 namespace CodeNaviWPF
 {
     public partial class MainWindow : Window
     {
         private GraphProvider gp;
+        private VertexControl root_control;
+        private PocVertex root_vertex;
 
         public MainWindow()
         {
@@ -44,15 +46,26 @@ namespace CodeNaviWPF
 
             this.DataContext = gp.Graph;
             InitializeComponent();
+            Zoombox.SetViewFinderVisibility(tg_zoomctrl, System.Windows.Visibility.Visible);
             tg_Area.AsyncAlgorithmCompute = true;
-            tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.KK;
+            tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.ISOM;
+            tg_Area.RelayoutFinished += OnRelayoutFinished;
             tg_Area.DefaultOverlapRemovalAlgorithm = GraphX.OverlapRemovalAlgorithmTypeEnum.FSA;
+            tg_Area.UseNativeObjectArrange = true;
             tg_Area.Graph = gp.Graph;
             tg_Area.GenerateGraph(gp.Graph);
-            tg_Area.DefaultLayoutAlgorithmParams = tg_Area.AlgorithmFactory.CreateLayoutParameters(LayoutAlgorithmTypeEnum.EfficientSugiyama);
             tg_Area.RelayoutGraph(true);
 
-            Zoombox.SetViewFinderVisibility(tg_zoomctrl, System.Windows.Visibility.Visible);
+            //tg_Area.UseNativeObjectArrange = false;
+            root_control = tg_Area.VertexList.Values.First();
+            root_vertex = tg_Area.VertexList.Keys.First();
+            tg_zoomctrl.CenterContent();
+            //CenterOnVertex(root_control);
+        }
+        private void OnRelayoutFinished(object sender, EventArgs e)
+        {
+            tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
+            CenterOnVertex(((PocGraphLayout)sender).GetAllVertexControls().ToList().Last());
         }
 
         private void DirPicker_Click(object sender, RoutedEventArgs e)
@@ -62,7 +75,6 @@ namespace CodeNaviWPF
             {
                 gp.UpdateRoot(dialog.SelectedPath);
             }
-
         }
 
         private void OnTreeNodeDoubleClick(object sender, RoutedEventArgs e)
@@ -73,13 +85,51 @@ namespace CodeNaviWPF
                 FileItem fi = item.Header as FileItem;
                 if (fi != null)
                 {
-                    FileVertex v = gp.AddFileView(fi);
-                    tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-                    tg_Area.AddVertex(v, new VertexControl(v) { DataContext = v });
-                    tg_Area.RelayoutGraph(true);
-                    tg_zoomctrl.FitToBounds();
+                    AddFileView(fi, root_control, root_vertex);
                 }
             }
+        }
+
+        private void AddFileView(FileItem fi, VertexControl source, PocVertex source_vertex)
+        {
+            FileVertex v = gp.AddFileView(fi, source_vertex);
+            VertexControl vc = new VertexControl(v) { DataContext = v };
+            try
+            {
+                tg_Area.AddVertex(v, vc);
+            }
+            catch (GraphX.GX_InvalidDataException e)
+            {
+                vc = tg_Area.GetAllVertexControls().Where(c => c.Vertex == v).First();
+            }
+            PocEdge new_edge = new PocEdge("sdfsdfdsf", source_vertex, v);
+            tg_Area.InsertEdge(new_edge, new EdgeControl(source, vc, new_edge));
+            tg_Area.RelayoutGraph(true);
+            tg_Area.UpdateLayout();
+            CenterOnVertex(vc);
+        }
+
+        private void CenterOnVertex(VertexControl vc)
+        {
+            var x = tg_zoomctrl.Position.X + vc.GetPosition().X;
+            var y = tg_zoomctrl.Position.Y + vc.GetPosition().Y;
+            var of = System.Windows.Media.VisualTreeHelper.GetOffset(vc);
+            var new_point = new Point(
+                (of.X
+                * tg_zoomctrl.Scale
+                + vc.ActualWidth / 2
+                * tg_zoomctrl.Scale
+                - tg_zoomctrl.ActualWidth / 2
+                ) 
+                , 
+                (of.Y
+                * tg_zoomctrl.Scale
+                + vc.ActualHeight / 2
+                * tg_zoomctrl.Scale
+                - tg_zoomctrl.ActualHeight / 2
+                ) 
+                );
+            tg_zoomctrl.ZoomTo(new_point);
         }
 
         private void OnTreeItemExpand(object sender, RoutedEventArgs e)
@@ -111,8 +161,8 @@ namespace CodeNaviWPF
                     PocEdge new_edge = new PocEdge("sdfsdfdsf", v, s);
                     tg_Area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
                     tg_Area.RelayoutGraph(true);
-                    tg_zoomctrl.FitToBounds();
-
+                    tg_Area.UpdateLayout();
+                    CenterOnVertex(to_vertex_control);
                 }
             }
         }
@@ -131,19 +181,14 @@ namespace CodeNaviWPF
                 parent = VisualTreeHelper.GetParent(parent) as UIElement;
             }
             return null;
-        } 
+        }
 
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             VertexControl sv = FindVisualParent<VertexControl>(sender as DataGridRow);
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
-            FileVertex f = gp.AddFileView(new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath }, (PocVertex)sv.Vertex);
-            VertexControl to_vertex_control = new VertexControl(f) { DataContext = f };
-            tg_Area.AddVertex(f, to_vertex_control);
-            PocEdge new_edge = new PocEdge("sdfsdfdsf", (PocVertex)sv.Vertex, f);
-            tg_Area.InsertEdge(new_edge, new EdgeControl(sv, to_vertex_control, new_edge));
-            tg_Area.RelayoutGraph(true);
-            tg_zoomctrl.FitToBounds();
+            FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
+            AddFileView(fi, sv, (PocVertex)sv.Vertex);
         }
     }
 
