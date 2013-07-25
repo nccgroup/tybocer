@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Released as open source by NCC Group Plc - http://www.nccgroup.com/
  * 
  * Developed by Felix Ingram, (felix.ingram@nccgroup.com)
@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using QuickGraph;
 using ICSharpCode.AvalonEdit.Document;
 using GraphX;

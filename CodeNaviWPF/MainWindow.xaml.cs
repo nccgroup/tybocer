@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Released as open source by NCC Group Plc - http://www.nccgroup.com/
  * 
  * Developed by Felix Ingram, (felix.ingram@nccgroup.com)
@@ -11,25 +11,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Forms;
 using CodeNaviWPF.Models;
-using ICSharpCode;
-using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
-using GraphX.Controls;
-using GraphX.Models;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 
 namespace CodeNaviWPF

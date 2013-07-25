@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Released as open source by NCC Group Plc - http://www.nccgroup.com/
  * 
  * Developed by Felix Ingram, (felix.ingram@nccgroup.com)
@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows;
 using System.Windows.Controls;
 using CodeNaviWPF.Models;
