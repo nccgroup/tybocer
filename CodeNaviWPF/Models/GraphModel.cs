@@ -78,21 +78,21 @@ namespace CodeNaviWPF.Models
         internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
             FileVertex new_vertex = null;
-            foreach (PocVertex v in graph.Vertices)
-            {
-                if (v is FileVertex && v.FilePath == f.FullPath)
-                {
-                    new_vertex = (FileVertex)v;
-                }
-            }
-            if (new_vertex == null)
-            {
-                new_vertex = new FileVertex(f.FileName, f.FullPath);
-                StreamReader sr = new StreamReader(f.FullPath);
-                new_vertex.Document.Text = sr.ReadToEnd();
-                Graph.AddVertex(new_vertex);
-                Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
-            }
+            //foreach (PocVertex v in graph.Vertices)
+            //{
+            //    if (v is FileVertex && v.FilePath == f.FullPath)
+            //    {
+            //        new_vertex = (FileVertex)v;
+            //    }
+            //}
+            //if (new_vertex == null)
+            //{
+            new_vertex = new FileVertex(f.FileName, f.FullPath);
+            StreamReader sr = new StreamReader(f.FullPath);
+            new_vertex.Document.Text = sr.ReadToEnd();
+            Graph.AddVertex(new_vertex);
+            Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
+            //}
             return new_vertex;
         }
 
