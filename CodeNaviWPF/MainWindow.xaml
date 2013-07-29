@@ -96,7 +96,7 @@
                         </TextBlock>
                         </Expander.Header>
                         <Grid>
-                            <Border CornerRadius="9" x:Name="Mask" Background="White" />
+                            <Border CornerRadius="0,0,9,9" x:Name="Mask" Background="Black" />
                             <StackPanel>
                                 <StackPanel.OpacityMask>
                                     <VisualBrush Visual="{Binding ElementName=Mask}"/>
