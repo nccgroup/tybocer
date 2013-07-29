@@ -28,6 +28,8 @@ namespace CodeNaviWPF
         private GraphProvider gp;
         private VertexControl root_control;
         private PocVertex root_vertex;
+        private VertexControl centre_on_me;
+        private bool recentre = true;
 
         public MainWindow()
         {
@@ -48,13 +50,23 @@ namespace CodeNaviWPF
             //tg_Area.UseNativeObjectArrange = false;
             root_control = tg_Area.VertexList.Values.First();
             root_vertex = tg_Area.VertexList.Keys.First();
+            centre_on_me = root_control;
             tg_zoomctrl.CenterContent();
             //CenterOnVertex(root_control);
         }
+
         private void OnRelayoutFinished(object sender, EventArgs e)
         {
             tg_Area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-            CenterOnVertex(((PocGraphLayout)sender).GetAllVertexControls().ToList().Last());
+            //CenterOnVertex(((PocGraphLayout)sender).GetAllVertexControls().ToList().Last());
+            if (recentre)
+            {
+                CenterOnVertex(centre_on_me);
+            }
+            else
+            {
+                recentre = true;
+            }
         }
 
         private void DirPicker_Click(object sender, RoutedEventArgs e)
@@ -95,7 +107,8 @@ namespace CodeNaviWPF
             tg_Area.InsertEdge(new_edge, new EdgeControl(source, vc, new_edge));
             tg_Area.RelayoutGraph(true);
             tg_Area.UpdateLayout();
-            CenterOnVertex(vc);
+            centre_on_me = vc;
+            //CenterOnVertex(vc);
         }
 
         private void CenterOnVertex(VertexControl vc)
@@ -136,10 +149,15 @@ namespace CodeNaviWPF
 
         private void RelayoutGraph(object sender, RoutedEventArgs e)
         {
+            Expander ex = e.Source as Expander;
+            recentre = ex.IsExpanded;
+            VertexControl vc = FindVisualParent<VertexControl>(e.Source as Expander);
+            centre_on_me = vc;
             tg_Area.RelayoutGraph(true);
             tg_Area.UpdateLayout();
-            CenterOnVertex(FindVisualParent<VertexControl>(e.Source as Expander));
+            //if (ex.IsExpanded) CenterOnVertex(vc);
         }
+
         private void SearchString(object sender, RoutedEventArgs e)
         {
             TextArea textarea = e.OriginalSource as TextArea;
@@ -157,7 +175,8 @@ namespace CodeNaviWPF
                     tg_Area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
                     tg_Area.RelayoutGraph(true);
                     tg_Area.UpdateLayout();
-                    CenterOnVertex(to_vertex_control);
+                    centre_on_me = to_vertex_control;
+                    //CenterOnVertex(to_vertex_control);
                 }
             }
         }
