@@ -43,7 +43,7 @@ namespace CodeNaviWPF.Models
             file_path = path;
             files = new List<Item>();
             ip = new ItemProvider();
-            files = ip.GetItems(path);
+            files = ip.GetItems(file_path);
         }
 
         public override string ToString()

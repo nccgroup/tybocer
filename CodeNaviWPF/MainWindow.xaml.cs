@@ -134,6 +134,12 @@ namespace CodeNaviWPF
             }
         }
 
+        private void RelayoutGraph(object sender, RoutedEventArgs e)
+        {
+            tg_Area.RelayoutGraph(true);
+            tg_Area.UpdateLayout();
+            CenterOnVertex(FindVisualParent<VertexControl>(e.Source as Expander));
+        }
         private void SearchString(object sender, RoutedEventArgs e)
         {
             TextArea textarea = e.OriginalSource as TextArea;
@@ -189,5 +195,6 @@ namespace CodeNaviWPF
     public static class Commands
     {
         public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
+        public static readonly RoutedUICommand RelayoutGraph = new RoutedUICommand("Relayout Graph", "RelayoutGraph", typeof(MainWindow));
     }
 }

@@ -26,6 +26,7 @@
     >
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
+        <CommandBinding Command="local:Commands.RelayoutGraph" Executed="RelayoutGraph" />
     </Window.CommandBindings>
     <Window.Resources>
 
@@ -53,9 +54,17 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileContentView">
-            <StackPanel>
-                <Border BorderThickness="3" BorderBrush="BurlyWood">
-                    <avalonEdit:TextEditor 
+            <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
+                <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
+                    <Expander.Header>
+                        <TextBlock>
+                            File: <TextBlock Text="{Binding Path=FilePath}" />
+                        </TextBlock>
+                    </Expander.Header>
+
+
+                    <StackPanel>
+                        <avalonEdit:TextEditor
                         Width="400" 
                         Height="400" 
                         Document="{Binding Path=Document}" 
@@ -65,39 +74,55 @@
                         SyntaxHighlighting="C#"
                         FontFamily="Courier New"
                         >
-                        <avalonEdit:TextEditor.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Search..." Command="local:Commands.SearchString" />
-                            </ContextMenu>
-                        </avalonEdit:TextEditor.ContextMenu>
-                    </avalonEdit:TextEditor>
-                </Border>
-            </StackPanel>
+                            <avalonEdit:TextEditor.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Search..." Command="local:Commands.SearchString" />
+                                </ContextMenu>
+                            </avalonEdit:TextEditor.ContextMenu>
+                        </avalonEdit:TextEditor>
+
+                    </StackPanel>
+                </Expander>
+            </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="searchResultsView">
-            <StackPanel>
-                <Border BorderThickness="3" BorderBrush="BurlyWood">
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                        <DataGrid ItemsSource="{Binding Results}" Height="500" IsReadOnly="True" AutoGenerateColumns="False">
-                            <DataGrid.ItemContainerStyle>
-                                <Style TargetType="DataGridRow">
-                                    <EventSetter Event="MouseDoubleClick"
+            <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="10">
+                <Grid>
+                    <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
+                        <Expander.Header>
+                            <TextBlock>
+                            Search for: <TextBlock Text="{Binding Path=SearchString}" />
+                        </TextBlock>
+                        </Expander.Header>
+                        <Grid>
+                            <Border CornerRadius="9" x:Name="Mask" Background="White" />
+                            <StackPanel>
+                                <StackPanel.OpacityMask>
+                                    <VisualBrush Visual="{Binding ElementName=Mask}"/>
+                                </StackPanel.OpacityMask>
+                                <!--<ScrollViewer HorizontalScrollBarVisibility="Auto">-->
+                                <DataGrid ItemsSource="{Binding Results}" MaxHeight="500" MaxWidth="500" IsReadOnly="True" AutoGenerateColumns="False">
+                                    <DataGrid.ItemContainerStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <EventSetter Event="MouseDoubleClick"
                             Handler="DataGrid_MouseDoubleClick" />
-                                </Style>
-                            </DataGrid.ItemContainerStyle>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
-                                <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </ScrollViewer>
-
-                </Border>
-            </StackPanel>
+                                        </Style>
+                                    </DataGrid.ItemContainerStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <!--</ScrollViewer>-->
+                            </StackPanel>
+                        </Grid>
+                    </Expander>
+                </Grid>
+            </Border>
         </DataTemplate>
 
         <local:VertexTemplateSelector
