@@ -161,13 +161,13 @@
             <Setter Property="Opacity"
                 Value="1" />
 
-            <Setter Property="ToolTip">
+            <!--<Setter Property="ToolTip">
                 <Setter.Value>
                     <Border BorderBrush="Black" BorderThickness="2" CornerRadius="8" Background="White" UseLayoutRounding="True">
                         <TextBlock FontWeight="Bold" TextDecorations="Underline" Text="{Binding ToolTipText}" Margin="3"/>
                     </Border>
                 </Setter.Value>
-            </Setter>
+            </Setter>-->
 
             <Style.Triggers>
                 <Trigger Property="gxl:HighlightBehaviour.Highlighted" Value="True">
@@ -220,7 +220,7 @@
 			</Setter.Value>-->
                 </Setter>
 
-                <Setter Property="ToolTip">
+                <!--<Setter Property="ToolTip">
                     <Setter.Value>
                         <Border BorderBrush="Black" BorderThickness="2" CornerRadius="8" Background="White" UseLayoutRounding="True">
                             <StackPanel Orientation="Vertical">
@@ -229,7 +229,7 @@
                             </StackPanel>
                         </Border>
                     </Setter.Value>
-                </Setter>
+                </Setter>-->
 
                 <!-- VERTEX DRAGGING CONTROL -->
                 <Setter Property="gxl:DragBehaviour.IsDragEnabled"
