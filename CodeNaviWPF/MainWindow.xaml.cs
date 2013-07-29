@@ -179,6 +179,11 @@ namespace CodeNaviWPF
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
             AddFileView(fi, sv, (PocVertex)sv.Vertex);
         }
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+            base.OnClosing(e);
+        }
     }
 
     public static class Commands

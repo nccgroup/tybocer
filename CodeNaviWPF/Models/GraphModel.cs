@@ -118,18 +118,21 @@ namespace CodeNaviWPF.Models
         }
         #endregion
 
-        private List<string> extensions_to_skip = new List<string> { 
-            ".exe",
-            ".pdb", 
-            ".dll", 
-            ".zip",
-            ".cache", 
-            ".suo",
-            ".resources",
-            ".baml",
-        };
+        //private List<string> extensions_to_skip = new List<string> { 
+        //    ".exe",
+        //    ".pdb", 
+        //    ".dll", 
+        //    ".zip",
+        //    ".cache", 
+        //    ".suo",
+        //    ".resources",
+        //    ".baml",
+        //};
+        
         internal List<SearchResult> SearchItems(List<Item> items, string selected_text)
         {
+            List<String> extensions_to_skip = new List<String>(Properties.Settings.Default.ExcludedExtensions.Split(';'));
+            List<String> directories_to_skip = new List<String>(Properties.Settings.Default.ExcludedDirectories.Split(';'));
             List<SearchResult> s = new List<SearchResult>();
             foreach (Item i in items)
             {
@@ -169,8 +172,11 @@ namespace CodeNaviWPF.Models
                 }
                 if (i is DirectoryItem)
                 {
-                    ExpandDirectory((DirectoryItem)i);
-                    s.AddRange(SearchItems(((DirectoryItem)i).Items, selected_text));
+                    if (!directories_to_skip.Contains(i.FileName))
+                    {
+                        ExpandDirectory((DirectoryItem)i);
+                        s.AddRange(SearchItems(((DirectoryItem)i).Items, selected_text));
+                    }
                 }
             }
             return s;

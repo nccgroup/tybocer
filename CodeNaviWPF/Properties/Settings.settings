@@ -1,7 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CodeNaviWPF.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ExcludedExtensions" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.exe;.pdb;.dll;.zip;.cache;.suo;.resources;.baml;.pyc</Value>
+    </Setting>
+    <Setting Name="ExcludedDirectories" Type="System.String" Scope="User">
+      <Value Profile="(Default)">.hg;.git;.svn</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

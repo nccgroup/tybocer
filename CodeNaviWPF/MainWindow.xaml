@@ -16,6 +16,7 @@
         xmlns:local="clr-namespace:CodeNaviWPF"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:zb="clr-namespace:GraphX.Xceed.Wpf.Toolkit.Zoombox;assembly=GraphX"
+        xmlns:props="clr-namespace:CodeNaviWPF.Properties"
         Title="GraphView" 
         Height="900" 
         Width="1500"
@@ -226,7 +227,20 @@
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>-->
         </Grid.Resources>
-        <zb:Zoombox x:Name="tg_zoomctrl" Grid.Row="2">
+        <Expander IsExpanded="True" Grid.Row="0" Header="Preferences">
+            <StackPanel Orientation="Vertical">
+
+                <StackPanel Orientation="Horizontal">
+                    <Label Target="{Binding ElementName=excludedExts}">Excluded Extensions</Label>
+                    <TextBox x:Name="excludedExts" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedExtensions, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Target="{Binding ElementName=excludedDirs}">Excluded Directories</Label>
+                    <TextBox x:Name="excludedDirs" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedDirectories, Mode=TwoWay}" />
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+        <zb:Zoombox x:Name="tg_zoomctrl" Grid.Row="1">
             <Model:PocGraphLayout x:Name="tg_Area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True">
                 <Model:PocGraphLayout.Resources>
                     <!--<ResourceDictionary>
