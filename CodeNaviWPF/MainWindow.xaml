@@ -65,14 +65,14 @@
 
                     <StackPanel>
                         <avalonEdit:TextEditor
-                        Width="400" 
-                        Height="400" 
-                        Document="{Binding Path=Document}" 
-                        IsReadOnly="True"
-                        ShowLineNumbers="True"
-                        Tag="{Binding ElementName=root}"
-                        SyntaxHighlighting="C#"
-                        FontFamily="Courier New"
+                            Width="400" 
+                            Height="400" 
+                            Document="{Binding Path=Document}" 
+                            IsReadOnly="True"
+                            ShowLineNumbers="True"
+                            Tag="{Binding ElementName=root}"
+                            SyntaxHighlighting="C#"
+                            FontFamily="Courier New"
                         >
                             <avalonEdit:TextEditor.ContextMenu>
                                 <ContextMenu>
@@ -80,7 +80,6 @@
                                 </ContextMenu>
                             </avalonEdit:TextEditor.ContextMenu>
                         </avalonEdit:TextEditor>
-
                     </StackPanel>
                 </Expander>
             </Border>
@@ -186,6 +185,9 @@
         </Grid.RowDefinitions>
         <Grid.Resources>
             <!-- VERTEX CONTROL -->
+
+
+
             <Style TargetType="{x:Type gxl:VertexControl}">
                 <!-- Set background color through attached property -->
                 <Setter Property="Background" Value="Transparent"/>
@@ -195,7 +197,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type gxl:VertexControl}">
-                            <ContentControl Name="TestControl" ContentTemplateSelector="{StaticResource vertexTemplateSelector}" Content="{Binding}"/>
+                            <ContentControl ContentTemplateSelector="{StaticResource vertexTemplateSelector}" Content="{Binding}"/>
                         </ControlTemplate>
                     </Setter.Value>
                     <!--<Setter.Value>
@@ -266,7 +268,7 @@
             </StackPanel>
         </Expander>
         <zb:Zoombox x:Name="tg_zoomctrl" Grid.Row="1">
-            <Model:PocGraphLayout x:Name="tg_Area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True">
+            <Model:PocGraphLayout x:Name="tg_Area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" >
                 <Model:PocGraphLayout.Resources>
                     <!--<ResourceDictionary>
                         <ResourceDictionary.MergedDictionaries>
