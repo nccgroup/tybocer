@@ -91,7 +91,7 @@ namespace CodeNaviWPF
             }
         }
 
-        private void AddFileView(FileItem fi, VertexControl source, PocVertex source_vertex)
+        private void AddFileView(FileItem fi, VertexControl source, PocVertex source_vertex, int line = 0)
         {
             FileVertex v = gp.AddFileView(fi, source_vertex);
             VertexControl vc = new VertexControl(v) { DataContext = v };
@@ -103,11 +103,18 @@ namespace CodeNaviWPF
             {
                 vc = tg_Area.GetAllVertexControls().Where(c => c.Vertex == v).First();
             }
+
             PocEdge new_edge = new PocEdge("sdfsdfdsf", source_vertex, v);
             tg_Area.InsertEdge(new_edge, new EdgeControl(source, vc, new_edge));
             tg_Area.RelayoutGraph(true);
             tg_Area.UpdateLayout();
             centre_on_me = vc;
+            ICSharpCode.AvalonEdit.TextEditor editor = FindVisualChild<ICSharpCode.AvalonEdit.TextEditor>(vc);
+            if (editor != null)
+            {
+                editor.ScrollToLine(line);
+                //((ICSharpCode.AvalonEdit.TextEditor)VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(vc, 0), 0), 0), 0), 0), 0), 1), 0), 0)).ScrollToLine(line);
+            }
             //CenterOnVertex(vc);
         }
 
@@ -122,14 +129,14 @@ namespace CodeNaviWPF
                 + vc.ActualWidth / 2
                 * tg_zoomctrl.Scale
                 - tg_zoomctrl.ActualWidth / 2
-                ) 
-                , 
+                )
+                ,
                 (of.Y
                 * tg_zoomctrl.Scale
                 + vc.ActualHeight / 2
                 * tg_zoomctrl.Scale
                 - tg_zoomctrl.ActualHeight / 2
-                ) 
+                )
                 );
             tg_zoomctrl.ZoomTo(new_point);
         }
@@ -180,7 +187,30 @@ namespace CodeNaviWPF
                 }
             }
         }
-
+        private childItem FindVisualChild<childItem>(DependencyObject obj)
+        where childItem : DependencyObject
+        {
+            try
+            {
+                ((dynamic)obj).ApplyTemplate();
+            }
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+            {
+            }
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is childItem)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = FindVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
         static T FindVisualParent<T>(UIElement element) where T : UIElement
         {
             UIElement parent = element;
@@ -202,8 +232,9 @@ namespace CodeNaviWPF
             VertexControl sv = FindVisualParent<VertexControl>(sender as DataGridRow);
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
-            AddFileView(fi, sv, (PocVertex)sv.Vertex);
+            AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
         }
+
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.Save();

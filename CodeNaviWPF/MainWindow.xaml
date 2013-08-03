@@ -185,9 +185,6 @@
         </Grid.RowDefinitions>
         <Grid.Resources>
             <!-- VERTEX CONTROL -->
-
-
-
             <Style TargetType="{x:Type gxl:VertexControl}">
                 <!-- Set background color through attached property -->
                 <Setter Property="Background" Value="Transparent"/>
