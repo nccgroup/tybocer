@@ -235,10 +235,10 @@ namespace CodeNaviWPF
             AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
         }
 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosed(EventArgs e)
         {
+            base.OnClosed(e);
             Properties.Settings.Default.Save();
-            base.OnClosing(e);
         }
     }
 
