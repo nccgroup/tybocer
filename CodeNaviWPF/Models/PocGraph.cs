@@ -33,9 +33,18 @@ namespace CodeNaviWPF.Models
                 file_path = value;
                 files = ip.GetItems(value);
                 NotifyPropertyChanged("Files");
+                NotifyPropertyChanged("FilePath");
             }
         }
         public List<Item> Files { get { return files; } }
+
+        private string searchterm;
+
+        public string SearchTerm
+        {
+            get { return searchterm; }
+            set { searchterm = value; }
+        }
 
         public PocVertex(string id, string path)
         {

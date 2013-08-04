@@ -30,6 +30,7 @@
     </Window.CommandBindings>
     <Window.Resources>
 
+
         <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
             <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
@@ -40,17 +41,28 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileBrowserTemplate">
-            <StackPanel>
-                <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
-                <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}">
-                            <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
-                            <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                </TreeView>
-            </StackPanel>
+            <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <local:StringToBool x:Key="mystringtoboolconverter" />
+                    </StackPanel.Resources>
+                    <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
+                        <Button Name="RunSearch"
+                                IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
+                                Command="local:Commands.SearchString" Content="Search" />
+                    </StackPanel>
+                    <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="{x:Type TreeViewItem}">
+                                <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
+                                <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                    </TreeView>
+                </StackPanel>
+            </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="fileContentView">

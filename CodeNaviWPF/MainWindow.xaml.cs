@@ -167,24 +167,31 @@ namespace CodeNaviWPF
 
         private void SearchString(object sender, RoutedEventArgs e)
         {
+            string selected_text = "";
             TextArea textarea = e.OriginalSource as TextArea;
             PocVertex v = (PocVertex)((VertexControl)e.Source).Vertex;
-            if (textarea != null)
+            if (textarea == null)
             {
-                string selected_text = textarea.Selection.GetText();
-                if (selected_text != null && selected_text != "")
-                {
-                    SearchResultsVertex s = gp.PerformSearch(selected_text, v);
-                    VertexControl to_vertex_control = new VertexControl(s) { DataContext = s };
-                    VertexControl from_vertex_control = (VertexControl)e.Source;
-                    tg_Area.AddVertex(s, to_vertex_control);
-                    PocEdge new_edge = new PocEdge("sdfsdfdsf", v, s);
-                    tg_Area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
-                    tg_Area.RelayoutGraph(true);
-                    tg_Area.UpdateLayout();
-                    centre_on_me = to_vertex_control;
-                    //CenterOnVertex(to_vertex_control);
-                }
+                VertexControl vc = e.Source as VertexControl;
+                if (vc == null) return;
+                selected_text = ((PocVertex)vc.DataContext).SearchTerm;
+            }
+            else
+            {
+                selected_text = textarea.Selection.GetText();
+            }
+            if (selected_text != null && selected_text != "")
+            {
+                SearchResultsVertex s = gp.PerformSearch(selected_text, v);
+                VertexControl to_vertex_control = new VertexControl(s) { DataContext = s };
+                VertexControl from_vertex_control = (VertexControl)e.Source;
+                tg_Area.AddVertex(s, to_vertex_control);
+                PocEdge new_edge = new PocEdge("sdfsdfdsf", v, s);
+                tg_Area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
+                tg_Area.RelayoutGraph(true);
+                tg_Area.UpdateLayout();
+                centre_on_me = to_vertex_control;
+                //CenterOnVertex(to_vertex_control);
             }
         }
         private childItem FindVisualChild<childItem>(DependencyObject obj)

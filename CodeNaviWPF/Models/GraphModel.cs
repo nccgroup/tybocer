@@ -70,6 +70,7 @@ namespace CodeNaviWPF.Models
             root.FilePath = p;
             NotifyPropertyChanged("Graph");
         }
+
         internal FileVertex AddFileView(FileItem f)
         {
             return AddFileView(f, root);
