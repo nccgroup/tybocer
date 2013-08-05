@@ -27,6 +27,7 @@
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
         <CommandBinding Command="local:Commands.RelayoutGraph" Executed="RelayoutGraph" />
+        <CommandBinding Command="local:Commands.OnCloseVertex" Executed="OnCloseVertex" />
     </Window.CommandBindings>
     <Window.Resources>
 
@@ -69,9 +70,12 @@
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
                 <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
                     <Expander.Header>
-                        <TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>
                             File: <TextBlock Text="{Binding Path=FilePath}" />
                         </TextBlock>
+                            <Button Content="Close" Command="local:Commands.OnCloseVertex" />
+                        </StackPanel>
                     </Expander.Header>
 
 

@@ -194,6 +194,53 @@ namespace CodeNaviWPF
                 //CenterOnVertex(to_vertex_control);
             }
         }
+
+        private void OnCloseVertex(object sender, RoutedEventArgs e)
+        {
+            VertexControl vc = e.Source as VertexControl;
+            PocVertex v = vc.DataContext as PocVertex;
+            PocEdge edge = gp.Graph.InEdge(v, 0); // Will only ever have one in edge
+            if (gp.Graph.OutEdges(v).Count() > 0)
+            {
+                System.Windows.Forms.DialogResult d = System.Windows.Forms.MessageBox.Show("Vertex has child nodes. All nodes on this branch will be deleted. Continue?", "Delete Child Nodes?", System.Windows.Forms.MessageBoxButtons.YesNo, System.Windows.Forms.MessageBoxIcon.Question);
+                if (d == System.Windows.Forms.DialogResult.No) return;
+            }
+            CloseVertex(v);
+            gp.Graph.RemoveEdge(edge);
+            foreach (PocEdge f in tg_Area.EdgesList.Keys.ToList())
+            {
+                if (edge.Target == f.Target && edge.Source == f.Source)
+                {
+                    tg_Area.RemoveEdge(f);
+                }
+
+            }
+        }
+
+        private void CloseVertex(PocVertex v)
+        {
+            if (gp.Graph.OutEdges(v).Count() > 0)
+            {
+                var edges = gp.Graph.OutEdges(v).ToList();
+                //var edges = tg_Area.EdgesList.Keys;
+                foreach (PocEdge e in edges)
+                {
+                    CloseVertex(e.Target);
+                    gp.Graph.RemoveEdge(e);
+                    foreach (PocEdge f in tg_Area.EdgesList.Keys.ToList())
+                    {
+                        if (e.Target == f.Target && e.Source == f.Source)
+                        {
+                            tg_Area.RemoveEdge(f);
+                        }
+
+                    }
+                }
+            }
+            gp.Graph.RemoveVertex(v);
+            tg_Area.RemoveVertex(v);
+        }
+
         private childItem FindVisualChild<childItem>(DependencyObject obj)
         where childItem : DependencyObject
         {
@@ -253,5 +300,21 @@ namespace CodeNaviWPF
     {
         public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
         public static readonly RoutedUICommand RelayoutGraph = new RoutedUICommand("Relayout Graph", "RelayoutGraph", typeof(MainWindow));
+        public static readonly RoutedUICommand OnCloseVertex = new RoutedUICommand("Close Vertex", "OnCloseVertex", typeof(MainWindow));
+    }
+
+    [ValueConversion(typeof(string), typeof(bool))]
+    class StringToBool : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || (string)value == "") return false;
+            return true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return null;
+        }
     }
 }

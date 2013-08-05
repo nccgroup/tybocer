@@ -152,6 +152,8 @@ namespace CodeNaviWPF.Models
                                 string line_copy;
                                 if (line.Length > 500)
                                 {
+                                    // For when we search a binary file by mistake.
+                                    // Or some perl code
                                     line_copy = line.Substring(0, 500);
                                 }
                                 else
