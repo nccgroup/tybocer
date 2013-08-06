@@ -8,5 +8,8 @@
     <Setting Name="ExcludedDirectories" Type="System.String" Scope="User">
       <Value Profile="(Default)">.hg;.git;.svn</Value>
     </Setting>
+    <Setting Name="EditorFont" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Courier New, 9.75pt</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -89,7 +89,8 @@
                             ShowLineNumbers="True"
                             Tag="{Binding ElementName=root}"
                             SyntaxHighlighting="C#"
-                            FontFamily="Courier New"
+                            FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}"
+                            FontSize="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}"
                         >
                             <avalonEdit:TextEditor.ContextMenu>
                                 <ContextMenu>
@@ -108,10 +109,8 @@
                     <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock>
-                                    Search for: <TextBlock Text="{Binding Path=SearchString}" />
-                                </TextBlock>
-                                <Button Content="Close" Command="local:Commands.OnCloseVertex" />
+                                <TextBlock VerticalAlignment="Center">Search for: <TextBlock Text="{Binding Path=SearchString}" /></TextBlock>
+                                <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
                             </StackPanel>
                         </Expander.Header>
                             <Grid>
@@ -274,6 +273,10 @@
                 <StackPanel Orientation="Horizontal">
                     <Label Target="{Binding ElementName=excludedDirs}">Excluded Directories</Label>
                     <TextBox x:Name="excludedDirs" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedDirectories, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Target="{Binding ElementName=editorFont}">Editor Font</Label>
+                    <TextBox x:Name="editorFont" Text="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont, Mode=TwoWay}" />
                 </StackPanel>
             </StackPanel>
         </Expander>

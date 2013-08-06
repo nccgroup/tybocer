@@ -46,5 +46,17 @@ namespace CodeNaviWPF.Properties {
                 this["ExcludedDirectories"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Courier New, 9.75pt")]
+        public global::System.Drawing.Font EditorFont {
+            get {
+                return ((global::System.Drawing.Font)(this["EditorFont"]));
+            }
+            set {
+                this["EditorFont"] = value;
+            }
+        }
     }
 }
