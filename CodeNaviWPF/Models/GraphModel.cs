@@ -129,7 +129,7 @@ namespace CodeNaviWPF.Models
         //    ".resources",
         //    ".baml",
         //};
-        
+
         internal List<SearchResult> SearchItems(List<Item> items, string selected_text)
         {
             List<String> extensions_to_skip = new List<String>(Properties.Settings.Default.ExcludedExtensions.Split(';'));

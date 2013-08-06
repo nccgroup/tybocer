@@ -50,7 +50,7 @@
                     <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
                     <StackPanel Orientation="Horizontal">
                         <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
-                        <Button Name="RunSearch"
+                        <Button Name="RunSearch" 
                                 IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
                                 Command="local:Commands.SearchString" Content="Search" />
                     </StackPanel>
@@ -81,7 +81,7 @@
 
                     <StackPanel>
                         <avalonEdit:TextEditor
-                            Width="400" 
+                            MaxWidth="800" 
                             Height="400" 
                             Document="{Binding Path=Document}" 
                             IsReadOnly="True"

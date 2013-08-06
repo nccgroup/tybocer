@@ -11,9 +11,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Forms;
 using CodeNaviWPF.Models;
@@ -99,7 +101,7 @@ namespace CodeNaviWPF
             {
                 tg_Area.AddVertex(v, vc);
             }
-            catch (GraphX.GX_InvalidDataException e)
+            catch (GraphX.GX_InvalidDataException)
             {
                 vc = tg_Area.GetAllVertexControls().Where(c => c.Vertex == v).First();
             }
@@ -113,6 +115,7 @@ namespace CodeNaviWPF
             if (editor != null)
             {
                 editor.ScrollToLine(line);
+                editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 //((ICSharpCode.AvalonEdit.TextEditor)VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(vc, 0), 0), 0), 0), 0), 0), 1), 0), 0)).ScrollToLine(line);
             }
             //CenterOnVertex(vc);
@@ -213,8 +216,10 @@ namespace CodeNaviWPF
                 {
                     tg_Area.RemoveEdge(f);
                 }
-
             }
+            tg_Area.UpdateLayout();
+            recentre = true;
+            centre_on_me = tg_Area.VertexList.Where(x => x.Key == edge.Source).First().Value;
         }
 
         private void CloseVertex(PocVertex v)
@@ -265,6 +270,23 @@ namespace CodeNaviWPF
             }
             return null;
         }
+
+        static T FindVisualParent<T>(DependencyObject element) where T : UIElement
+        {
+            DependencyObject parent = element;
+            while (parent != null)
+            {
+                T correctlyTyped = parent as T;
+                if (correctlyTyped != null)
+                {
+                    return correctlyTyped;
+                }
+
+                parent = VisualTreeHelper.GetParent(parent) as DependencyObject;
+            }
+            return null;
+        }
+
         static T FindVisualParent<T>(UIElement element) where T : UIElement
         {
             UIElement parent = element;
@@ -294,6 +316,20 @@ namespace CodeNaviWPF
             base.OnClosed(e);
             Properties.Settings.Default.Save();
         }
+
+        private void TestEditor_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ICSharpCode.AvalonEdit.TextEditor editor = FindVisualParent<ICSharpCode.AvalonEdit.TextEditor>((DependencyObject)sender);
+
+                // Ctrl+Click Go to definition
+                var position = editor.GetPositionFromPoint(e.GetPosition(editor));
+                System.Diagnostics.Debug.Print(position.ToString());
+                e.Handled = true;
+            }
+        }
+
     }
 
     public static class Commands
