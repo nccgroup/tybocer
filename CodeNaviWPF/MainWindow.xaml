@@ -107,9 +107,12 @@
                 <Grid>
                     <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
                         <Expander.Header>
-                            <TextBlock>
-                            Search for: <TextBlock Text="{Binding Path=SearchString}" />
-                        </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock>
+                                    Search for: <TextBlock Text="{Binding Path=SearchString}" />
+                                </TextBlock>
+                                <Button Content="Close" Command="local:Commands.OnCloseVertex" />
+                            </StackPanel>
                         </Expander.Header>
                         <Grid>
                             <Border CornerRadius="0,0,9,9" x:Name="Mask" Background="Black" />
