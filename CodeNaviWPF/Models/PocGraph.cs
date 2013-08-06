@@ -13,13 +13,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.IO;
 using QuickGraph;
 using ICSharpCode.AvalonEdit.Document;
 using GraphX;
+using CodeNaviWPF.Utils;
 
 namespace CodeNaviWPF.Models
 {
     public class PocVertex : VertexBase, INotifyPropertyChanged
+    {
+
+        #region INotifyPropertyChanged Implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
+    }
+
+    public class FileBrowser : PocVertex
     {
         //public string ID;
         private ItemProvider ip;
@@ -46,7 +66,7 @@ namespace CodeNaviWPF.Models
             set { searchterm = value; }
         }
 
-        public PocVertex(string id, string path)
+        public FileBrowser(string path)
         {
             //ID = id;
             file_path = path;
@@ -57,82 +77,40 @@ namespace CodeNaviWPF.Models
 
         public override string ToString()
         {
-            return string.Format("{0}-{1}", ID, file_path);
+            return string.Format("{1}", file_path);
         }
 
-        #region INotifyPropertyChanged Implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-    }
-
-    public class PocEdge : EdgeBase<PocVertex>, INotifyPropertyChanged
-    {
-        //private string id;
-
-        //public string ID
-        //{
-        //    get { return id; }
-        //    set
-        //    {
-        //        id = value;
-        //        NotifyPropertyChanged("ID");
-        //    }
-        //}
-
-        public PocEdge(string id, PocVertex source, PocVertex target)
-            : base(source, target)
-        {
-            //ID = id;
-        }
-
-
-        #region INotifyPropertyChanged Implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void NotifyPropertyChanged(string info)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
-        }
-
-        #endregion
-    }
-    public class PocGraph : BidirectionalGraph<PocVertex, PocEdge>
-    {
-        public PocGraph() { }
-
-        public PocGraph(bool allowParallelEdges)
-            : base(allowParallelEdges) { }
-
-        public PocGraph(bool allowParallelEdges, int vertexCapacity)
-            : base(allowParallelEdges, vertexCapacity) { }
     }
 
     public class FileVertex : PocVertex
     {
+        public string _rootdir;
+        public string FileName { get; set; }
+        
         public TextDocument Document { get; set; }
-        public FileVertex(string id, string path)
-            : base(id, path)
+        //private string file_path;
+        public string FilePath { get; set; }
+        //{
+        //    get { return file_path; }
+        //    set
+        //    {
+        //        file_path = value;
+        //        NotifyPropertyChanged("FilePath");
+        //    }
+        //}
+
+        public FileVertex(string filename, string path, string root)
         {
             FileName = FilePathUtils.GetRelativePath(root, path);
+            FilePath = path;
+            _rootdir = root;
             Document = new TextDocument();
+            StreamReader sr = new StreamReader(path);
+            Document.Text = sr.ReadToEnd();
         }
     }
 
-    public class SearchResultsVertex: PocVertex
+    public class SearchResultsVertex : PocVertex
     {
         public string SearchString { get; set; }
         private List<SearchResult> results;
@@ -141,8 +119,7 @@ namespace CodeNaviWPF.Models
             get { return results; }
             set { results = value; }
         }
-        public SearchResultsVertex(string id, string search_term)
-            : base(id, search_term)
+        public SearchResultsVertex(string search_term)
         {
             SearchString = search_term;
             results = new List<SearchResult>();
@@ -158,4 +135,22 @@ namespace CodeNaviWPF.Models
         public string Line { get; set; }
         public int LineNumber { get; set; }
     }
+
+    public class PocEdge : EdgeBase<PocVertex>
+    {
+        public PocEdge(string id, PocVertex source, PocVertex target)
+            : base(source, target) { }
+    }
+
+    public class PocGraph : BidirectionalGraph<PocVertex, PocEdge>
+    {
+        public PocGraph() { }
+
+        public PocGraph(bool allowParallelEdges)
+            : base(allowParallelEdges) { }
+
+        public PocGraph(bool allowParallelEdges, int vertexCapacity)
+            : base(allowParallelEdges, vertexCapacity) { }
+    }
+    
 }

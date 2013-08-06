@@ -25,7 +25,7 @@ namespace CodeNaviWPF.Models
     {
         private ItemProvider ip;
         private PocGraph graph;
-        private PocVertex root;
+        private FileBrowser root;
         private string layoutAlgorithmType;
 
         public string LayoutAlgorithmType
@@ -52,7 +52,7 @@ namespace CodeNaviWPF.Models
         {
             ip = new ItemProvider();
             Graph = new PocGraph(true);
-            root = new PocVertex("ROOT", "");
+            root = new FileBrowser("");
             graph.AddVertex(root);
             layoutAlgorithmType = "EfficientSugiyama";
             //LayoutAlgorithmType="Circular"
@@ -79,19 +79,8 @@ namespace CodeNaviWPF.Models
 
         internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
-            FileVertex new_vertex = null;
-            //foreach (PocVertex v in graph.Vertices)
-            //{
-            //    if (v is FileVertex && v.FilePath == f.FullPath)
-            //    {
-            //        new_vertex = (FileVertex)v;
-            //    }
-            //}
-            //if (new_vertex == null)
-            //{
-            new_vertex = new FileVertex(f.FileName, f.FullPath);
-            StreamReader sr = new StreamReader(f.FullPath);
-            new_vertex.Document.Text = sr.ReadToEnd();
+
+            FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root.FilePath);
             Graph.AddVertex(new_vertex);
             Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
             //}
@@ -188,12 +177,12 @@ namespace CodeNaviWPF.Models
 
         internal SearchResultsVertex PerformSearch(string selected_text, PocVertex source_vertex)
         {
-            SearchResultsVertex s = new SearchResultsVertex("some search", selected_text);
-            s.Results = SearchItems(ip.GetItems(root.FilePath), selected_text);
-            Graph.AddVertex(s);
-            Graph.AddEdge(new PocEdge("Search", source_vertex, s));
+            SearchResultsVertex search_results = new SearchResultsVertex(selected_text);
+            search_results.Results = SearchItems(ip.GetItems(root.FilePath), selected_text);
+            Graph.AddVertex(search_results);
+            Graph.AddEdge(new PocEdge("Search", source_vertex, search_results));
             NotifyPropertyChanged("Graph");
-            return s;
+            return search_results;
         }
     }
 

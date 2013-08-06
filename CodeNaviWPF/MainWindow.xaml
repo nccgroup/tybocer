@@ -73,7 +73,7 @@
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock>
-                            File: <TextBlock Text="{Binding Path=FilePath}" />
+                            File: <TextBlock Text="{Binding Path=FileName}" />
                         </TextBlock>
                             <Button Content="Close" Command="local:Commands.OnCloseVertex" />
                         </StackPanel>

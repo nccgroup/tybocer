@@ -35,7 +35,7 @@ namespace CodeNaviWPF
         {
             if (item is FileVertex) return FileContentView;
             if (item is SearchResultsVertex) return SearchResultsView;
-            if (item is PocVertex) return FileBrowserTemplate;
+            if (item is FileBrowser) return FileBrowserTemplate;
             return base.SelectTemplate(item, container);
         }
     }
