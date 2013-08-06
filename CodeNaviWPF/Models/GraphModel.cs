@@ -124,20 +124,27 @@ namespace CodeNaviWPF.Models
         {
             List<String> extensions_to_skip = new List<String>(Properties.Settings.Default.ExcludedExtensions.Split(';'));
             List<String> directories_to_skip = new List<String>(Properties.Settings.Default.ExcludedDirectories.Split(';'));
-            List<SearchResult> s = new List<SearchResult>();
-            foreach (Item i in items)
+            List<SearchResult> search_results = new List<SearchResult>();
+            foreach (Item item_to_search in items)
             {
-                if (i is FileItem)
+                if (item_to_search is FileItem)
                 {
-                    FileItem new_i = i as FileItem;
-                    FileInfo f = new FileInfo(i.FullPath);
-                    if (!extensions_to_skip.Contains(f.Extension))
+                    FileItem item_to_search_copy = item_to_search as FileItem;
+                    FileInfo item_fileinfo = new FileInfo(item_to_search.FullPath);
+                    if (!extensions_to_skip.Contains(item_fileinfo.Extension))
                     {
+                        if (item_fileinfo.Extension == ".docx")
+                        {
+                        }
                         int count = 0;
-                        foreach (string line in File.ReadAllLines(i.FullPath, Encoding.UTF8))
+                        FileStream filestream = new FileStream(item_to_search.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        StreamReader streamreader = new StreamReader(filestream);
+                        //foreach (string line in File.ReadAllLines(item_to_search.FullPath, Encoding.UTF8))
+                        string line = streamreader.ReadLine();
+                        while (line != null)
                         {
                             count++;
-                            if (line.Contains(selected_text))
+                            if (line.ToLower().Contains(selected_text.ToLower()))
                             {
                                 string line_copy;
                                 if (line.Length > 500)
@@ -150,29 +157,30 @@ namespace CodeNaviWPF.Models
                                 {
                                     line_copy = line;
                                 }
-                                s.Add(new SearchResult
+                                search_results.Add(new SearchResult
                                 {
-                                    RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, new_i.FullPath)),
-                                    FullPath = new_i.FullPath,
-                                    FileName = new_i.FileName,
-                                    Extension = new_i.Extension,
+                                    RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, item_to_search_copy.FullPath)),
+                                    FullPath = item_to_search_copy.FullPath,
+                                    FileName = item_to_search_copy.FileName,
+                                    Extension = item_to_search_copy.Extension,
                                     LineNumber = count,
                                     Line = line_copy
                                 });
                             }
+                            line = streamreader.ReadLine();
                         }
                     }
                 }
-                if (i is DirectoryItem)
+                if (item_to_search is DirectoryItem)
                 {
-                    if (!directories_to_skip.Contains(i.FileName))
+                    if (!directories_to_skip.Contains(item_to_search.FileName))
                     {
-                        ExpandDirectory((DirectoryItem)i);
-                        s.AddRange(SearchItems(((DirectoryItem)i).Items, selected_text));
+                        ExpandDirectory((DirectoryItem)item_to_search);
+                        search_results.AddRange(SearchItems(((DirectoryItem)item_to_search).Items, selected_text));
                     }
                 }
             }
-            return s;
+            return search_results;
         }
 
         internal SearchResultsVertex PerformSearch(string selected_text, PocVertex source_vertex)
