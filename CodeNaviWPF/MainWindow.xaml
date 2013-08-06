@@ -265,13 +265,8 @@
 
             </Style>
 
-            <!--<ResourceDictionary>
-                <ResourceDictionary.MergedDictionaries>
-                    <ResourceDictionary Source="Templates/ThemedGraphXTemplates.xaml"/>
-                </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>-->
         </Grid.Resources>
-        <Expander IsExpanded="True" Grid.Row="0" Header="Preferences">
+        <Expander IsExpanded="False" Grid.Row="0" Header="Preferences">
             <StackPanel Orientation="Vertical">
 
                 <StackPanel Orientation="Horizontal">
