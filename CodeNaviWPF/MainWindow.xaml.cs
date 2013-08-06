@@ -11,17 +11,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Forms;
 using CodeNaviWPF.Models;
 using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
+using CodeNaviWPF.Utils;
 
 namespace CodeNaviWPF
 {
@@ -92,6 +91,8 @@ namespace CodeNaviWPF
                 }
             }
         }
+            VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
+                ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualParent<ICSharpCode.AvalonEdit.TextEditor>((DependencyObject)sender);
 
         private void AddFileView(FileItem fi, VertexControl source, PocVertex source_vertex, int line = 0)
         {
@@ -112,6 +113,7 @@ namespace CodeNaviWPF
             tg_Area.UpdateLayout();
             centre_on_me = vc;
             ICSharpCode.AvalonEdit.TextEditor editor = FindVisualChild<ICSharpCode.AvalonEdit.TextEditor>(vc);
+            ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualChild<ICSharpCode.AvalonEdit.TextEditor>(new_vertex_control);
             if (editor != null)
             {
                 editor.ScrollToLine(line);
@@ -165,6 +167,7 @@ namespace CodeNaviWPF
             centre_on_me = vc;
             tg_Area.RelayoutGraph(true);
             tg_Area.UpdateLayout();
+            VertexControl parent_vertex_control = TreeHelpers.FindVisualParent<VertexControl>(e.Source as Expander);
             //if (ex.IsExpanded) CenterOnVertex(vc);
         }
 
@@ -337,20 +340,5 @@ namespace CodeNaviWPF
         public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
         public static readonly RoutedUICommand RelayoutGraph = new RoutedUICommand("Relayout Graph", "RelayoutGraph", typeof(MainWindow));
         public static readonly RoutedUICommand OnCloseVertex = new RoutedUICommand("Close Vertex", "OnCloseVertex", typeof(MainWindow));
-    }
-
-    [ValueConversion(typeof(string), typeof(bool))]
-    class StringToBool : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value == null || (string)value == "") return false;
-            return true;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return null;
-        }
     }
 }

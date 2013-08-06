@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Released as open source by NCC Group Plc - http://www.nccgroup.com/
  * 
  * Developed by Felix Ingram, (felix.ingram@nccgroup.com)
@@ -40,24 +40,6 @@ namespace CodeNaviWPF.Models
 
     public partial class ItemProvider
     {
-        public static string GetRelativePath(string fromPath, string toPath)
-        {
-            if (!fromPath.EndsWith("\\"))
-            {
-                fromPath += "\\";
-            }
-            if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
-            if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
-
-            Uri fromUri = new Uri(fromPath);
-            Uri toUri = new Uri(toPath);
-
-            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
-
-            return relativePath.Replace('/', Path.DirectorySeparatorChar);
-        }
-
         public string RootDir { get; set; }
 
         public List<Item> GetItems(string value)

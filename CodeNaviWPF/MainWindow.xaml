@@ -12,7 +12,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:graph="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
         xmlns:gxl="clr-namespace:GraphX;assembly=GraphX"
-        xmlns:Model="clr-namespace:CodeNaviWPF.Models"
+        xmlns:model="clr-namespace:CodeNaviWPF.Models"
+        xmlns:utils="clr-namespace:CodeNaviWPF.Utils"
         xmlns:local="clr-namespace:CodeNaviWPF"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:zb="clr-namespace:GraphX.Xceed.Wpf.Toolkit.Zoombox;assembly=GraphX"
@@ -32,12 +33,12 @@
     <Window.Resources>
 
 
-        <HierarchicalDataTemplate DataType="{x:Type Model:DirectoryItem}"
+        <HierarchicalDataTemplate DataType="{x:Type model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
             <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
         </HierarchicalDataTemplate>
 
-        <DataTemplate DataType="{x:Type Model:FileItem}" >
+        <DataTemplate DataType="{x:Type model:FileItem}" >
             <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
         </DataTemplate>
 
@@ -45,7 +46,7 @@
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
                 <StackPanel>
                     <StackPanel.Resources>
-                        <local:StringToBool x:Key="mystringtoboolconverter" />
+                        <utils:StringToBool x:Key="mystringtoboolconverter" />
                     </StackPanel.Resources>
                     <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
                     <StackPanel Orientation="Horizontal">
@@ -280,16 +281,8 @@
                 </StackPanel>
             </StackPanel>
         </Expander>
-        <zb:Zoombox x:Name="tg_zoomctrl" Grid.Row="1">
-            <Model:PocGraphLayout x:Name="tg_Area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" >
-                <Model:PocGraphLayout.Resources>
-                    <!--<ResourceDictionary>
-                        <ResourceDictionary.MergedDictionaries>
-                            <ResourceDictionary Source="Templates/TransparentTooltips.xaml"/>
-                        </ResourceDictionary.MergedDictionaries>
-                    </ResourceDictionary>-->
-                </Model:PocGraphLayout.Resources>
-            </Model:PocGraphLayout>
-        </zb:Zoombox> 
+        <zb:Zoombox x:Name="zoom_control" Grid.Row="1">
+            <model:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
+        </zb:Zoombox>
     </Grid>
 </Window>

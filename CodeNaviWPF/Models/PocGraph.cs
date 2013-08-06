@@ -127,6 +127,7 @@ namespace CodeNaviWPF.Models
         public FileVertex(string id, string path)
             : base(id, path)
         {
+            FileName = FilePathUtils.GetRelativePath(root, path);
             Document = new TextDocument();
         }
     }

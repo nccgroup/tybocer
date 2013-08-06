@@ -15,6 +15,7 @@ using System.Text;
 using System.IO;
 //using GraphSharp.Controls;
 using GraphX;
+using CodeNaviWPF.Utils;
 
 namespace CodeNaviWPF.Models
 {
@@ -162,7 +163,7 @@ namespace CodeNaviWPF.Models
                                 }
                                 s.Add(new SearchResult
                                 {
-                                    RelPath = Path.GetDirectoryName(ItemProvider.GetRelativePath(root.FilePath, new_i.FullPath)),
+                                    RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, new_i.FullPath)),
                                     FullPath = new_i.FullPath,
                                     FileName = new_i.FileName,
                                     Extension = new_i.Extension,
