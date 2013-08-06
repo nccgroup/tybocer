@@ -53,7 +53,8 @@
                         <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
                         <Button Name="RunSearch" 
                                 IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
-                                Command="local:Commands.SearchString" Content="Search" />
+                                Command="local:Commands.SearchString" Content="Search" 
+                                />
                     </StackPanel>
                     <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
                         <TreeView.ItemContainerStyle>
@@ -72,10 +73,8 @@
                 <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock>
-                            File: <TextBlock Text="{Binding Path=FileName}" />
-                        </TextBlock>
-                            <Button Content="Close" Command="local:Commands.OnCloseVertex" />
+                            <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
+                            <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
                         </StackPanel>
                     </Expander.Header>
 
@@ -127,11 +126,11 @@
                                             </Style>
                                         </DataGrid.ItemContainerStyle>
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}"></DataGridTextColumn>
-                                            <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}"></DataGridTextColumn>
-                                            <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}"></DataGridTextColumn>
-                                            <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}"></DataGridTextColumn>
-                                            <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}"></DataGridTextColumn>
+                                        <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}" />
+                                        <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}" />
+                                        <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}" />
+                                        <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}" />
+                                        <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}" FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}" />
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </StackPanel>
@@ -248,24 +247,18 @@
                 </Setter>-->
 
                 <!-- VERTEX DRAGGING CONTROL -->
-                <Setter Property="gxl:DragBehaviour.IsDragEnabled"
-                Value="False" />
-                <Setter Property="gxl:DragBehaviour.UpdateEdgesOnMove"
-                Value="True" />
-
+                <Setter Property="gxl:DragBehaviour.IsDragEnabled" Value="False" />
+                <Setter Property="gxl:DragBehaviour.UpdateEdgesOnMove" Value="True" />
 
                 <Style.Triggers>
                     <Trigger Property="gxl:HighlightBehaviour.Highlighted" Value="True">
                         <Setter Property="BorderBrush" Value="Gold"/>
                     </Trigger>
                 </Style.Triggers>
-
             </Style>
-
         </Grid.Resources>
         <Expander IsExpanded="False" Grid.Row="0" Header="Preferences">
             <StackPanel Orientation="Vertical">
-
                 <StackPanel Orientation="Horizontal">
                     <Label Target="{Binding ElementName=excludedExts}">Excluded Extensions</Label>
                     <TextBox x:Name="excludedExts" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedExtensions, Mode=TwoWay}" />
