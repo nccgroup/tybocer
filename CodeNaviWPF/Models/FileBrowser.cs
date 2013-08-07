@@ -47,7 +47,7 @@ namespace CodeNaviWPF.Models
             List<Item> items = new List<Item>();
             if (!System.IO.Directory.Exists(value)) { return items; }
             var dirinfo = new DirectoryInfo(value);
-            foreach (DirectoryInfo d in dirinfo.GetDirectories())
+            foreach (DirectoryInfo d in dirinfo.EnumerateDirectories())
             {
                 try
                 {
@@ -70,7 +70,7 @@ namespace CodeNaviWPF.Models
                 }
             }
 
-            foreach (FileInfo f in dirinfo.GetFiles())
+            foreach (FileInfo f in dirinfo.EnumerateFiles())
             {
                 var item = new FileItem
                 {
