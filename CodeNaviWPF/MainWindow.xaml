@@ -81,6 +81,7 @@
 
                     <StackPanel>
                         <avalonEdit:TextEditor
+                            MinWidth="600"
                             MaxWidth="800" 
                             Height="400" 
                             Document="{Binding Path=Document}" 
