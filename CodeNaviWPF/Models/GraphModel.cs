@@ -23,7 +23,7 @@ namespace CodeNaviWPF.Models
 
     public class GraphProvider : INotifyPropertyChanged
     {
-        private ItemProvider ip;
+        private ItemProvider item_provider;
         private PocGraph graph;
         private FileBrowser root;
         private string layoutAlgorithmType;
@@ -50,7 +50,7 @@ namespace CodeNaviWPF.Models
 
         public GraphProvider()
         {
-            ip = new ItemProvider();
+            item_provider = new ItemProvider();
             Graph = new PocGraph(true);
             root = new FileBrowser("");
             graph.AddVertex(root);
@@ -65,7 +65,7 @@ namespace CodeNaviWPF.Models
             //LayoutAlgorithmType="Tree"
             NotifyPropertyChanged("Graph");
         }
-
+        
         internal void UpdateRoot(string p)
         {
             root.FilePath = p;
@@ -79,22 +79,17 @@ namespace CodeNaviWPF.Models
 
         internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
-
             FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root.FilePath);
             Graph.AddVertex(new_vertex);
             Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
-            //}
             return new_vertex;
         }
 
         internal void ExpandDirectory(DirectoryItem di)
         {
-            List<Item> items = ip.GetItems(di.FullPath);
+            List<Item> items = item_provider.GetItems(di.FullPath);
             di.Items.Clear();
-            foreach (Item i in items)
-            {
-                di.Items.Add(i);
-            }
+            di.Items.AddRange(items);
         }
 
         #region Property Changed Stuff
@@ -133,13 +128,9 @@ namespace CodeNaviWPF.Models
                     FileInfo item_fileinfo = new FileInfo(item_to_search.FullPath);
                     if (!extensions_to_skip.Contains(item_fileinfo.Extension))
                     {
-                        if (item_fileinfo.Extension == ".docx")
-                        {
-                        }
                         int count = 0;
                         FileStream filestream = new FileStream(item_to_search.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         StreamReader streamreader = new StreamReader(filestream);
-                        //foreach (string line in File.ReadAllLines(item_to_search.FullPath, Encoding.UTF8))
                         string line = streamreader.ReadLine();
                         while (line != null)
                         {
@@ -185,12 +176,12 @@ namespace CodeNaviWPF.Models
 
         internal SearchResultsVertex PerformSearch(string selected_text, PocVertex source_vertex)
         {
-            SearchResultsVertex search_results = new SearchResultsVertex(selected_text);
-            search_results.Results = SearchItems(ip.GetItems(root.FilePath), selected_text);
-            Graph.AddVertex(search_results);
-            Graph.AddEdge(new PocEdge("Search", source_vertex, search_results));
+            SearchResultsVertex search_result = new SearchResultsVertex(selected_text);
+            search_result.Results = SearchItems(item_provider.GetItems(root.FilePath), selected_text);
+            Graph.AddVertex(search_result);
+            Graph.AddEdge(new PocEdge("Search", source_vertex, search_result));
             NotifyPropertyChanged("Graph");
-            return search_results;
+            return search_result;
         }
     }
 
