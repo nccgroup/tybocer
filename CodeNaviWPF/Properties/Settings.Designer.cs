@@ -59,5 +59,17 @@ namespace CodeNaviWPF.Properties {
                 this["EditorFont"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Tools\\ctags58\\ctags.exe")]
+        public string CtagsLocation {
+            get {
+                return ((string)(this["CtagsLocation"]));
+            }
+            set {
+                this["CtagsLocation"] = value;
+            }
+        }
     }
 }

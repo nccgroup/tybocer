@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -33,6 +35,8 @@ namespace CodeNaviWPF
         private VertexControl centre_on_me;
         private bool recentre = true;
         private int directory_count = 0;
+        private string ctags_info = null;
+        private string root_dir = "";
 
         public MainWindow()
         {
@@ -78,7 +82,40 @@ namespace CodeNaviWPF
             {
                 graph_provider.UpdateRoot(dialog.SelectedPath);
                 directory_count = await CountDirs(dialog.SelectedPath);
+                ctags_info = await RunCtags(dialog.SelectedPath);
+                root_dir = dialog.SelectedPath;
             }
+        }
+
+        async private void UpdateCtags(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Controls.TextBox box = (System.Windows.Controls.TextBox) e.Source;
+            if (File.Exists(box.Text) && root_dir != "")
+            {
+                ctags_info = await RunCtags(root_dir);
+            }
+        }
+
+        private Task<string> RunCtags(string path)
+        {
+            return Task.Run(() => {
+                Process process = new Process
+                {
+                    StartInfo =
+                    {
+                        FileName = Properties.Settings.Default.CtagsLocation,
+                        Arguments = @"--recurse=yes -f- --fields=afmikKlnsStz",
+                        WorkingDirectory = path,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    }
+                };
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                return output;
+            });
         }
 
         private Task<int> CountDirs(string path)
@@ -148,9 +185,52 @@ namespace CodeNaviWPF
 
                 // Ctrl+Click Go to definition
                 var position = editor.GetPositionFromPoint(e.GetPosition(editor));
-                System.Diagnostics.Debug.Print(position.ToString());
+                if (position != null)
+                {
+                    var offset = editor.Document.GetOffset(position.Value.Location);
+                    var start = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
+                    var end = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
+                    var word = editor.Document.GetText(start, end - start);
+                    System.Diagnostics.Debug.Print(word);
+
+                    foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (line.StartsWith(word))
+                        {
+                            System.Diagnostics.Debug.Print(line);
+                            List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
+                            int line_no = 1;
+                            foreach (string field in fields)
+                            {
+                                if (field.StartsWith("line:"))
+                                {
+                                    line_no = int.Parse(field.Split(new char[] { ':' })[1]);
+                                }
+                            }
+                            string file_path = fields[1];
+                            FileItem fi = new FileItem
+                            {
+                                FileName = Path.GetFileName(file_path),
+                                FullPath = Path.Combine(root_dir, file_path),
+                                Extension = Path.GetExtension(file_path),
+                                RelPath = file_path,
+                            };
+                            VertexControl vc = TreeHelpers.FindVisualParent<VertexControl>(editor);
+                            if (!(Path.GetFullPath(((FileVertex)vc.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && position.Value.Line == line_no))
+                            {
+                                AddFileView(fi, vc, (FileVertex)vc.Vertex, line_no);
+                            }
+                        }
+                    }
+                }
                 e.Handled = true;
             }
+        }
+
+        private void DataGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            graph_area.RelayoutGraph(true);
+            graph_area.UpdateLayout();
         }
 
         #endregion
@@ -289,11 +369,6 @@ namespace CodeNaviWPF
             }
         }
 
-        private void DataGrid_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            graph_area.RelayoutGraph(true);
-            graph_area.UpdateLayout();
-        }
     }
 
     public static class Commands

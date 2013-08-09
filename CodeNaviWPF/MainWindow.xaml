@@ -271,6 +271,10 @@
                     <Label Target="{Binding ElementName=editorFont}">Editor Font</Label>
                     <TextBox x:Name="editorFont" Text="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont, Mode=TwoWay}" />
                 </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location</Label>
+                    <TextBox x:Name="ctagsLocation" TextChanged="UpdateCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
+                </StackPanel>
             </StackPanel>
         </Expander>
         <zb:Zoombox x:Name="zoom_control" Grid.Row="1">
