@@ -184,7 +184,6 @@ namespace CodeNaviWPF.Models
 
         internal Task PopulateResultsAsync(string search_string, SearchResultsVertex search_result, IProgress<int> progress)
         {
-            progress.Report(100);
             return Task.Factory.StartNew(() => PopulateResults(search_string, search_result, progress));
         }
 
