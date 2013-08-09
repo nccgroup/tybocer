@@ -117,7 +117,7 @@ namespace CodeNaviWPF.Models
         public List<SearchResult> Results
         {
             get { return results; }
-            set { results = value; }
+            set { results = value; NotifyPropertyChanged("Results"); NotifyPropertyChanged("Graph"); }
         }
         public SearchResultsVertex(string search_term)
         {

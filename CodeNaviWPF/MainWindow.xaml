@@ -27,11 +27,10 @@
     >
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
-        <CommandBinding Command="local:Commands.RelayoutGraph" Executed="RelayoutGraph" />
+        <CommandBinding Command="local:Commands.ExpanderRelayout" Executed="ExpanderRelayout" />
         <CommandBinding Command="local:Commands.OnCloseVertex" Executed="OnCloseVertex" />
     </Window.CommandBindings>
     <Window.Resources>
-
 
         <HierarchicalDataTemplate DataType="{x:Type model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
@@ -70,7 +69,7 @@
 
         <DataTemplate x:Key="fileContentView">
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
-                <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
+                <Expander IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
@@ -106,36 +105,36 @@
         <DataTemplate x:Key="searchResultsView">
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="10">
                 <Grid>
-                    <Expander IsExpanded="True" Expanded="RelayoutGraph" Collapsed="RelayoutGraph">
+                    <Expander IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock VerticalAlignment="Center">Search for: <TextBlock Text="{Binding Path=SearchString}" /></TextBlock>
                                 <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
                             </StackPanel>
                         </Expander.Header>
-                            <Grid>
-                                <Border CornerRadius="0,0,9,9" x:Name="Mask" Background="Black" />
-                                <StackPanel>
-                                    <StackPanel.OpacityMask>
-                                        <VisualBrush Visual="{Binding ElementName=Mask}"/>
-                                    </StackPanel.OpacityMask>
-                                    <DataGrid ItemsSource="{Binding Results}" MaxHeight="500" MaxWidth="800" IsReadOnly="True" AutoGenerateColumns="False">
-                                        <DataGrid.ItemContainerStyle>
-                                            <Style TargetType="DataGridRow">
-                                                <EventSetter Event="MouseDoubleClick"
-                            Handler="DataGrid_MouseDoubleClick" />
-                                            </Style>
-                                        </DataGrid.ItemContainerStyle>
-                                        <DataGrid.Columns>
+                        <Grid>
+                            <Border CornerRadius="0,0,9,9" x:Name="Mask" Background="Black" />
+                            <StackPanel>
+                                <StackPanel.OpacityMask>
+                                    <VisualBrush Visual="{Binding ElementName=Mask}"/>
+                                </StackPanel.OpacityMask>
+                                <ProgressBar Height="20"/>
+                                <DataGrid Visibility="Collapsed" SizeChanged="DataGrid_SizeChanged" ItemsSource="{Binding Results}" MaxHeight="500" MaxWidth="800" IsReadOnly="True" AutoGenerateColumns="False">
+                                    <DataGrid.ItemContainerStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <EventSetter Event="MouseDoubleClick" Handler="DataGrid_MouseDoubleClick" />
+                                        </Style>
+                                    </DataGrid.ItemContainerStyle>
+                                    <DataGrid.Columns>
                                         <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}" />
                                         <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}" />
-                                        <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}" />
                                         <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}" />
                                         <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}" FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </StackPanel>
-                            </Grid>
+                                        <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Grid>
                     </Expander>
                 </Grid>
             </Border>

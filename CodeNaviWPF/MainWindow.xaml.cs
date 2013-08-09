@@ -10,7 +10,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -30,6 +32,7 @@ namespace CodeNaviWPF
         private PocVertex root_vertex;
         private VertexControl centre_on_me;
         private bool recentre = true;
+        private int directory_count = 0;
 
         public MainWindow()
         {
@@ -52,14 +55,12 @@ namespace CodeNaviWPF
             root_vertex = graph_area.VertexList.Keys.First();
             centre_on_me = root_control;
             zoom_control.CenterContent();
-            //CenterOnVertex(root_control);
         }
 
         #region Events
         private void OnRelayoutFinished(object sender, EventArgs e)
         {
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-            //CenterOnVertex(((PocGraphLayout)sender).GetAllVertexControls().ToList().Last());
             if (recentre)
             {
                 CenterOnVertex(centre_on_me);
@@ -70,13 +71,19 @@ namespace CodeNaviWPF
             }
         }
 
-        private void DirPicker_Click(object sender, RoutedEventArgs e)
+        async private void DirPicker_Click(object sender, RoutedEventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 graph_provider.UpdateRoot(dialog.SelectedPath);
+                directory_count = await CountDirs(dialog.SelectedPath);
             }
+        }
+
+        private Task<int> CountDirs(string path)
+        {
+            return Task.Run(() => { return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count(); });
         }
 
         private void OnTreeNodeDoubleClick(object sender, RoutedEventArgs e)
@@ -173,7 +180,6 @@ namespace CodeNaviWPF
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 //((ICSharpCode.AvalonEdit.TextEditor)VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(vc, 0), 0), 0), 0), 0), 0), 1), 0), 0)).ScrollToLine(line);
             }
-            //CenterOnVertex(vc);
         }
 
         private void CenterOnVertex(VertexControl vc)
@@ -199,19 +205,22 @@ namespace CodeNaviWPF
             zoom_control.ZoomTo(new_point);
         }
 
-
-        private void RelayoutGraph(object sender, RoutedEventArgs e)
+        private void ExpanderRelayout(object sender, RoutedEventArgs e)
         {
             Expander expander = e.Source as Expander;
             recentre = expander.IsExpanded;
             VertexControl parent_vertex_control = TreeHelpers.FindVisualParent<VertexControl>(e.Source as Expander);
-            centre_on_me = parent_vertex_control;
-            graph_area.RelayoutGraph(true);
-            graph_area.UpdateLayout();
-            //if (ex.IsExpanded) CenterOnVertex(vc);
+            RelayoutGraph(parent_vertex_control);
         }
 
-        private void SearchString(object sender, RoutedEventArgs e)
+        private void RelayoutGraph(VertexControl vertex_control)
+        {
+            centre_on_me = vertex_control;
+            graph_area.RelayoutGraph(true);
+            graph_area.UpdateLayout();
+        }
+
+        async private void SearchString(object sender, RoutedEventArgs e)
         {
             string selected_text = "";
             TextArea textarea = e.OriginalSource as TextArea;
@@ -232,15 +241,25 @@ namespace CodeNaviWPF
                 VertexControl to_vertex_control = new VertexControl(new_search_results_vertex) { DataContext = new_search_results_vertex };
                 VertexControl from_vertex_control = (VertexControl)e.Source;
                 graph_area.AddVertex(new_search_results_vertex, to_vertex_control);
-                PocEdge new_edge = new PocEdge("sdfsdfdsf", source_vertex, new_search_results_vertex);
+                PocEdge new_edge = new PocEdge("Search for: "+selected_text, source_vertex, new_search_results_vertex);
                 graph_area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
                 graph_area.RelayoutGraph(true);
                 graph_area.UpdateLayout();
                 centre_on_me = to_vertex_control;
-                //CenterOnVertex(to_vertex_control);
+                System.Windows.Controls.ProgressBar bar = TreeHelpers.FindVisualChild<System.Windows.Controls.ProgressBar>(to_vertex_control);
+                System.Windows.Controls.DataGrid grid = TreeHelpers.FindVisualChild<System.Windows.Controls.DataGrid>(to_vertex_control);
+                bar.Maximum = directory_count;
+                var search_progress = new Progress<int>((int some_int) => ReportProgress(bar));
+                await graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
+                bar.Visibility = System.Windows.Visibility.Collapsed;
+                grid.Visibility = System.Windows.Visibility.Visible;
             }
         }
 
+        private void ReportProgress(System.Windows.Controls.ProgressBar bar)
+        {
+            bar.Value++;
+        }
 
         private void CloseVertex(PocVertex vertex_to_remove)
         {
@@ -269,12 +288,18 @@ namespace CodeNaviWPF
                 }
             }
         }
+
+        private void DataGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            graph_area.RelayoutGraph(true);
+            graph_area.UpdateLayout();
+        }
     }
 
     public static class Commands
     {
         public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
-        public static readonly RoutedUICommand RelayoutGraph = new RoutedUICommand("Relayout Graph", "RelayoutGraph", typeof(MainWindow));
+        public static readonly RoutedUICommand ExpanderRelayout = new RoutedUICommand("Relayout Graph", "ExpanderRelayout", typeof(MainWindow));
         public static readonly RoutedUICommand OnCloseVertex = new RoutedUICommand("Close Vertex", "OnCloseVertex", typeof(MainWindow));
     }
 }

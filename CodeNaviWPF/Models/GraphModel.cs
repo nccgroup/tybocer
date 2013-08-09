@@ -10,8 +10,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Text;
+using System.Linq;
 using System.IO;
 //using GraphSharp.Controls;
 using GraphX;
@@ -104,80 +107,92 @@ namespace CodeNaviWPF.Models
         }
         #endregion
 
-        //private List<string> extensions_to_skip = new List<string> { 
-        //    ".exe",
-        //    ".pdb", 
-        //    ".dll", 
-        //    ".zip",
-        //    ".cache", 
-        //    ".suo",
-        //    ".resources",
-        //    ".baml",
-        //};
+        private SearchResult SearchFile(FileInfo file_info, String search_term, List<String> extensions_to_skip)
+        {
+            if (!extensions_to_skip.Contains(file_info.Extension))
+            {
+                FileStream filestream = new FileStream(file_info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                StreamReader streamreader = new StreamReader(filestream);
+                string line = streamreader.ReadLine();
+                int count = 0;
+                while (line != null)
+                {
+                    count++;
+                    if (line.ToLower().Contains(search_term.ToLower()))
+                    {
+                        return new SearchResult
+                        {
+                            RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, file_info.FullName)),
+                            FullPath = file_info.FullName,
+                            FileName = file_info.Name,
+                            Extension = file_info.Extension,
+                            LineNumber = count,
+                            Line = line.Length > 500 ? line.Substring(0, 500) : line
+                        };
+                    }
+                    line = streamreader.ReadLine();
+                }
+            }
+            return null;
+        }
 
-        internal List<SearchResult> SearchItems(List<Item> items, string selected_text)
+        internal BlockingCollection<SearchResult> SearchDirectory(string search_term, DirectoryInfo directory, IProgress<int> progress)
         {
             List<String> extensions_to_skip = new List<String>(Properties.Settings.Default.ExcludedExtensions.Split(';'));
             List<String> directories_to_skip = new List<String>(Properties.Settings.Default.ExcludedDirectories.Split(';'));
-            List<SearchResult> search_results = new List<SearchResult>();
-            foreach (Item item_to_search in items)
+            if (directories_to_skip.Contains(directory.Name))
             {
-                if (item_to_search is FileItem)
-                {
-                    FileItem item_to_search_copy = item_to_search as FileItem;
-                    FileInfo item_fileinfo = new FileInfo(item_to_search.FullPath);
-                    if (!extensions_to_skip.Contains(item_fileinfo.Extension))
-                    {
-                        int count = 0;
-                        FileStream filestream = new FileStream(item_to_search.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        StreamReader streamreader = new StreamReader(filestream);
-                        string line = streamreader.ReadLine();
-                        while (line != null)
-                        {
-                            count++;
-                            if (line.ToLower().Contains(selected_text.ToLower()))
-                            {
-                                string line_copy;
-                                if (line.Length > 500)
-                                {
-                                    // For when we search a binary file by mistake.
-                                    // Or some perl code
-                                    line_copy = line.Substring(0, 500);
-                                }
-                                else
-                                {
-                                    line_copy = line;
-                                }
-                                search_results.Add(new SearchResult
-                                {
-                                    RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, item_to_search_copy.FullPath)),
-                                    FullPath = item_to_search_copy.FullPath,
-                                    FileName = item_to_search_copy.FileName,
-                                    Extension = item_to_search_copy.Extension,
-                                    LineNumber = count,
-                                    Line = line_copy
-                                });
-                            }
-                            line = streamreader.ReadLine();
-                        }
-                    }
-                }
-                if (item_to_search is DirectoryItem)
-                {
-                    if (!directories_to_skip.Contains(item_to_search.FileName))
-                    {
-                        ExpandDirectory((DirectoryItem)item_to_search);
-                        search_results.AddRange(SearchItems(((DirectoryItem)item_to_search).Items, selected_text));
-                    }
-                }
+                progress.Report(1);
+                return new BlockingCollection<SearchResult>();
             }
-            return search_results;
+            BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
+            try
+            {
+                Parallel.ForEach(directory.EnumerateFiles(), file_info =>
+                {
+                    SearchResult result = SearchFile(file_info, search_term, extensions_to_skip);
+                    if (result != null) results.Add(result);
+                });
+
+                Parallel.ForEach(directory.EnumerateDirectories(), dir_info =>
+                {
+                    progress.Report(1);
+                    foreach (var s in SearchDirectory(search_term, dir_info, progress))
+                    {
+                        if (s != null) results.Add(s);
+                    }
+                });
+            }
+            catch (DirectoryNotFoundException)
+            { 
+                // TODO - Hmm. I think this could short circuit things a little too early.
+            }
+
+            return results;
+
         }
 
-        internal SearchResultsVertex PerformSearch(string selected_text, PocVertex source_vertex)
+        internal void PopulateResults(string search_term, SearchResultsVertex results_vertex, IProgress<int> progress)
         {
-            SearchResultsVertex search_result = new SearchResultsVertex(selected_text);
-            search_result.Results = SearchItems(item_provider.GetItems(root.FilePath), selected_text);
+            BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
+
+            results = SearchDirectory(search_term, new DirectoryInfo(root.FilePath), progress);
+
+            results_vertex.Results = results.ToList<SearchResult>();
+
+        }
+
+        internal Task PopulateResultsAsync(string search_string, SearchResultsVertex search_result, IProgress<int> progress)
+        {
+            progress.Report(100);
+            return Task.Factory.StartNew(() => PopulateResults(search_string, search_result, progress));
+        }
+
+        internal SearchResultsVertex PerformSearch(string search_string, PocVertex source_vertex)
+        {
+            SearchResultsVertex search_result = new SearchResultsVertex(search_string);
+            search_result.Results = new List<SearchResult>();
+            
             Graph.AddVertex(search_result);
             Graph.AddEdge(new PocEdge("Search", source_vertex, search_result));
             NotifyPropertyChanged("Graph");
