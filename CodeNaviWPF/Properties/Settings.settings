@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ExcludedExtensions" Type="System.String" Scope="User">
-      <Value Profile="(Default)">.exe;.pdb;.dll;.zip;.cache;.suo;.resources;.baml;.pyc</Value>
+      <Value Profile="(Default)">.exe;.pdb;.dll;.zip;.cache;.suo;.resources;.baml;.pyc;.egg;.msi;.Cache;.rar;.jar;.7z;.class</Value>
     </Setting>
     <Setting Name="ExcludedDirectories" Type="System.String" Scope="User">
       <Value Profile="(Default)">.hg;.git;.svn</Value>

@@ -25,7 +25,8 @@ namespace CodeNaviWPF.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(".exe;.pdb;.dll;.zip;.cache;.suo;.resources;.baml;.pyc")]
+        [global::System.Configuration.DefaultSettingValueAttribute(".exe;.pdb;.dll;.zip;.cache;.suo;.resources;.baml;.pyc;.egg;.msi;.Cache;.rar;.jar;" +
+            ".7z;.class")]
         public string ExcludedExtensions {
             get {
                 return ((string)(this["ExcludedExtensions"]));
