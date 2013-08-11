@@ -45,7 +45,6 @@ namespace CodeNaviWPF
         {
             graph_provider = new GraphProvider();
 
-            //this.DataContext = gp.Graph;
             InitializeComponent();
             Zoombox.SetViewFinderVisibility(zoom_control, System.Windows.Visibility.Visible);
             graph_area.AsyncAlgorithmCompute = true;
@@ -57,7 +56,7 @@ namespace CodeNaviWPF
             graph_area.GenerateGraph(graph_provider.Graph);
             graph_area.RelayoutGraph(true);
 
-            //tg_Area.UseNativeObjectArrange = false;
+            //graph_area.UseNativeObjectArrange = false;
             root_control = graph_area.VertexList.Values.First();
             root_vertex = graph_area.VertexList.Keys.First();
             centre_on_me = root_control;
@@ -68,7 +67,6 @@ namespace CodeNaviWPF
         private void OnRelayoutFinished(object sender, EventArgs e)
         {
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-            //graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.Tree;
             graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
             ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
             ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
@@ -134,24 +132,30 @@ namespace CodeNaviWPF
 
         private string RunCtags(string path)
         {
-            //return Task.Run(() => {
-                Process process = new Process
+            Process process = new Process
+            {
+                StartInfo =
                 {
-                    StartInfo =
-                    {
-                        FileName = Properties.Settings.Default.CtagsLocation,
-                        Arguments = @"--recurse=yes -f- --fields=afmikKlnsStz",
-                        WorkingDirectory = path,
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                    }
-                };
-                process.Start();
-                string output = process.StandardOutput.ReadToEnd();
+                    FileName = Properties.Settings.Default.CtagsLocation,
+                    Arguments = @"--recurse=yes -f- --fields=afmikKlnsStz",
+                    WorkingDirectory = path,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+            process.Start();
+            string output = "";
+            try
+            {
+                output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit();
-                return output;
-            //});
+            }
+            catch (OutOfMemoryException)
+            {
+                System.Windows.Forms.MessageBox.Show("Ctags ran out of memory.", "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+            }
+            return output;
         }
 
         private Task<int> CountDirs(string path)
@@ -231,9 +235,9 @@ namespace CodeNaviWPF
 
                     if (ctags_matches.ContainsKey(word))
                     {
-                    //foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
-                    //{
-                            //System.Diagnostics.Debug.Print(line);
+                        //foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                        //{
+                        //System.Diagnostics.Debug.Print(line);
                         foreach (List<string> match in ctags_matches[word])
                         {
                             int line_no = 1;
