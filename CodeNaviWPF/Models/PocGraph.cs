@@ -14,15 +14,22 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.IO;
+using System;
 using QuickGraph;
 using ICSharpCode.AvalonEdit.Document;
 using GraphX;
 using CodeNaviWPF.Utils;
+using System.Xml.Serialization;
+using YAXLib;
 
 namespace CodeNaviWPF.Models
 {
     public class PocVertex : VertexBase, INotifyPropertyChanged
     {
+        public PocVertex()
+        {
+            ID = Utils.IDCounter.Counter;
+        }
 
         #region INotifyPropertyChanged Implementation
 
@@ -41,8 +48,9 @@ namespace CodeNaviWPF.Models
 
     public class FileBrowser : PocVertex
     {
-        //public string ID;
+        [YAXDontSerialize]
         private ItemProvider ip;
+        [YAXDontSerialize]
         private List<Item> files;
         private string file_path;
         public string FilePath
@@ -58,50 +66,39 @@ namespace CodeNaviWPF.Models
         }
         public List<Item> Files { get { return files; } }
 
+        [YAXDontSerialize]
         private string searchterm;
 
+        [YAXDontSerialize]
         public string SearchTerm
         {
             get { return searchterm; }
             set { searchterm = value; }
         }
 
-        public FileBrowser(string path)
+        public FileBrowser(string path) : base()
         {
-            //ID = id;
             file_path = path;
             files = new List<Item>();
             ip = new ItemProvider();
             files = ip.GetItems(file_path);
         }
-
-        public override string ToString()
-        {
-            return string.Format("{1}", file_path);
-        }
-
     }
 
     public class FileVertex : PocVertex
     {
-        public string _rootdir;
+        private string _rootdir;
         public string FileName { get; set; }
-        
-        public TextDocument Document { get; set; }
-        //private string file_path;
-        public string FilePath { get; set; }
-        //{
-        //    get { return file_path; }
-        //    set
-        //    {
-        //        file_path = value;
-        //        NotifyPropertyChanged("FilePath");
-        //    }
-        //}
 
-        public FileVertex(string filename, string path, string root)
+        [YAXDontSerialize]
+        public TextDocument Document { get; set; }
+
+        public string FilePath { get; set; }
+
+        public FileVertex(string filename, string path, string root) : base()
         {
-            FileName = FilePathUtils.GetRelativePath(root, path);
+            base.ID = Utils.IDCounter.Counter;
+            FileName = FilePathUtils.GetRelativePath(root, path);            
             FilePath = path;
             _rootdir = root;
             Document = new TextDocument();
@@ -120,6 +117,7 @@ namespace CodeNaviWPF.Models
             set { results = value; NotifyPropertyChanged("Results"); NotifyPropertyChanged("Graph"); }
         }
         public SearchResultsVertex(string search_term)
+            : base()
         {
             SearchString = search_term;
             results = new List<SearchResult>();
@@ -132,14 +130,39 @@ namespace CodeNaviWPF.Models
         public string RelPath { get; set; }
         public string FileName { get; set; }
         public string Extension { get; set; }
+        [YAXDontSerialize]
         public string Line { get; set; }
+
+        public string EncodedLine
+        {
+            get { return Convert.ToBase64String(
+                GetBytes(Line)); }
+            set { Line = GetString(Convert.FromBase64String(value)); }
+        }
+
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
+        }
         public int LineNumber { get; set; }
     }
 
     public class PocEdge : EdgeBase<PocVertex>
     {
-        public PocEdge(string id, PocVertex source, PocVertex target)
-            : base(source, target) { }
+        public PocEdge(PocVertex source, PocVertex target)
+            : base(source, target) 
+        {
+            ID = Utils.IDCounter.Counter;
+        }
     }
 
     public class PocGraph : BidirectionalGraph<PocVertex, PocEdge>

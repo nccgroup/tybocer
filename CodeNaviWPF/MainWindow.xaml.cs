@@ -84,6 +84,7 @@ namespace CodeNaviWPF
                 directory_count = await CountDirs(dialog.SelectedPath);
                 ctags_info = await RunCtags(dialog.SelectedPath);
                 root_dir = dialog.SelectedPath;
+                SaveGraph();
             }
         }
 
@@ -333,6 +334,7 @@ namespace CodeNaviWPF
                 await graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
                 bar.Visibility = System.Windows.Visibility.Collapsed;
                 grid.Visibility = System.Windows.Visibility.Visible;
+                SaveGraph();
             }
         }
 
@@ -367,6 +369,16 @@ namespace CodeNaviWPF
                     graph_area.RemoveEdge(f);
                 }
             }
+        }
+
+        private void SaveGraph()
+        {
+            DirectoryInfo di = new DirectoryInfo(root_dir);
+            string file_name = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) +
+                Path.DirectorySeparatorChar +
+                di.Name +
+                 ".vizzy";
+            graph_area.SaveIntoFile(file_name);
         }
 
     }

@@ -84,7 +84,7 @@ namespace CodeNaviWPF.Models
         {
             FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root.FilePath);
             Graph.AddVertex(new_vertex);
-            Graph.AddEdge(new PocEdge("Open...", from_vertex, new_vertex));
+            Graph.AddEdge(new PocEdge(from_vertex, new_vertex));
             return new_vertex;
         }
 
@@ -193,7 +193,7 @@ namespace CodeNaviWPF.Models
             search_result.Results = new List<SearchResult>();
             
             Graph.AddVertex(search_result);
-            Graph.AddEdge(new PocEdge("Search", source_vertex, search_result));
+            Graph.AddEdge(new PocEdge(source_vertex, search_result));
             NotifyPropertyChanged("Graph");
             return search_result;
         }

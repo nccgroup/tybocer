@@ -21,6 +21,17 @@ using System.Globalization;
 
 namespace CodeNaviWPF.Utils
 {
+    class IDCounter
+    {
+        private static int counter = 0;
+
+        public static int Counter
+        {
+            get { counter++; return counter; }
+        }
+        
+    }
+
     class FilePathUtils
     {
         public static string GetRelativePath(string fromPath, string toPath)
@@ -45,7 +56,7 @@ namespace CodeNaviWPF.Utils
     class TreeHelpers
     {
         public static childItem FindVisualChild<childItem>(DependencyObject obj)
-where childItem : DependencyObject
+        where childItem : DependencyObject
         {
             try
             {
