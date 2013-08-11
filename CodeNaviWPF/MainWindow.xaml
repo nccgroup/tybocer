@@ -273,7 +273,19 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location</Label>
-                    <TextBox x:Name="ctagsLocation" TextChanged="UpdateCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
+                    <TextBox x:Name="ctagsLocation" TextChanged="CheckForCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Minimise edge distance</TextBlock>
+                    <CheckBox x:Name="mini" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Layer dist</TextBlock>
+                    <TextBox x:Name="layerdist" Text="100" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Vert dist</TextBlock>
+                    <TextBox x:Name="vertdist" Text="100" />
                 </StackPanel>
             </StackPanel>
         </Expander>

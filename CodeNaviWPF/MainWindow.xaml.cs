@@ -24,6 +24,7 @@ using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
+using GraphX.GraphSharp.Algorithms.Layout.Simple.Hierarchical;
 
 namespace CodeNaviWPF
 {
@@ -48,7 +49,7 @@ namespace CodeNaviWPF
             graph_area.AsyncAlgorithmCompute = true;
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.ISOM;
             graph_area.RelayoutFinished += OnRelayoutFinished;
-            graph_area.DefaultOverlapRemovalAlgorithm = GraphX.OverlapRemovalAlgorithmTypeEnum.FSA;
+            graph_area.DefaultOverlapRemovalAlgorithm = GraphX.OverlapRemovalAlgorithmTypeEnum.OneWayFSA;
             graph_area.UseNativeObjectArrange = true;
             graph_area.Graph = graph_provider.Graph;
             graph_area.GenerateGraph(graph_provider.Graph);
@@ -65,6 +66,13 @@ namespace CodeNaviWPF
         private void OnRelayoutFinished(object sender, EventArgs e)
         {
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
+            //graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.Tree;
+            graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
             if (recentre)
             {
                 CenterOnVertex(centre_on_me);
