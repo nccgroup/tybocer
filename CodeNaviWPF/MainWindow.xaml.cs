@@ -26,6 +26,7 @@ using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
 using GraphX.GraphSharp.Algorithms.Layout.Simple.Hierarchical;
 
+
 namespace CodeNaviWPF
 {
     public partial class MainWindow : Window
@@ -292,10 +293,11 @@ namespace CodeNaviWPF
             ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualChild<ICSharpCode.AvalonEdit.TextEditor>(new_vertex_control);
             if (editor != null)
             {
-                editor.ScrollToLine(line);
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.TextArea.KeyDown += TestEditor_KeyDown;
-                //((ICSharpCode.AvalonEdit.TextEditor)VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(vc, 0), 0), 0), 0), 0), 0), 1), 0), 0)).ScrollToLine(line);
+                editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, line));
+                //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
+                editor.ScrollToLine(line);
             }
             SaveGraph();
         }
