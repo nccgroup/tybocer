@@ -300,6 +300,19 @@ namespace CodeNaviWPF
             SaveGraph();
         }
 
+        async private void TestEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.S)
+            {
+                string selected_text = "";
+                TextArea textarea = e.OriginalSource as TextArea;
+                VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(textarea);
+                PocVertex source_vertex = (PocVertex)sv.Vertex;
+                selected_text = textarea.Selection.GetText();
+                await SearchForString(selected_text, sv);
+            }
+        }
+
         private void CenterOnVertex(VertexControl vc)
         {
             var x = zoom_control.Position.X + vc.GetPosition().X;
@@ -340,6 +353,9 @@ namespace CodeNaviWPF
 
         async private void SearchString(object sender, RoutedEventArgs e)
         {
+            // TODO - this needs sorting out. At the moment we're hacking up a solution
+            // where we test for whether they've selected some text in the box, or
+            // entered something in the root node.
             string selected_text = "";
             TextArea textarea = e.OriginalSource as TextArea;
             PocVertex source_vertex = (PocVertex)((VertexControl)e.Source).Vertex;
@@ -353,13 +369,17 @@ namespace CodeNaviWPF
             {
                 selected_text = textarea.Selection.GetText();
             }
+            await SearchForString(selected_text, (VertexControl)e.Source);
+        }
+
+        private async Task SearchForString(string selected_text, VertexControl from_vertex_control)
+        {
             if (selected_text != null && selected_text != "")
             {
-                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, source_vertex);
+                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, (PocVertex)from_vertex_control.Vertex);
                 VertexControl to_vertex_control = new VertexControl(new_search_results_vertex) { DataContext = new_search_results_vertex };
-                VertexControl from_vertex_control = (VertexControl)e.Source;
                 graph_area.AddVertex(new_search_results_vertex, to_vertex_control);
-                PocEdge new_edge = new PocEdge("Search for: "+selected_text, source_vertex, new_search_results_vertex);
+                PocEdge new_edge = new PocEdge((PocVertex)from_vertex_control.Vertex, new_search_results_vertex);
                 graph_area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
                 graph_area.RelayoutGraph(true);
                 graph_area.UpdateLayout();
