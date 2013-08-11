@@ -38,6 +38,7 @@ namespace CodeNaviWPF
         private int directory_count = 0;
         private string ctags_info = null;
         private string root_dir = "";
+        private Dictionary<string, List<List<string>>> ctags_matches;
 
         public MainWindow()
         {
@@ -88,26 +89,51 @@ namespace CodeNaviWPF
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                root_dir = dialog.SelectedPath;
                 graph_provider.UpdateRoot(dialog.SelectedPath);
                 directory_count = await CountDirs(dialog.SelectedPath);
-                ctags_info = await RunCtags(dialog.SelectedPath);
-                root_dir = dialog.SelectedPath;
+                await UpdateCtags();
                 SaveGraph();
             }
         }
 
-        async private void UpdateCtags(object sender, RoutedEventArgs e)
+        async private void CheckForCtags(object sender, RoutedEventArgs e)
         {
-            System.Windows.Controls.TextBox box = (System.Windows.Controls.TextBox) e.Source;
+            System.Windows.Controls.TextBox box = (System.Windows.Controls.TextBox)e.Source;
             if (File.Exists(box.Text) && root_dir != "")
             {
-                ctags_info = await RunCtags(root_dir);
+                await UpdateCtags();
             }
         }
 
-        private Task<string> RunCtags(string path)
+        private Task UpdateCtags()
         {
-            return Task.Run(() => {
+            return Task.Run(() =>
+            {
+                if (root_dir != "")
+                {
+                    ctags_info = RunCtags(root_dir);
+                    ctags_matches = new Dictionary<string, List<List<string>>>();
+                    foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
+                        try
+                        {
+                            ctags_matches[fields[0]].Add(fields);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            ctags_matches.Add(fields[0], new List<List<string>>());
+                            ctags_matches[fields[0]].Add(fields);
+                        }
+                    }
+                }
+            });
+        }
+
+        private string RunCtags(string path)
+        {
+            //return Task.Run(() => {
                 Process process = new Process
                 {
                     StartInfo =
@@ -124,7 +150,7 @@ namespace CodeNaviWPF
                 string output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit();
                 return output;
-            });
+            //});
         }
 
         private Task<int> CountDirs(string path)
@@ -202,21 +228,22 @@ namespace CodeNaviWPF
                     var word = editor.Document.GetText(start, end - start);
                     System.Diagnostics.Debug.Print(word);
 
-                    foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    if (ctags_matches.ContainsKey(word))
                     {
-                        if (line.StartsWith(word))
+                    //foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                    //{
+                            //System.Diagnostics.Debug.Print(line);
+                        foreach (List<string> match in ctags_matches[word])
                         {
-                            System.Diagnostics.Debug.Print(line);
-                            List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
                             int line_no = 1;
-                            foreach (string field in fields)
+                            foreach (string field in match)
                             {
                                 if (field.StartsWith("line:"))
                                 {
                                     line_no = int.Parse(field.Split(new char[] { ':' })[1]);
                                 }
                             }
-                            string file_path = fields[1];
+                            string file_path = match[1];
                             FileItem fi = new FileItem
                             {
                                 FileName = Path.GetFileName(file_path),
@@ -257,7 +284,7 @@ namespace CodeNaviWPF
                 new_vertex_control = graph_area.GetAllVertexControls().Where(c => c.Vertex == new_vertex).First();
             }
 
-            PocEdge new_edge = new PocEdge("sdfsdfdsf", source_vertex, new_vertex);
+            PocEdge new_edge = new PocEdge(source_vertex, new_vertex);
             graph_area.InsertEdge(new_edge, new EdgeControl(source, new_vertex_control, new_edge));
             graph_area.RelayoutGraph(true);
             graph_area.UpdateLayout();
@@ -267,8 +294,10 @@ namespace CodeNaviWPF
             {
                 editor.ScrollToLine(line);
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                editor.TextArea.KeyDown += TestEditor_KeyDown;
                 //((ICSharpCode.AvalonEdit.TextEditor)VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(vc, 0), 0), 0), 0), 0), 0), 1), 0), 0)).ScrollToLine(line);
             }
+            SaveGraph();
         }
 
         private void CenterOnVertex(VertexControl vc)
