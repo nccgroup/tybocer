@@ -132,6 +132,7 @@ namespace CodeNaviWPF
 
         private string RunCtags(string path)
         {
+            if (!File.Exists(Properties.Settings.Default.CtagsLocation)) return "";
             Process process = new Process
             {
                 StartInfo =
@@ -229,6 +230,7 @@ namespace CodeNaviWPF
                 {
                     var offset = editor.Document.GetOffset(position.Value.Location);
                     var start = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
+                    if (start < 0) return;
                     var end = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
                     var word = editor.Document.GetText(start, end - start);
                     System.Diagnostics.Debug.Print(word);
