@@ -17,6 +17,9 @@ using System.Windows;
 using ICSharpCode.AvalonEdit.Rendering;
 using System.Windows.Media;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace CodeNaviWPF
 {
@@ -49,6 +52,78 @@ namespace CodeNaviWPF
                 drawingContext.DrawRectangle(
                     new SolidColorBrush(Color.FromArgb(0x40, 0, 0, 0xFF)), null,
                     new Rect(rect.Location, new Size(textView.ActualWidth - 32, rect.Height)));
+            }
+        }
+    }
+
+    public class EscapeSequenceLineTransformer : IVisualLineTransformer
+    {
+        private List<string> _tags;
+        
+        public EscapeSequenceLineTransformer(List<string> tags)
+        {
+            _tags = tags;
+        }
+
+        public void Transform(ITextRunConstructionContext context, IList<VisualLineElement> elements)
+        {
+            foreach (VisualLineElement element in elements)
+            {
+                //if (element is EscapeSequenceElement)
+                //{
+                //    currentEscapeSequence = (EscapeSequenceElement)element;
+                //}
+                //else if (currentEscapeSequence != null)
+                //{
+                //    element.TextRunProperties.SetForegroundBrush(currentEscapeSequence.ForegroundBrush);
+                //}
+            }
+        }
+    }
+
+    public class UnderlineCtagsMatches : DocumentColorizingTransformer
+    {
+        private List<string> _tags;
+        
+        public UnderlineCtagsMatches(List<string> tags)
+        {
+            _tags = tags;
+        }
+
+        protected override void ColorizeLine(DocumentLine line)
+        {
+            int lineStartOffset = line.Offset;
+            string text = CurrentContext.Document.GetText(line);
+            foreach (string tag in _tags)
+            {
+                Regex reg = new Regex(@"\b" + tag + @"\b", RegexOptions.None);
+                int start = 0;
+                int index;
+                foreach (Match match in reg.Matches(text))
+                {
+                    index = match.Index;
+                //while ((index = reg.intext.IndexOf(tag, start)) >= 0)
+                //{
+                    base.ChangeLinePart(
+                        lineStartOffset + index, // startOffset
+                        lineStartOffset + index + tag.Length, // endOffset
+                        (VisualLineElement element) =>
+                        {
+                            // This lambda gets called once for every VisualLineElement
+                            // between the specified offsets.
+                            Typeface tf = element.TextRunProperties.Typeface;
+                            // Replace the typeface with a modified version of
+                            // the same typeface
+                            element.TextRunProperties.SetTextDecorations(TextDecorations.Underline);
+                            //element.TextRunProperties.SetTypeface(new Typeface(
+                            //    tf.FontFamily,
+                            //    FontStyles.Italic,
+                            //    FontWeights.Bold,
+                            //    tf.Stretch
+                            //));
+                        });
+                    start = index + 1; // search for next occurrence
+                }
             }
         }
     }

@@ -300,6 +300,8 @@ namespace CodeNaviWPF
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.TextArea.KeyDown += TestEditor_KeyDown;
                 editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, line));
+                editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
+                //editor.TextArea.TextView.LineTransformers.Add(new EscapeSequenceLineTransformer(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
                 editor.ScrollToLine(line);
             }
