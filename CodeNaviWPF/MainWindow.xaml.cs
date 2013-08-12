@@ -211,7 +211,7 @@ namespace CodeNaviWPF
             VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
-            AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
+            AddFileView(fi, sv, (PocVertex)sv.Vertex, new List<int>(result.LineNumber));
         }
 
         protected override void OnClosed(EventArgs e)
@@ -222,7 +222,7 @@ namespace CodeNaviWPF
 
         private void TestEditor_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.Control)
+            if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualParent<ICSharpCode.AvalonEdit.TextEditor>((DependencyObject)sender);
 
@@ -239,6 +239,7 @@ namespace CodeNaviWPF
 
                     if (ctags_matches.ContainsKey(word))
                     {
+                        Dictionary<string, List<int>> files_and_lines = new Dictionary<string, List<int>>();
                         //foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                         //{
                         //System.Diagnostics.Debug.Print(line);
@@ -252,18 +253,29 @@ namespace CodeNaviWPF
                                     line_no = int.Parse(field.Split(new char[] { ':' })[1]);
                                 }
                             }
-                            string file_path = match[1];
+                            if (files_and_lines.ContainsKey(match[1]))
+                            {
+                                files_and_lines[match[1]].Add(line_no);
+                            }
+                            else
+                            {
+                                files_and_lines[match[1]] = new List<int>();
+                                files_and_lines[match[1]].Add(line_no);
+                            }
+                        }
+                        foreach (string file in files_and_lines.Keys)
+                        {
                             FileItem fi = new FileItem
                             {
-                                FileName = Path.GetFileName(file_path),
-                                FullPath = Path.Combine(root_dir, file_path),
-                                Extension = Path.GetExtension(file_path),
-                                RelPath = file_path,
+                                FileName = Path.GetFileName(file),
+                                FullPath = Path.Combine(root_dir, file),
+                                Extension = Path.GetExtension(file),
+                                RelPath = file,
                             };
                             VertexControl vc = TreeHelpers.FindVisualParent<VertexControl>(editor);
-                            if (!(Path.GetFullPath(((FileVertex)vc.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && position.Value.Line == line_no))
+                            if (!(Path.GetFullPath(((FileVertex)vc.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
                             {
-                                AddFileView(fi, vc, (FileVertex)vc.Vertex, line_no);
+                                AddFileView(fi, vc, (FileVertex)vc.Vertex, files_and_lines[file]);
                             }
                         }
                     }
@@ -280,7 +292,7 @@ namespace CodeNaviWPF
 
         #endregion
 
-        private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, int line = 0)
+        private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, List<int> lines = null)
         {
             FileVertex new_vertex = graph_provider.AddFileView(file_item, source_vertex);
             VertexControl new_vertex_control = new VertexControl(new_vertex) { DataContext = new_vertex };
@@ -303,11 +315,14 @@ namespace CodeNaviWPF
             {
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.TextArea.KeyDown += TestEditor_KeyDown;
-                editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, line));
                 editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.LineTransformers.Add(new EscapeSequenceLineTransformer(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
-                editor.ScrollToLine(line);
+                if (lines != null)
+                {
+                    editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, lines));
+                    editor.ScrollToLine(lines.Min());
+                }
             }
             SaveGraph();
         }

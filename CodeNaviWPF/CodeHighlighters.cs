@@ -26,19 +26,22 @@ namespace CodeNaviWPF
     public class HighlightSearchLineBackgroundRenderer : IBackgroundRenderer
     {
         private TextEditor _editor;
-        private List<int> _lines;
+        private List<int> _lines = new List<int>();
 
         public HighlightSearchLineBackgroundRenderer(TextEditor editor, int line)
         {
             _editor = editor;
-            _lines = new List<int>();
+            //_lines = new List<int>();
             _lines.Add(line);
         }
 
         public HighlightSearchLineBackgroundRenderer(TextEditor editor, List<int> lines)
         {
             _editor = editor;
-            _lines = lines;
+            if (lines != null)
+            {
+                _lines.AddRange(lines);
+            }
         }
 
         public KnownLayer Layer
@@ -60,7 +63,7 @@ namespace CodeNaviWPF
                 {
                     drawingContext.DrawRectangle(
                         new SolidColorBrush(Color.FromArgb(0x40, 0, 0, 0xFF)), null,
-                        new Rect(rect.Location, new Size(textView.ActualWidth - 32, rect.Height)));
+                        new Rect(rect.Location, new Size(textView.ActualWidth, rect.Height)));
                 }
             }
         }
