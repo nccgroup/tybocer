@@ -349,6 +349,14 @@ namespace CodeNaviWPF
             Expander expander = e.Source as Expander;
             recentre = expander.IsExpanded;
             VertexControl parent_vertex_control = TreeHelpers.FindVisualParent<VertexControl>(e.Source as Expander);
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                foreach (PocEdge edge in graph_area.Graph.OutEdges((PocVertex)parent_vertex_control.Vertex))
+                {
+                    VertexControl vc = graph_area.GetAllVertexControls().Where(x => x.Vertex == edge.Target).FirstOrDefault();
+                    TreeHelpers.FindVisualChild<Expander>(vc).IsExpanded = expander.IsExpanded;
+                }
+            }
             RelayoutGraph(parent_vertex_control);
         }
 
