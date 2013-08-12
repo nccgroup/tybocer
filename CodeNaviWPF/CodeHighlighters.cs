@@ -26,12 +26,19 @@ namespace CodeNaviWPF
     public class HighlightSearchLineBackgroundRenderer : IBackgroundRenderer
     {
         private TextEditor _editor;
-        private int _line;
+        private List<int> _lines;
 
         public HighlightSearchLineBackgroundRenderer(TextEditor editor, int line)
         {
             _editor = editor;
-            _line = line;
+            _lines = new List<int>();
+            _lines.Add(line);
+        }
+
+        public HighlightSearchLineBackgroundRenderer(TextEditor editor, List<int> lines)
+        {
+            _editor = editor;
+            _lines = lines;
         }
 
         public KnownLayer Layer
@@ -44,14 +51,17 @@ namespace CodeNaviWPF
             if (_editor.Document == null)
                 return;
 
-            if (!(_line > 0)) return;
-            textView.EnsureVisualLines();
-            var currentLine = _editor.Document.GetLineByNumber(_line);
-            foreach (var rect in BackgroundGeometryBuilder.GetRectsForSegment(textView, currentLine))
+            foreach (int line in _lines)
             {
-                drawingContext.DrawRectangle(
-                    new SolidColorBrush(Color.FromArgb(0x40, 0, 0, 0xFF)), null,
-                    new Rect(rect.Location, new Size(textView.ActualWidth - 32, rect.Height)));
+                if (!(line > 0)) return;
+                textView.EnsureVisualLines();
+                var currentLine = _editor.Document.GetLineByNumber(line);
+                foreach (var rect in BackgroundGeometryBuilder.GetRectsForSegment(textView, currentLine))
+                {
+                    drawingContext.DrawRectangle(
+                        new SolidColorBrush(Color.FromArgb(0x40, 0, 0, 0xFF)), null,
+                        new Rect(rect.Location, new Size(textView.ActualWidth - 32, rect.Height)));
+                }
             }
         }
     }
@@ -97,13 +107,10 @@ namespace CodeNaviWPF
             foreach (string tag in _tags)
             {
                 Regex reg = new Regex(@"\b" + tag + @"\b", RegexOptions.None);
-                int start = 0;
                 int index;
                 foreach (Match match in reg.Matches(text))
                 {
                     index = match.Index;
-                //while ((index = reg.intext.IndexOf(tag, start)) >= 0)
-                //{
                     base.ChangeLinePart(
                         lineStartOffset + index, // startOffset
                         lineStartOffset + index + tag.Length, // endOffset
@@ -121,8 +128,8 @@ namespace CodeNaviWPF
                             //    FontWeights.Bold,
                             //    tf.Stretch
                             //));
-                        });
-                    start = index + 1; // search for next occurrence
+                        }
+                    );
                 }
             }
         }

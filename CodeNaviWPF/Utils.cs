@@ -29,7 +29,7 @@ namespace CodeNaviWPF.Utils
         {
             get { counter++; return counter; }
         }
-        
+
     }
 
     class FilePathUtils
@@ -125,6 +125,23 @@ namespace CodeNaviWPF.Utils
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return null;
+        }
+    }
+
+    public class StringHelpers
+    {
+        public static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
+        public static string GetString(byte[] bytes)
+        {
+            char[] chars = new char[bytes.Length / sizeof(char)];
+            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
+            return new string(chars);
         }
     }
 }

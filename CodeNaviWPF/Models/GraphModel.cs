@@ -29,17 +29,6 @@ namespace CodeNaviWPF.Models
         private ItemProvider item_provider;
         private PocGraph graph;
         private FileBrowser root;
-        private string layoutAlgorithmType;
-
-        public string LayoutAlgorithmType
-        {
-            get { return layoutAlgorithmType; }
-            set
-            {
-                layoutAlgorithmType = value;
-                NotifyPropertyChanged("LayoutAlgorithmType");
-            }
-        }
 
         public PocGraph Graph
         {
@@ -47,7 +36,6 @@ namespace CodeNaviWPF.Models
             set
             {
                 graph = value;
-                NotifyPropertyChanged("Graph");
             }
         }
 
@@ -57,7 +45,7 @@ namespace CodeNaviWPF.Models
             Graph = new PocGraph(true);
             root = new FileBrowser("");
             graph.AddVertex(root);
-            layoutAlgorithmType = "EfficientSugiyama";
+            //layoutAlgorithmType = "EfficientSugiyama";
             //LayoutAlgorithmType="Circular"
             //LayoutAlgorithmType="CompundFDP"
             //LayoutAlgorithmType="EfficientSugiyama"
@@ -66,13 +54,11 @@ namespace CodeNaviWPF.Models
             //LayoutAlgorithmType="KK"
             //LayoutAlgorithmType="LinLog"
             //LayoutAlgorithmType="Tree"
-            NotifyPropertyChanged("Graph");
         }
         
         internal void UpdateRoot(string p)
         {
             root.FilePath = p;
-            NotifyPropertyChanged("Graph");
         }
 
         internal FileVertex AddFileView(FileItem f)
@@ -169,7 +155,6 @@ namespace CodeNaviWPF.Models
             }
 
             return results;
-
         }
 
         internal void PopulateResults(string search_term, SearchResultsVertex results_vertex, IProgress<int> progress)
@@ -194,9 +179,7 @@ namespace CodeNaviWPF.Models
             
             Graph.AddVertex(search_result);
             Graph.AddEdge(new PocEdge(source_vertex, search_result));
-            NotifyPropertyChanged("Graph");
             return search_result;
         }
     }
-
 }

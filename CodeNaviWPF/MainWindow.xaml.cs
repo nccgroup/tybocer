@@ -73,6 +73,7 @@ namespace CodeNaviWPF
             ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
             ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
             ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
+            
             if (recentre)
             {
                 CenterOnVertex(centre_on_me);
@@ -200,6 +201,7 @@ namespace CodeNaviWPF
             }
             CloseVertex(v);
             RemoveEdge(in_edge);
+            graph_area.RelayoutGraph(true);
             graph_area.UpdateLayout();
             recentre = true;
             centre_on_me = graph_area.VertexList.Where(x => x.Key == in_edge.Source).First().Value;
@@ -394,21 +396,30 @@ namespace CodeNaviWPF
         {
             if (selected_text != null && selected_text != "")
             {
-                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, (PocVertex)from_vertex_control.Vertex);
-                VertexControl to_vertex_control = new VertexControl(new_search_results_vertex) { DataContext = new_search_results_vertex };
-                graph_area.AddVertex(new_search_results_vertex, to_vertex_control);
+                PocVertex from_vertex = (PocVertex)from_vertex_control.Vertex;
+
+                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, from_vertex);
+                VertexControl new_search_results_vertex_control = new VertexControl(new_search_results_vertex) { DataContext = new_search_results_vertex };
+                graph_area.AddVertex(new_search_results_vertex, new_search_results_vertex_control);
+
                 PocEdge new_edge = new PocEdge((PocVertex)from_vertex_control.Vertex, new_search_results_vertex);
-                graph_area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, to_vertex_control, new_edge));
+                graph_area.InsertEdge(new_edge, new EdgeControl(from_vertex_control, new_search_results_vertex_control, new_edge));
+                
                 graph_area.RelayoutGraph(true);
                 graph_area.UpdateLayout();
-                centre_on_me = to_vertex_control;
-                System.Windows.Controls.ProgressBar bar = TreeHelpers.FindVisualChild<System.Windows.Controls.ProgressBar>(to_vertex_control);
-                System.Windows.Controls.DataGrid grid = TreeHelpers.FindVisualChild<System.Windows.Controls.DataGrid>(to_vertex_control);
+                
+                centre_on_me = new_search_results_vertex_control;
+
+                System.Windows.Controls.DataGrid grid = TreeHelpers.FindVisualChild<System.Windows.Controls.DataGrid>(new_search_results_vertex_control);
+                System.Windows.Controls.ProgressBar bar = TreeHelpers.FindVisualChild<System.Windows.Controls.ProgressBar>(new_search_results_vertex_control);
                 bar.Maximum = directory_count;
                 var search_progress = new Progress<int>((int some_int) => ReportProgress(bar));
+
                 await graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
+                
                 bar.Visibility = System.Windows.Visibility.Collapsed;
                 grid.Visibility = System.Windows.Visibility.Visible;
+                
                 SaveGraph();
             }
         }
@@ -420,7 +431,7 @@ namespace CodeNaviWPF
 
         private void CloseVertex(PocVertex vertex_to_remove)
         {
-            if (graph_provider.Graph.OutEdges(vertex_to_remove).Count() > 0)
+            if (graph_area.Graph.OutEdges(vertex_to_remove).Count() > 0)
             {
                 var edges = graph_area.Graph.OutEdges(vertex_to_remove).ToList();
                 foreach (PocEdge edge in edges)
@@ -429,13 +440,13 @@ namespace CodeNaviWPF
                     RemoveEdge(edge);
                 }
             }
-            graph_provider.Graph.RemoveVertex(vertex_to_remove);
+            graph_area.Graph.RemoveVertex(vertex_to_remove);
             graph_area.RemoveVertex(vertex_to_remove);
         }
 
         private void RemoveEdge(PocEdge edge)
         {
-            graph_provider.Graph.RemoveEdge(edge);
+            graph_area.Graph.RemoveEdge(edge);
             //tg_Area.Graph.RemoveEdge(e); // TODO - get this working.
             foreach (PocEdge f in graph_area.EdgesList.Keys.ToList())
             {
@@ -455,7 +466,6 @@ namespace CodeNaviWPF
                  ".vizzy";
             graph_area.SaveIntoFile(file_name);
         }
-
     }
 
     public static class Commands

@@ -50,8 +50,10 @@ namespace CodeNaviWPF.Models
     {
         [YAXDontSerialize]
         private ItemProvider ip;
+     
         [YAXDontSerialize]
         private List<Item> files;
+        
         private string file_path;
         public string FilePath
         {
@@ -64,6 +66,8 @@ namespace CodeNaviWPF.Models
                 NotifyPropertyChanged("FilePath");
             }
         }
+
+        [YAXDontSerialize]
         public List<Item> Files { get { return files; } }
 
         [YAXDontSerialize]
@@ -87,20 +91,20 @@ namespace CodeNaviWPF.Models
 
     public class FileVertex : PocVertex
     {
-        private string _rootdir;
         public string FileName { get; set; }
+        public string FilePath { get; set; }
 
         [YAXDontSerialize]
         public TextDocument Document { get; set; }
 
-        public string FilePath { get; set; }
+        public List<int> LinesToHighlight;
 
         public FileVertex(string filename, string path, string root) : base()
         {
             base.ID = Utils.IDCounter.Counter;
             FileName = FilePathUtils.GetRelativePath(root, path);            
             FilePath = path;
-            _rootdir = root;
+            LinesToHighlight = new List<int>();
             Document = new TextDocument();
             StreamReader sr = new StreamReader(path);
             Document.Text = sr.ReadToEnd();
@@ -114,7 +118,7 @@ namespace CodeNaviWPF.Models
         public List<SearchResult> Results
         {
             get { return results; }
-            set { results = value; NotifyPropertyChanged("Results"); NotifyPropertyChanged("Graph"); }
+            set { results = value; NotifyPropertyChanged("Results"); }
         }
         public SearchResultsVertex(string search_term)
             : base()
@@ -136,23 +140,10 @@ namespace CodeNaviWPF.Models
         public string EncodedLine
         {
             get { return Convert.ToBase64String(
-                GetBytes(Line)); }
-            set { Line = GetString(Convert.FromBase64String(value)); }
+                Utils.StringHelpers.GetBytes(Line)); }
+            set { Line = Utils.StringHelpers.GetString(Convert.FromBase64String(value)); }
         }
 
-        static byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
-        static string GetString(byte[] bytes)
-        {
-            char[] chars = new char[bytes.Length / sizeof(char)];
-            System.Buffer.BlockCopy(bytes, 0, chars, 0, bytes.Length);
-            return new string(chars);
-        }
         public int LineNumber { get; set; }
     }
 
@@ -174,6 +165,5 @@ namespace CodeNaviWPF.Models
 
         public PocGraph(bool allowParallelEdges, int vertexCapacity)
             : base(allowParallelEdges, vertexCapacity) { }
-    }
-    
+    }    
 }
