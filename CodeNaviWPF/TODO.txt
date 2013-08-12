@@ -5,3 +5,6 @@ Loading of saved file
 Icons for nodes
 Note taking
 Apply correct syntax highlighting to files.
+Highlight open instances of same file.
+Modifier key for opening search results from same file i.e. only open single file browser instance but highlight all lines.
+Modifier key for highlighting definitions in same file i.e. only open single file browser instance but highlight all lines.
