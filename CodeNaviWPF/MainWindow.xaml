@@ -303,7 +303,7 @@
                 </StackPanel>
             </StackPanel>
         </Expander>
-        <zb:Zoombox x:Name="zoom_control" Grid.Row="1">
+        <zb:Zoombox x:Name="zoom_control" Grid.Row="1" MaxScale="2.25">
             <model:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
     </Grid>
