@@ -294,6 +294,19 @@ namespace CodeNaviWPF
             graph_area.UpdateLayout();
         }
 
+        async private void TestEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.S)
+            {
+                string selected_text = "";
+                TextArea textarea = e.OriginalSource as TextArea;
+                VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(textarea);
+                PocVertex source_vertex = (PocVertex)sv.Vertex;
+                selected_text = textarea.Selection.GetText();
+                await SearchForString(selected_text, sv);
+            }
+        }
+
         #endregion
 
         private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, int line)
@@ -372,22 +385,6 @@ namespace CodeNaviWPF
             zoom_control.ZoomTo(new_point);
         }
 
-        private void ExpanderRelayout(object sender, RoutedEventArgs e)
-        {
-            Expander expander = e.Source as Expander;
-            recentre = expander.IsExpanded;
-            VertexControl parent_vertex_control = TreeHelpers.FindVisualParent<VertexControl>(e.Source as Expander);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-            {
-                foreach (PocEdge edge in graph_area.Graph.OutEdges((PocVertex)parent_vertex_control.Vertex))
-                {
-                    VertexControl vc = graph_area.GetAllVertexControls().Where(x => x.Vertex == edge.Target).FirstOrDefault();
-                    TreeHelpers.FindVisualChild<Expander>(vc).IsExpanded = expander.IsExpanded;
-                }
-            }
-            RelayoutGraph(parent_vertex_control);
-        }
-
         private void RelayoutGraph(VertexControl vertex_control)
         {
             centre_on_me = vertex_control;
@@ -395,6 +392,7 @@ namespace CodeNaviWPF
             graph_area.UpdateLayout();
         }
 
+        #region Searching
         async private void SearchString(object sender, RoutedEventArgs e)
         {
             // TODO - this needs sorting out. At the moment we're hacking up a solution
@@ -452,6 +450,7 @@ namespace CodeNaviWPF
         {
             bar.Value++;
         }
+        #endregion
 
         private void CloseVertex(PocVertex vertex_to_remove)
         {
@@ -481,6 +480,7 @@ namespace CodeNaviWPF
             }
         }
 
+        #region Saving and loading
         private void SaveGraph()
         {
             DirectoryInfo di = new DirectoryInfo(root_dir);
@@ -490,6 +490,7 @@ namespace CodeNaviWPF
                  ".vizzy";
             graph_area.SaveIntoFile(file_name);
         }
+        #endregion
     }
 
     public static class Commands
