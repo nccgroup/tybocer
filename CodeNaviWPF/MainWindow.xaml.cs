@@ -345,6 +345,7 @@ namespace CodeNaviWPF
                     editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, lines));
                     editor.ScrollToLine(lines.Min());
                 }
+                editor.Width = editor.ActualWidth;
             }
             SaveGraph();
         }
