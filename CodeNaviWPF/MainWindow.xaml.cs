@@ -26,7 +26,6 @@ using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
 using GraphX.GraphSharp.Algorithms.Layout.Simple.Hierarchical;
 
-
 namespace CodeNaviWPF
 {
     public partial class MainWindow : Window
@@ -61,6 +60,10 @@ namespace CodeNaviWPF
             root_vertex = graph_area.VertexList.Keys.First();
             centre_on_me = root_control;
             zoom_control.CenterContent();
+            zoom_control.DragModifiers.Clear();
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Ctrl);
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Shift);
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Exact);
         }
 
         #region Events
