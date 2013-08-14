@@ -177,6 +177,7 @@ namespace CodeNaviWPF
                 }
             }
         }
+
         private void OnTreeItemExpand(object sender, RoutedEventArgs e)
         {
             TreeViewItem item = sender as TreeViewItem;
@@ -189,6 +190,7 @@ namespace CodeNaviWPF
                 }
             }
         }
+
         private void OnCloseVertex(object sender, RoutedEventArgs e)
         {
             VertexControl vertex_control_to_close = e.Source as VertexControl;
@@ -206,12 +208,14 @@ namespace CodeNaviWPF
             recentre = true;
             centre_on_me = graph_area.VertexList.Where(x => x.Key == in_edge.Source).First().Value;
         }
+
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
-            AddFileView(fi, sv, (PocVertex)sv.Vertex, new List<int>(result.LineNumber));
+
+            AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
         }
 
         protected override void OnClosed(EventArgs e)
@@ -291,6 +295,11 @@ namespace CodeNaviWPF
         }
 
         #endregion
+
+        private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, int line)
+        {
+            AddFileView(file_item, source, source_vertex, new List<int> { line });
+        }
 
         private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, List<int> lines = null)
         {
