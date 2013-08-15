@@ -36,8 +36,10 @@ namespace CodeNaviWPF
         private VertexControl centre_on_me;
         private bool recentre = true;
         private int directory_count = 0;
+        private object directory_count_lock = new object();
         private bool still_counting;
         private string ctags_info = null;
+        private object ctags_info_lock = new object();
         private bool ctags_running;
         private string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
@@ -123,19 +125,22 @@ namespace CodeNaviWPF
                 {
                     if (root_dir != "")
                     {
-                        ctags_info = RunCtags(root_dir);
-                        ctags_matches = new Dictionary<string, List<List<string>>>();
-                        foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                        lock (ctags_info_lock)
                         {
-                            List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
-                            try
+                            ctags_info = RunCtags(root_dir);
+                            ctags_matches = new Dictionary<string, List<List<string>>>();
+                            foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                             {
-                                ctags_matches[fields[0]].Add(fields);
-                            }
-                            catch (KeyNotFoundException)
-                            {
-                                ctags_matches.Add(fields[0], new List<List<string>>());
-                                ctags_matches[fields[0]].Add(fields);
+                                List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
+                                try
+                                {
+                                    ctags_matches[fields[0]].Add(fields);
+                                }
+                                catch (KeyNotFoundException)
+                                {
+                                    ctags_matches.Add(fields[0], new List<List<string>>());
+                                    ctags_matches[fields[0]].Add(fields);
+                                }
                             }
                         }
                     }
@@ -178,7 +183,10 @@ namespace CodeNaviWPF
 
         private Task<int> CountDirs(string path)
         {
-            return Task.Run(() => { return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count(); });
+            lock (directory_count_lock)
+            {
+                return Task.Run(() => { return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count(); });
+            }
         }
 
         private void OnTreeNodeDoubleClick(object sender, RoutedEventArgs e)
