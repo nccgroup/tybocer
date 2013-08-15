@@ -77,19 +77,25 @@
                             </StackPanel.Resources>
                             <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
                             <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
-                            <Slider x:Name="fontSize" 
-                                    Margin="30,0,0,0" 
-                                    Minimum="6" 
-                                    Maximum="20" 
-                                    Width="100" 
-                                    Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
-                                    Visibility="{Binding ElementName=editor, Path=IsVisible, Converter={StaticResource ResourceKey=mybooltovisibilityconverter}}"
-                                    />
                         </StackPanel>
                     </Expander.Header>
 
 
                     <StackPanel>
+                        <ToolBarTray DockPanel.Dock="Top" IsLocked="True">
+                            <ToolBar>
+                            <Label Target="{Binding ElementName=fontSize}">Zoom</Label>
+                            <Slider x:Name="fontSize" 
+                                    Margin="0,0,0,0"
+                                    Minimum="6" 
+                                    Maximum="20" 
+                                    Width="100" 
+                                    Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
+                                    />
+
+                                <!--Visibility="{Binding ElementName=editor, Path=IsVisible, Converter={StaticResource ResourceKey=mybooltovisibilityconverter}}"-->
+                            </ToolBar>
+                        </ToolBarTray>
                         <avalonEdit:TextEditor
                             x:Name="editor"
                             MinWidth="600"
