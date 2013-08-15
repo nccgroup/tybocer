@@ -130,6 +130,7 @@ namespace CodeNaviWPF.Models
 
     public class SearchResult
     {
+        public bool Checked { get; set; }
         public string FullPath { get; set; }
         public string RelPath { get; set; }
         public string FileName { get; set; }

@@ -227,10 +227,12 @@ namespace CodeNaviWPF
 
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
+            TreeHelpers.FindVisualChild<System.Windows.Controls.CheckBox>((DependencyObject)sender).IsChecked = true;
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
+            result.Checked = true;
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
 
+            VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
             AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
         }
 
@@ -522,6 +524,11 @@ namespace CodeNaviWPF
             graph_area.SaveIntoFile(file_name);
         }
         #endregion
+
+        private void SearchResultCheckedCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SaveGraph();
+        }
     }
 
     public static class Commands

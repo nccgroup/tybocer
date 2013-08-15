@@ -86,7 +86,7 @@
                             <ToolBar>
                             <Label Target="{Binding ElementName=fontSize}">Zoom</Label>
                             <Slider x:Name="fontSize" 
-                                    Margin="0,0,0,0"
+                                    Margin="0,0,0,0" 
                                     Minimum="6" 
                                     Maximum="20" 
                                     Width="100" 
@@ -146,10 +146,22 @@
                                         </Style>
                                     </DataGrid.ItemContainerStyle>
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}" />
+                                        <DataGridTemplateColumn Header="Checked">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox 
+                                                        HorizontalAlignment="Center" 
+                                                        VerticalAlignment="Center" 
+                                                        IsChecked="{Binding Path=Checked, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                        Checked="SearchResultCheckedCheckBox_Checked"
+                                                        />
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="File" Binding="{Binding Path=FileName}" />
-                                        <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}" />
                                         <DataGridTextColumn Header="Line" Binding="{Binding Path=Line}" FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}" />
+                                        <DataGridTextColumn Header="Path" Binding="{Binding Path=RelPath}" />
+                                        <DataGridTextColumn Header="Line#" Binding="{Binding Path=LineNumber}" />
                                         <DataGridTextColumn Header="Ext" Binding="{Binding Path=Extension}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -213,7 +225,6 @@
 
         </Style>
     </Window.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
