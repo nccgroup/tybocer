@@ -128,9 +128,21 @@ namespace CodeNaviWPF.Models
         }
     }
 
-    public class SearchResult
+    public class SearchResult : INotifyPropertyChanged
     {
-        public bool Checked { get; set; }
+        private bool _checked;
+        public bool Checked {
+            get
+            {
+                return _checked;
+            }
+            set
+            {
+                _checked = value;
+                NotifyPropertyChanged("Checked");
+            }
+        }
+
         public string FullPath { get; set; }
         public string RelPath { get; set; }
         public string FileName { get; set; }
@@ -146,6 +158,20 @@ namespace CodeNaviWPF.Models
         }
 
         public int LineNumber { get; set; }
+
+        #region INotifyPropertyChanged Implementation
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void NotifyPropertyChanged(string info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        #endregion
     }
 
     public class PocEdge : EdgeBase<PocVertex>

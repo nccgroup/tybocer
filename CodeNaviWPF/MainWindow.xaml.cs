@@ -235,7 +235,6 @@ namespace CodeNaviWPF
 
         private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            TreeHelpers.FindVisualChild<System.Windows.Controls.CheckBox>((DependencyObject)sender).IsChecked = true;
             SearchResult result = (SearchResult)((System.Windows.Controls.DataGridRow)sender).Item;
             result.Checked = true;
             FileItem fi = new FileItem { FileName = result.FileName, FullPath = result.FullPath, Extension = result.Extension, RelPath = result.RelPath };
