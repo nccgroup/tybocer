@@ -59,6 +59,7 @@ namespace CodeNaviWPF.Models
         internal void UpdateRoot(string p)
         {
             root.FilePath = p;
+            item_provider.RootDir = p;
         }
 
         internal FileVertex AddFileView(FileItem f)
@@ -159,16 +160,19 @@ namespace CodeNaviWPF.Models
 
         internal void PopulateResults(string search_term, SearchResultsVertex results_vertex, IProgress<int> progress)
         {
+            results_vertex.SearchRunning = true;
+
             BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
 
             results = SearchDirectory(search_term, new DirectoryInfo(root.FilePath), progress);
 
             results_vertex.Results = results.ToList<SearchResult>();
-
+            results_vertex.SearchRunning = false;
         }
 
         internal Task PopulateResultsAsync(string search_string, SearchResultsVertex search_result, IProgress<int> progress)
         {
+            search_result.SearchRunning = true;
             return Task.Factory.StartNew(() => PopulateResults(search_string, search_result, progress));
         }
 

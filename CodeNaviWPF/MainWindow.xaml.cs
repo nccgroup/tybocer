@@ -43,6 +43,7 @@ namespace CodeNaviWPF
         private bool ctags_running;
         private string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
+        private bool loading = false;
 
         public MainWindow()
         {
@@ -73,14 +74,7 @@ namespace CodeNaviWPF
         #region Events
         private void OnRelayoutFinished(object sender, EventArgs e)
         {
-            graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-            graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
-            
+            SetGraphLayoutParameters();
             if (recentre)
             {
                 CenterOnVertex(centre_on_me);
@@ -89,6 +83,17 @@ namespace CodeNaviWPF
             {
                 recentre = true;
             }
+        }
+
+        private void SetGraphLayoutParameters()
+        {
+            graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
+            graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
+            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
         }
 
         async private void DirPicker_Click(object sender, RoutedEventArgs e)
@@ -365,7 +370,7 @@ namespace CodeNaviWPF
             if (editor != null)
             {
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
-                editor.TextArea.KeyDown += TestEditor_KeyDown;
+                //editor.TextArea.KeyDown += TestEditor_KeyDown;
                 if (!ctags_running) editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.LineTransformers.Add(new EscapeSequenceLineTransformer(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
@@ -479,8 +484,8 @@ namespace CodeNaviWPF
 
                 await graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
                 
-                bar.Visibility = System.Windows.Visibility.Collapsed;
-                grid.Visibility = System.Windows.Visibility.Visible;
+                //bar.Visibility = System.Windows.Visibility.Collapsed;
+                //grid.Visibility = System.Windows.Visibility.Visible;
                 
                 SaveGraph();
             }
@@ -528,13 +533,37 @@ namespace CodeNaviWPF
                 Path.DirectorySeparatorChar +
                 di.Name +
                  ".vizzy";
+            Properties.Settings.Default.PreviousFile = file_name;
             graph_area.SaveIntoFile(file_name);
         }
         #endregion
 
         private void SearchResultCheckedCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            SaveGraph();
+            if (!loading) SaveGraph();
+        }
+
+        async private void root_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (File.Exists(Properties.Settings.Default.PreviousFile))
+            {
+                loading = true;
+                graph_area.LoadFromFile(Properties.Settings.Default.PreviousFile);
+                root_control = graph_area.VertexList.Values.First();
+                root_vertex = graph_area.VertexList.Keys.First();
+                root_dir = ((FileBrowser)root_vertex).FilePath;
+                graph_provider.UpdateRoot(root_dir);
+                SetGraphLayoutParameters();
+                RelayoutGraph(graph_area.VertexList.Last().Value);
+                foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
+                {
+                    editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                }
+                ctags_running = true;
+                await UpdateCtags();
+                ctags_running = false;
+                loading = false;
+            }
         }
     }
 

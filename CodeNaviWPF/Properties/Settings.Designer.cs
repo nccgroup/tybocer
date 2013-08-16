@@ -71,5 +71,17 @@ namespace CodeNaviWPF.Properties {
                 this["CtagsLocation"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PreviousFile {
+            get {
+                return ((string)(this["PreviousFile"]));
+            }
+            set {
+                this["PreviousFile"] = value;
+            }
+        }
     }
 }

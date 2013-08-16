@@ -61,6 +61,7 @@ namespace CodeNaviWPF.Models
             set
             {
                 file_path = value;
+                ip.RootDir = value;
                 files = ip.GetItems(value);
                 NotifyPropertyChanged("Files");
                 NotifyPropertyChanged("FilePath");
@@ -80,6 +81,12 @@ namespace CodeNaviWPF.Models
             set { searchterm = value; }
         }
 
+        public FileBrowser() 
+        { 
+            files = new List<Item>();
+            ip = new ItemProvider();
+        }
+
         public FileBrowser(string path) : base()
         {
             file_path = path;
@@ -92,20 +99,38 @@ namespace CodeNaviWPF.Models
     public class FileVertex : PocVertex
     {
         public string FileName { get; set; }
-        public string FilePath { get; set; }
+
+        private string _filepath;
+        public string FilePath
+        {
+            get { return _filepath; }
+            set
+            {
+                _filepath = value;
+                StreamReader sr = new StreamReader(value);
+                Document.Text = sr.ReadToEnd();
+            }
+        }
 
         [YAXDontSerialize]
         public TextDocument Document { get; set; }
 
         public List<int> LinesToHighlight;
 
+        public FileVertex()
+            : base()
+        {
+            LinesToHighlight = new List<int>();
+            Document = new TextDocument();
+        }
+
         public FileVertex(string filename, string path, string root) : base()
         {
             base.ID = Utils.IDCounter.Counter;
-            FileName = FilePathUtils.GetRelativePath(root, path);            
+            Document = new TextDocument();
+            FileName = FilePathUtils.GetRelativePath(root, path);
             FilePath = path;
             LinesToHighlight = new List<int>();
-            Document = new TextDocument();
             StreamReader sr = new StreamReader(path);
             Document.Text = sr.ReadToEnd();
         }
@@ -113,6 +138,14 @@ namespace CodeNaviWPF.Models
 
     public class SearchResultsVertex : PocVertex
     {
+        private bool _searchRunning;
+
+        public bool SearchRunning
+        {
+            get { return _searchRunning; }
+            set { _searchRunning = value; NotifyPropertyChanged("SearchRunning"); }
+        }
+        
         public string SearchString { get; set; }
         private List<SearchResult> results;
         public List<SearchResult> Results
@@ -120,11 +153,18 @@ namespace CodeNaviWPF.Models
             get { return results; }
             set { results = value; NotifyPropertyChanged("Results"); }
         }
+
+        public SearchResultsVertex()
+        {
+            results = new List<SearchResult>();
+        }
+
         public SearchResultsVertex(string search_term)
             : base()
         {
             SearchString = search_term;
             results = new List<SearchResult>();
+            SearchRunning = false;
         }
     }
 
@@ -176,9 +216,13 @@ namespace CodeNaviWPF.Models
 
     public class PocEdge : EdgeBase<PocVertex>
     {
+        public PocEdge()
+            : base(null, null, 1)
+        { }
+
         public PocEdge(PocVertex source, PocVertex target)
             : base(source, target) 
-        {
+{
             ID = Utils.IDCounter.Counter;
         }
     }

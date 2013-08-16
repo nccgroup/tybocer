@@ -54,7 +54,7 @@ namespace CodeNaviWPF.Models
                     var item = new DirectoryItem
                     {
                         FileName = d.Name,
-                        RelPath = d.Name,
+                        RelPath = Utils.FilePathUtils.GetRelativePath(RootDir, d.FullName),
                         FullPath = d.FullName
                     };
                     items.Add(item);
@@ -75,7 +75,8 @@ namespace CodeNaviWPF.Models
                 var item = new FileItem
                 {
                     FileName = f.Name,
-                    FullPath = f.FullName
+                    FullPath = f.FullName,
+                    RelPath = Utils.FilePathUtils.GetRelativePath(RootDir, f.FullName),
                 };
                 items.Add(item);
             }

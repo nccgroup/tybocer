@@ -24,6 +24,7 @@
         WindowStartupLocation="CenterScreen"
         WindowState="Normal"
         x:Name="root"
+        Loaded="root_Loaded"
     >
     <Window.CommandBindings>
         <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
@@ -31,7 +32,9 @@
         <CommandBinding Command="local:Commands.OnCloseVertex" Executed="OnCloseVertex" />
     </Window.CommandBindings>
     <Window.Resources>
-
+        <BooleanToVisibilityConverter x:Key="mybooltovisibilityconverter" />
+        <utils:InverseBoolToVisibility x:Key="inverseBoolToVisibility" />
+        
         <HierarchicalDataTemplate DataType="{x:Type model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
             <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
@@ -72,9 +75,6 @@
                 <Expander IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                     <Expander.Header>
                         <StackPanel Orientation="Horizontal">
-                            <StackPanel.Resources>
-                                <BooleanToVisibilityConverter x:Key="mybooltovisibilityconverter" />
-                            </StackPanel.Resources>
                             <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
                             <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
                         </StackPanel>
@@ -92,8 +92,6 @@
                                     Width="100" 
                                     Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
                                     />
-
-                                <!--Visibility="{Binding ElementName=editor, Path=IsVisible, Converter={StaticResource ResourceKey=mybooltovisibilityconverter}}"-->
                             </ToolBar>
                         </ToolBarTray>
                         <avalonEdit:TextEditor
@@ -103,6 +101,8 @@
                             Height="400" 
                             Document="{Binding Path=Document}" 
                             IsReadOnly="True"
+                            KeyDown="TestEditor_KeyDown"
+                            MouseDown="TestEditor_MouseDown"
                             ShowLineNumbers="True"
                             Tag="{Binding ElementName=root}"
                             SyntaxHighlighting="C#"
@@ -138,8 +138,14 @@
                                 <StackPanel.OpacityMask>
                                     <VisualBrush Visual="{Binding ElementName=Mask}"/>
                                 </StackPanel.OpacityMask>
-                                <ProgressBar Height="20"/>
-                                <DataGrid Visibility="Collapsed" SizeChanged="DataGrid_SizeChanged" ItemsSource="{Binding Results}" MaxHeight="500" MaxWidth="800" IsReadOnly="True" AutoGenerateColumns="False">
+                                <ProgressBar Height="20" Visibility="{Binding Path=SearchRunning, Converter={StaticResource ResourceKey=mybooltovisibilityconverter}}" />
+                                <DataGrid SizeChanged="DataGrid_SizeChanged" 
+                                          ItemsSource="{Binding Results}" 
+                                          MaxHeight="500" 
+                                          MaxWidth="800" 
+                                          Visibility="{Binding Path=SearchRunning, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}"
+                                          IsReadOnly="True" 
+                                          AutoGenerateColumns="False">
                                     <DataGrid.ItemContainerStyle>
                                         <Style TargetType="DataGridRow">
                                             <EventSetter Event="MouseDoubleClick" Handler="DataGrid_MouseDoubleClick" />
