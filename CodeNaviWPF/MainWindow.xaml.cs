@@ -624,6 +624,7 @@ namespace CodeNaviWPF
                 foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
                 {
                     editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                    editor.Width = editor.ActualWidth;
                 }
                 ctags_running = true;
                 await UpdateCtags();
