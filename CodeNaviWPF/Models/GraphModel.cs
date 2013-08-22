@@ -96,7 +96,7 @@ namespace CodeNaviWPF.Models
 
         private SearchResult SearchFile(FileInfo file_info, String search_term, List<String> extensions_to_skip)
         {
-            if (!extensions_to_skip.Contains(file_info.Extension))
+            if (!extensions_to_skip.Contains(file_info.Extension.ToLower()))
             {
                 FileStream filestream = new FileStream(file_info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 StreamReader streamreader = new StreamReader(filestream);
@@ -114,7 +114,7 @@ namespace CodeNaviWPF.Models
                             FileName = file_info.Name,
                             Extension = file_info.Extension,
                             LineNumber = count,
-                            Line = line.Length > 500 ? line.Substring(0, 500) : line
+                            Line = line.Length > 500 ? line.TrimStart().Substring(0, 500) : line.TrimStart()
                         };
                     }
                     line = streamreader.ReadLine();
@@ -123,7 +123,7 @@ namespace CodeNaviWPF.Models
             return null;
         }
 
-        internal BlockingCollection<SearchResult> SearchDirectory(string search_term, DirectoryInfo directory, IProgress<int> progress)
+        internal BlockingCollection<SearchResult> SearchDirectory(string search_term, List<string> extensions_to_search, DirectoryInfo directory, IProgress<int> progress)
         {
             List<String> extensions_to_skip = new List<String>(Properties.Settings.Default.ExcludedExtensions.Split(';'));
             List<String> directories_to_skip = new List<String>(Properties.Settings.Default.ExcludedDirectories.Split(';'));
@@ -135,16 +135,20 @@ namespace CodeNaviWPF.Models
             BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
             try
             {
-                Parallel.ForEach(directory.EnumerateFiles(), file_info =>
+                Parallel.ForEach(Utils.PathEnumerators.GetFiles(directory), file_info =>
                 {
-                    SearchResult result = SearchFile(file_info, search_term, extensions_to_skip);
-                    if (result != null) results.Add(result);
+                    if (extensions_to_search == null || extensions_to_search.Count == 0 || extensions_to_search.Contains(file_info.Extension.ToLower()))
+                    {
+                        SearchResult result = SearchFile(file_info, search_term, extensions_to_skip);
+                        if (result != null) results.Add(result);
+                    }
                 });
 
-                Parallel.ForEach(directory.EnumerateDirectories(), dir_info =>
+                //Parallel.ForEach(directory.EnumerateDirectories(), dir_info =>
+                Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(directory), dir_info =>
                 {
                     progress.Report(1);
-                    foreach (var s in SearchDirectory(search_term, dir_info, progress))
+                    foreach (var s in SearchDirectory(search_term, extensions_to_search, dir_info, progress))
                     {
                         if (s != null) results.Add(s);
                     }
@@ -164,7 +168,7 @@ namespace CodeNaviWPF.Models
 
             BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
 
-            results = SearchDirectory(search_term, new DirectoryInfo(root.FilePath), progress);
+            results = SearchDirectory(search_term, results_vertex.ExtensionsToSearch, new DirectoryInfo(root.FilePath), progress);
 
             results_vertex.Results = results.ToList<SearchResult>();
             results_vertex.SearchRunning = false;
@@ -176,10 +180,11 @@ namespace CodeNaviWPF.Models
             return Task.Factory.StartNew(() => PopulateResults(search_string, search_result, progress));
         }
 
-        internal SearchResultsVertex PerformSearch(string search_string, PocVertex source_vertex)
+        internal SearchResultsVertex PerformSearch(string search_string, PocVertex source_vertex, List<string> extensions_to_search)
         {
             SearchResultsVertex search_result = new SearchResultsVertex(search_string);
             search_result.Results = new List<SearchResult>();
+            search_result.ExtensionsToSearch = extensions_to_search;
             
             Graph.AddVertex(search_result);
             Graph.AddEdge(new PocEdge(source_vertex, search_result));

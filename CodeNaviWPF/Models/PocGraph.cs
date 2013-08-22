@@ -140,6 +140,8 @@ namespace CodeNaviWPF.Models
     {
         private bool _searchRunning;
 
+        public List<string> ExtensionsToSearch { get; set; }
+
         public bool SearchRunning
         {
             get { return _searchRunning; }

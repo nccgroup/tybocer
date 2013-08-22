@@ -431,12 +431,13 @@ namespace CodeNaviWPF
         }
 
         #region Searching
-        async private void SearchString(object sender, RoutedEventArgs e)
+        async private void SearchString(object sender, ExecutedRoutedEventArgs e)
         {
             // TODO - this needs sorting out. At the moment we're hacking up a solution
             // where we test for whether they've selected some text in the box, or
             // entered something in the root node.
             string selected_text = "";
+            List<string> extensions = new List<string>();
             TextArea textarea = e.OriginalSource as TextArea;
             PocVertex source_vertex = (PocVertex)((VertexControl)e.Source).Vertex;
             if (textarea == null)
@@ -444,21 +445,37 @@ namespace CodeNaviWPF
                 VertexControl source_vertex_control = e.Source as VertexControl;
                 if (source_vertex_control == null) return;
                 selected_text = ((FileBrowser)source_vertex_control.DataContext).SearchTerm;
+                System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(source_vertex_control).Last();
+                extensions = textbox.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                extensions.ForEach(extension => extension.ToLower());
             }
             else
             {
                 selected_text = textarea.Selection.GetText();
+                string parameter = e.Parameter as string;
+                if (parameter == "same_type") // Should use an enum or similar
+                {
+                    extensions.Add(Path.GetExtension(((FileVertex)source_vertex).FilePath));
+                }
+                else if (parameter == "restricted")
+                {
+                    System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(root_control).Last();
+                    extensions = textbox.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    extensions.ForEach(extension => extension.ToLower());
+                }
             }
-            await SearchForString(selected_text, (VertexControl)e.Source);
+
+            await SearchForString(selected_text, (VertexControl)e.Source, extensions);
+            SaveGraph();
         }
 
-        private async Task SearchForString(string selected_text, VertexControl from_vertex_control)
+        private Task SearchForString(string selected_text, VertexControl from_vertex_control, List<string> extensions_to_search = null)
         {
             if (selected_text != null && selected_text != "")
             {
                 PocVertex from_vertex = (PocVertex)from_vertex_control.Vertex;
 
-                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, from_vertex);
+                SearchResultsVertex new_search_results_vertex = graph_provider.PerformSearch(selected_text, from_vertex, extensions_to_search);
                 VertexControl new_search_results_vertex_control = new VertexControl(new_search_results_vertex) { DataContext = new_search_results_vertex };
                 graph_area.AddVertex(new_search_results_vertex, new_search_results_vertex_control);
 

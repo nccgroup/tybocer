@@ -46,26 +46,34 @@
 
         <DataTemplate x:Key="fileBrowserTemplate">
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
-                <StackPanel>
-                    <StackPanel.Resources>
-                        <utils:StringToBool x:Key="mystringtoboolconverter" />
-                    </StackPanel.Resources>
-                    <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
-                        <Button Name="RunSearch" 
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <utils:StringToBool x:Key="mystringtoboolconverter" />
+                        </StackPanel.Resources>
+                        <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
+                            <Button Name="RunSearch" 
                                 IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
                                 Command="local:Commands.SearchString" Content="Search" 
                                 />
+                        </StackPanel>
+                        <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="{x:Type TreeViewItem}">
+                                    <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
+                                    <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
+                                </Style>
+                            </TreeView.ItemContainerStyle>
+                        </TreeView>
                     </StackPanel>
-                    <TreeView Name="DirView" ItemsSource="{Binding Files}" Height="300" Width="400">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="{x:Type TreeViewItem}">
-                                <EventSetter Event="TreeViewItem.Expanded" Handler="OnTreeItemExpand" />
-                                <EventSetter Event="MouseDoubleClick" Handler="OnTreeNodeDoubleClick"/>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                    </TreeView>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Target="{Binding ElementName=extensionlist}">Extensions to search:</Label>
+                            <TextBox x:Name="extensionList" Width="300" />
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </DataTemplate>
@@ -113,7 +121,9 @@
 
                             <avalonEdit:TextEditor.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="Search..." Command="local:Commands.SearchString" />
+                                    <MenuItem Header="Search all files..." Command="local:Commands.SearchString" />
+                                    <MenuItem Header="Search restricted extensions..." Command="local:Commands.SearchString" CommandParameter="restricted" />
+                                    <MenuItem Header="Search files of same type..." Command="local:Commands.SearchString" CommandParameter="same_type" />
                                 </ContextMenu>
                             </avalonEdit:TextEditor.ContextMenu>
                         </avalonEdit:TextEditor>
