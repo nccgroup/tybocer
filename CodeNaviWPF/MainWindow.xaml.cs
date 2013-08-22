@@ -226,9 +226,15 @@ namespace CodeNaviWPF
 
         private Task<int> CountDirs(string path)
         {
+            var count_progress = new Progress<int>(CountDirProgress);
+
             lock (directory_count_lock)
             {
-                return Task.Run(() => { return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count(); });
+                return Task.Run(() =>
+                {
+                    return Utils.PathEnumerators.EnumerateAccessibleDirectories(path, count_progress, true).Count();
+                        //return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count();
+                });
             }
         }
 
@@ -541,9 +547,13 @@ namespace CodeNaviWPF
                 
                 //bar.Visibility = System.Windows.Visibility.Collapsed;
                 //grid.Visibility = System.Windows.Visibility.Visible;
-                
-                SaveGraph();
             }
+            return new Task(() => { });
+        }
+
+        private void CountDirProgress(int no_to_count)
+        {
+            directory_count += no_to_count;
         }
 
         private void ReportProgress(System.Windows.Controls.ProgressBar bar)
