@@ -180,4 +180,113 @@ namespace CodeNaviWPF.Utils
             return new string(chars);
         }
     }
+
+    public class PathEnumerators
+    {
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(string path, IProgress<int> progress, bool recurse = false)
+        {
+            return EnumerateAccessibleDirectories(new DirectoryInfo(path), progress, recurse);
+        }
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(string path, bool recurse = false)
+        {
+            return EnumerateAccessibleDirectories(new DirectoryInfo(path), recurse);
+        }
+
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(DirectoryInfo directory, IProgress<int> progress, bool recurse = false)
+        {
+            List<DirectoryInfo> results = new List<DirectoryInfo>();
+
+            try
+            {
+                if (progress != null)
+                {
+                    int first = results.Count;
+                    results.AddRange(directory.EnumerateDirectories());
+                    progress.Report(results.Count - first);
+                }
+
+                if (recurse)
+                {
+                    foreach (DirectoryInfo dir in directory.EnumerateDirectories())
+                    {
+                        try
+                        {
+                            results.AddRange(EnumerateAccessibleDirectories(dir, progress, recurse));
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                // Can get this when accessing network drives.
+            }
+            return results;
+        }
+
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(DirectoryInfo directory, bool recurse = false)
+        {
+            List<DirectoryInfo> results = new List<DirectoryInfo>();
+
+            try
+            {
+                results.AddRange(directory.EnumerateDirectories());
+                if (recurse)
+                {
+                    foreach (DirectoryInfo dir in directory.EnumerateDirectories())
+                    {
+                        try
+                        {
+                            results.AddRange(EnumerateAccessibleDirectories(dir));
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            catch (IOException)
+            {
+                // Can get this when accessing network drives.
+            }
+            return results;
+        }
+
+        public static List<FileInfo> GetFiles(DirectoryInfo directory)
+        {
+            List<FileInfo> results = new List<FileInfo>();
+            
+            try
+            {
+                directory.GetAccessControl();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return results;
+            }
+
+            try
+            {
+                foreach (FileInfo file in directory.EnumerateFiles())
+                {
+                    try
+                    {
+                        results.Add(file);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // Skip this
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException) { }
+            catch (IOException) { }
+
+            return results;
+        }
+    }
 }
