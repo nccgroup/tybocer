@@ -594,10 +594,11 @@ namespace CodeNaviWPF
         private void SaveGraph()
         {
             DirectoryInfo di = new DirectoryInfo(root_dir);
-            string file_name = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) +
-                Path.DirectorySeparatorChar +
-                di.Name +
-                 ".vizzy";
+            //string file_name = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) +
+            //    Path.DirectorySeparatorChar +
+            //    di.Name +
+            //     ".vizzy";
+            string file_name = Path.GetTempFileName();
             Properties.Settings.Default.PreviousFile = file_name;
             graph_area.SaveIntoFile(file_name);
         }
