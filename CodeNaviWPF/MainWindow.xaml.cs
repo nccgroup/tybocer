@@ -39,6 +39,8 @@ namespace CodeNaviWPF
         private object directory_count_lock = new object();
         private bool still_counting;
         private string ctags_info = null;
+        private string ctags_tags_file = null;
+        private List<string> ctags_tags_files = new List<string>();
         private object ctags_info_lock = new object();
         private bool ctags_running;
         private string root_dir = "";
@@ -108,6 +110,7 @@ namespace CodeNaviWPF
                 still_counting = false;
                 ctags_running = true;
                 await UpdateCtags();
+                UpdateCtagsHighlights();
                 ctags_running = false;
                 SaveGraph();
             }
@@ -119,6 +122,24 @@ namespace CodeNaviWPF
             if (File.Exists(box.Text) && root_dir != "")
             {
                 await UpdateCtags();
+                UpdateCtagsHighlights();
+            }
+        }
+
+        private void UpdateCtagsHighlights()
+        {
+            foreach (TextArea ta in Utils.TreeHelpers.FindVisualChildren<TextArea>(this))
+            {
+                List<ICSharpCode.AvalonEdit.Rendering.IVisualLineTransformer> old_list = (from transformer in ta.TextView.LineTransformers
+                                                                                         where transformer.GetType() != typeof(UnderlineCtagsMatches)
+                                                                                         select transformer).ToList();
+                ta.TextView.LineTransformers.Clear();
+                foreach (var a in old_list)
+                {
+                    ta.TextView.LineTransformers.Add(a);
+                }
+                //ta.TextView.LineTransformers
+                ta.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
             }
         }
 
@@ -132,20 +153,26 @@ namespace CodeNaviWPF
                     {
                         lock (ctags_info_lock)
                         {
-                            ctags_info = RunCtags(root_dir);
+                            ctags_tags_files = RunCtags(root_dir);
                             ctags_matches = new Dictionary<string, List<List<string>>>();
-                            foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+                            foreach (string file in ctags_tags_files)
                             {
-                                List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
-                                try
+                                foreach (string line in File.ReadLines(file)) // ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                                 {
-                                    ctags_matches[fields[0]].Add(fields);
+                                    if (line.StartsWith("!")) continue; // Skip comments lines
+
+                                    List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
+                                    try
+                                    {
+                                        ctags_matches[fields[0]].Add(fields);
+                                    }
+                                    catch (KeyNotFoundException)
+                                    {
+                                        ctags_matches.Add(fields[0], new List<List<string>>());
+                                        ctags_matches[fields[0]].Add(fields);
+                                    }
                                 }
-                                catch (KeyNotFoundException)
-                                {
-                                    ctags_matches.Add(fields[0], new List<List<string>>());
-                                    ctags_matches[fields[0]].Add(fields);
-                                }
+                                File.Delete(file);
                             }
                         }
                     }
@@ -157,33 +184,44 @@ namespace CodeNaviWPF
             });
         }
 
-        private string RunCtags(string path)
+        private List<string> RunCtags(string path)
         {
-            if (!File.Exists(Properties.Settings.Default.CtagsLocation)) return "";
-            Process process = new Process
-            {
-                StartInfo =
+            if (!File.Exists(Properties.Settings.Default.CtagsLocation)) return new List<string>();
+            List<string> temp_files = new List<string>();
+            Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(path, true), dir_info =>
                 {
-                    FileName = Properties.Settings.Default.CtagsLocation,
-                    Arguments = @"--recurse=yes -f- --fields=afmikKlnsStz",
-                    WorkingDirectory = path,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-            process.Start();
-            string output = "";
-            try
-            {
-                output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-            }
-            catch (OutOfMemoryException)
-            {
-                System.Windows.Forms.MessageBox.Show("Ctags ran out of memory.", "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-            }
-            return output;
+                    string results_file = Path.GetTempFileName();
+                    string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz *", results_file);
+                    //string args = string.Format(@"-f""c:\temp\test.tmp{0}"" --fields=afmikKlnsStz *", Utils.IDCounter.Counter);
+
+
+                    Process process = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = Properties.Settings.Default.CtagsLocation,
+                            Arguments = args,
+                            WorkingDirectory = dir_info.FullName,
+                            RedirectStandardOutput = false,
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                        }
+                    };
+                    process.Start();
+                    //string output = "";
+                    try
+                    {
+                        //output = process.StandardOutput.ReadToEnd();
+                        process.WaitForExit();
+                    }
+                    catch (OutOfMemoryException)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Ctags ran out of memory.", "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                    }
+                    temp_files.Add(results_file);
+                });
+            //return output
+            return temp_files;
         }
 
         private Task<int> CountDirs(string path)
@@ -578,6 +616,7 @@ namespace CodeNaviWPF
                 }
                 ctags_running = true;
                 await UpdateCtags();
+                UpdateCtagsHighlights();
                 ctags_running = false;
                 loading = false;
             }
