@@ -316,7 +316,7 @@
 
                         <StackPanel Orientation="Vertical">
                             <Label Target="{Binding ElementName=excludedExts}" >Excluded Extensions</Label>
-                            <TextBox Width="100" x:Name="excludedExts" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedExtensions, Mode=TwoWay}" />
+                            <TextBox x:Name="excludedExts" Text="{Binding Source={x:Static props:Settings.Default}, Path=ExcludedExtensions, Mode=TwoWay}" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <Label Target="{Binding ElementName=excludedDirs}">Excluded Directories</Label>
