@@ -49,10 +49,26 @@ namespace CodeNaviWPF
 
         public MainWindow()
         {
-            graph_provider = new GraphProvider();
-
             InitializeComponent();
             Zoombox.SetViewFinderVisibility(zoom_control, System.Windows.Visibility.Visible);
+
+
+            CreateNewGraph();
+            zoom_control.CenterContent();
+            zoom_control.DragModifiers.Clear();
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Ctrl);
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Shift);
+            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Exact);
+            zoom_control.ZoomModifiers.Clear();
+            zoom_control.ZoomModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Ctrl);
+            zoom_control.ZoomModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Alt);
+            zoom_control.ZoomModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Exact);
+
+        }
+
+        private void CreateNewGraph()
+        {
+            graph_provider = new GraphProvider();
             graph_area.AsyncAlgorithmCompute = true;
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.ISOM;
             graph_area.RelayoutFinished += OnRelayoutFinished;
@@ -64,13 +80,8 @@ namespace CodeNaviWPF
 
             //graph_area.UseNativeObjectArrange = false;
             root_control = graph_area.VertexList.Values.First();
-            root_vertex = graph_area.VertexList.Keys.First();
+            graph_provider.root_vertex = (FileBrowser)graph_area.VertexList.Keys.First();
             centre_on_me = root_control;
-            zoom_control.CenterContent();
-            zoom_control.DragModifiers.Clear();
-            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Ctrl);
-            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Shift);
-            zoom_control.DragModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Exact);
         }
 
         #region Events
@@ -377,7 +388,7 @@ namespace CodeNaviWPF
 
         async private void TestEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.S)
+            if (e.Key == System.Windows.Input.Key.S && !((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)) // Not doing ctrl-s to save
             {
                 string selected_text = "";
                 TextArea textarea = e.OriginalSource as TextArea;
