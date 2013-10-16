@@ -165,11 +165,17 @@
                                           Visibility="{Binding Path=SearchRunning, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}"
                                           IsReadOnly="True" 
                                           AutoGenerateColumns="False">
-                                    <DataGrid.ItemContainerStyle>
-                                        <Style TargetType="DataGridRow">
+                                    <!--<DataGrid.ItemContainerStyle>
+                                        <Style TargetType="{x:Type DataGridRow}">
                                             <EventSetter Event="MouseDoubleClick" Handler="DataGrid_MouseDoubleClick" />
                                         </Style>
-                                    </DataGrid.ItemContainerStyle>
+                                    </DataGrid.ItemContainerStyle>-->
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="{x:Type DataGridRow}">
+                                            <EventSetter Event="Control.RequestBringIntoView" Handler="DataGrid_HandBringIntoView" />
+                                            <EventSetter Event="MouseDoubleClick" Handler="DataGrid_MouseDoubleClick" />
+                                        </Style>
+                                    </DataGrid.RowStyle>
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Checked">
                                             <DataGridTemplateColumn.CellTemplate>

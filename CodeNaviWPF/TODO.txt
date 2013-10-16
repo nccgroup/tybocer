@@ -10,3 +10,4 @@ Modifier key for opening search results from same file i.e. only open single fil
 Modifier key for highlighting definitions in same file i.e. only open single file browser instance but highlight all lines.
 Zoom in on mouse, out on centre approach.
 Race condition on ctags libs. If big dir selected first and then smaller second then ctags will complete on smaller dir and then get clobbered by larger dir results. Might be fixed by new locking statements
+Have search threads be cancelled if the search node is closed. Perhaps keep the Task in the Vertex's data.

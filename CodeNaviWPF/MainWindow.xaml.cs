@@ -114,7 +114,7 @@ namespace CodeNaviWPF
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                root_dir = dialog.SelectedPath;
+                graph_provider.root_dir = dialog.SelectedPath;
                 graph_provider.UpdateRoot(dialog.SelectedPath);
                 still_counting = true;
                 directory_count = await CountDirs(dialog.SelectedPath);
@@ -131,8 +131,9 @@ namespace CodeNaviWPF
 
         async private void CheckForCtags(object sender, RoutedEventArgs e)
         {
+            return;
             System.Windows.Controls.TextBox box = (System.Windows.Controls.TextBox)e.Source;
-            if (File.Exists(box.Text) && root_dir != "")
+            if (File.Exists(box.Text) && graph_provider.root_dir != "")
             {
                 await UpdateCtags();
                 UpdateCtagsHighlights();
@@ -166,7 +167,7 @@ namespace CodeNaviWPF
             {
                 try
                 {
-                    if (root_dir != "")
+                    if (graph_provider.root_dir != "")
                     {
                         lock (ctags_info_lock)
                         {
@@ -264,7 +265,7 @@ namespace CodeNaviWPF
                 FileItem file_item = item.Header as FileItem;
                 if (file_item != null)
                 {
-                    AddFileView(file_item, root_control, root_vertex);
+                    AddFileView(file_item, root_control, graph_provider.root_vertex);
                 }
             }
         }
@@ -364,7 +365,7 @@ namespace CodeNaviWPF
                             FileItem fi = new FileItem
                             {
                                 FileName = Path.GetFileName(file),
-                                FullPath = Path.Combine(root_dir, file),
+                                FullPath = Path.Combine(graph_provider.root_dir, file),
                                 Extension = Path.GetExtension(file),
                                 RelPath = file,
                             };
@@ -536,9 +537,12 @@ namespace CodeNaviWPF
                 }
                 else if (parameter == "restricted")
                 {
-                    System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(root_control).Last();
-                    extensions = textbox.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    extensions.ForEach(extension => extension.ToLower());
+                    System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(root_control).LastOrDefault();
+                    if (textbox != null)
+                    {
+                        extensions = textbox.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        extensions.ForEach(extension => extension.ToLower());
+                    }
                 }
             }
 
@@ -630,6 +634,7 @@ namespace CodeNaviWPF
 
         async private void root_Loaded(object sender, RoutedEventArgs e)
         {
+            return;
             if (File.Exists(Properties.Settings.Default.PreviousFile))
             {
                 loading = true;

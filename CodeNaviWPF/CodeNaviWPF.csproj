@@ -138,7 +138,7 @@
     </Compile>
     <Compile Include="CodeHighlighters.cs" />
     <Compile Include="Models\FileBrowser.cs" />
-    <Compile Include="Models\GraphModel.cs" />
+    <Compile Include="ViewModels\GraphModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
