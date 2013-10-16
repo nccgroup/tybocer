@@ -77,6 +77,10 @@
                             <Label Target="{Binding ElementName=extensionlist}">Extensions to search:</Label>
                             <TextBox x:Name="extensionList" Width="300" />
                         </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Target="{Binding ElementName=enableCtags}">Ctags Enabled:</Label>
+                        <CheckBox x:Name="enableCtags" IsChecked="True" IsThreeState="False" Checked="enableCtags_Checked" Unchecked="enableCtags_Checked"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -89,6 +93,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
                             <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
+             
                         </StackPanel>
                     </Expander.Header>
 

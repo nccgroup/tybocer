@@ -105,6 +105,7 @@ namespace CodeNaviWPF.Models
         { 
             files = new List<Item>();
             ip = new ItemProvider();
+            ctags_matches = new Dictionary<string, List<List<string>>>();
         }
 
         public FileBrowser(string path) : base()
@@ -112,6 +113,7 @@ namespace CodeNaviWPF.Models
             file_path = path;
             files = new List<Item>();
             ip = new ItemProvider();
+            ctags_matches = new Dictionary<string, List<List<string>>>();
             files = ip.GetItems(file_path);
         }
     }

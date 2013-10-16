@@ -33,7 +33,6 @@ namespace CodeNaviWPF
     {
         private GraphProvider graph_provider;
         private VertexControl root_control;
-        private PocVertex root_vertex;
         private VertexControl centre_on_me;
         private bool recentre = true;
         private int directory_count = 0;
@@ -44,9 +43,9 @@ namespace CodeNaviWPF
         private List<string> ctags_tags_files = new List<string>();
         private object ctags_info_lock = new object();
         private bool ctags_running;
-        private string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
         private bool loading = false;
+        private bool use_ctags = true;
 
         public MainWindow()
         {
@@ -109,11 +108,13 @@ namespace CodeNaviWPF
                 still_counting = true;
                 directory_count = await CountDirs(dialog.SelectedPath);
                 still_counting = false;
-                ctags_running = true;
+                graph_provider.root_vertex.CtagsRun = false;
+                //ctags_running = true;
                 await UpdateCtags();
                 UpdateCtagsHighlights();
-                ctags_running = false;
-                SaveGraph();
+                graph_provider.root_vertex.CtagsRun = true;
+                //ctags_running = false;
+                graph_provider.SaveGraph();
             }
         }
 
@@ -140,12 +141,16 @@ namespace CodeNaviWPF
                     ta.TextView.LineTransformers.Add(a);
                 }
                 //ta.TextView.LineTransformers
-                ta.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
+                if (use_ctags)
+                {
+                    ta.TextView.LineTransformers.Add(new UnderlineCtagsMatches(graph_provider.root_vertex.CtagsMatches.Keys.ToList()));
+                }
             }
         }
 
         private Task UpdateCtags()
         {
+            if (!use_ctags) return Task.Run(() => { });
             return Task.Run(() =>
             {
                 try
@@ -154,8 +159,8 @@ namespace CodeNaviWPF
                     {
                         lock (ctags_info_lock)
                         {
-                            ctags_tags_files = RunCtags(root_dir);
-                            ctags_matches = new Dictionary<string, List<List<string>>>();
+                            ctags_tags_files = RunCtags(graph_provider.root_dir);
+                            //ctags_matches = new Dictionary<string, List<List<string>>>();
                             foreach (string file in ctags_tags_files)
                             {
                                 foreach (string line in File.ReadLines(file)) // ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
@@ -165,12 +170,12 @@ namespace CodeNaviWPF
                                     List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
                                     try
                                     {
-                                        ctags_matches[fields[0]].Add(fields);
+                                        graph_provider.root_vertex.CtagsMatches[fields[0]].Add(fields);
                                     }
                                     catch (KeyNotFoundException)
                                     {
-                                        ctags_matches.Add(fields[0], new List<List<string>>());
-                                        ctags_matches[fields[0]].Add(fields);
+                                        graph_provider.root_vertex.CtagsMatches.Add(fields[0], new List<List<string>>());
+                                        graph_provider.root_vertex.CtagsMatches[fields[0]].Add(fields);
                                     }
                                 }
                                 File.Delete(file);
@@ -192,7 +197,7 @@ namespace CodeNaviWPF
             Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(path, true), dir_info =>
                 {
                     string results_file = Path.GetTempFileName();
-                    string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz *", results_file);
+                    string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz ""{1}""", results_file, dir_info.FullName);
                     //string args = string.Format(@"-f""c:\temp\test.tmp{0}"" --fields=afmikKlnsStz *", Utils.IDCounter.Counter);
 
 
@@ -222,6 +227,7 @@ namespace CodeNaviWPF
                     temp_files.Add(results_file);
                 });
             //return output
+            temp_files.RemoveAll(string.IsNullOrEmpty);
             return temp_files;
         }
 
@@ -316,13 +322,13 @@ namespace CodeNaviWPF
                     var word = editor.Document.GetText(start, end - start);
                     System.Diagnostics.Debug.Print(word);
 
-                    if (!ctags_running && ctags_matches.ContainsKey(word))
+                    if (graph_provider.root_vertex.CtagsRun && graph_provider.root_vertex.CtagsMatches.ContainsKey(word))
                     {
                         Dictionary<string, List<int>> files_and_lines = new Dictionary<string, List<int>>();
                         //foreach (string line in ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                         //{
                         //System.Diagnostics.Debug.Print(line);
-                        foreach (List<string> match in ctags_matches[word])
+                        foreach (List<string> match in graph_provider.root_vertex.CtagsMatches[word])
                         {
                             int line_no = 1;
                             foreach (string field in match)
@@ -391,9 +397,9 @@ namespace CodeNaviWPF
 
         private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, List<int> lines = null)
         {
-            if (ctags_running)
+            if (!graph_provider.root_vertex.CtagsRun)
             {
-                System.Windows.Forms.MessageBox.Show("Ctags is still running, so tags tags are not available.", "Ctags running", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
+                System.Windows.Forms.MessageBox.Show("Ctags is still running, so tags are not available.", "Ctags running", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Information);
             }
             FileVertex new_vertex = graph_provider.AddFileView(file_item, source_vertex);
             VertexControl new_vertex_control = new VertexControl(new_vertex) { DataContext = new_vertex };
@@ -415,8 +421,9 @@ namespace CodeNaviWPF
             if (editor != null)
             {
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                editor.TextArea.SelectionChanged += TestEditor_SelectionChanged;
                 //editor.TextArea.KeyDown += TestEditor_KeyDown;
-                if (!ctags_running) editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(ctags_matches.Keys.ToList()));
+                if (graph_provider.root_vertex.CtagsRun) editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(graph_provider.root_vertex.CtagsMatches.Keys.ToList()));
                 //editor.TextArea.TextView.LineTransformers.Add(new EscapeSequenceLineTransformer(ctags_matches.Keys.ToList()));
                 //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
                 if (lines != null)
