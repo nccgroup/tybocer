@@ -72,7 +72,7 @@ namespace CodeNaviWPF
     public class EscapeSequenceLineTransformer : IVisualLineTransformer
     {
         private List<string> _tags;
-        
+
         public EscapeSequenceLineTransformer(List<string> tags)
         {
             _tags = tags;
@@ -97,7 +97,7 @@ namespace CodeNaviWPF
     public class UnderlineCtagsMatches : DocumentColorizingTransformer
     {
         private List<string> _tags;
-        
+
         public UnderlineCtagsMatches(List<string> tags)
         {
             _tags = tags;
@@ -121,7 +121,7 @@ namespace CodeNaviWPF
                         {
                             // This lambda gets called once for every VisualLineElement
                             // between the specified offsets.
-                            Typeface tf = element.TextRunProperties.Typeface;
+                            //Typeface tf = element.TextRunProperties.Typeface;
                             // Replace the typeface with a modified version of
                             // the same typeface
                             element.TextRunProperties.SetTextDecorations(TextDecorations.Underline);
@@ -133,6 +133,50 @@ namespace CodeNaviWPF
                             //));
                         }
                     );
+                }
+            }
+        }
+    }
+
+    public class HighlightSelection : DocumentColorizingTransformer
+    {
+        private string _selection;
+
+        public HighlightSelection(string selection)
+        {
+            _selection = selection;
+        }
+
+        protected override void ColorizeLine(DocumentLine line)
+        {
+            int lineStartOffset = line.Offset;
+            int index = 0;
+            string text = CurrentContext.Document.GetText(line);
+            if (!(string.IsNullOrEmpty(_selection) || string.IsNullOrWhiteSpace(_selection)))
+            {
+                while ((index = text.IndexOf(_selection, index)) != -1)
+                {
+                    base.ChangeLinePart(
+                        lineStartOffset + index, // startOffset
+                        lineStartOffset + index + _selection.Length, // endOffset
+                        (VisualLineElement element) =>
+                        {
+                            // This lambda gets called once for every VisualLineElement
+                            // between the specified offsets.
+                            //Typeface tf = element.TextRunProperties.Typeface;
+                            // Replace the typeface with a modified version of
+                            // the same typeface
+                            element.TextRunProperties.SetBackgroundBrush(Brushes.AliceBlue);
+                            //element.TextRunProperties.SetTextDecorations(TextDecorations.Underline);
+                            //element.TextRunProperties.SetTypeface(new Typeface(
+                            //    tf.FontFamily,
+                            //    FontStyles.Italic,
+                            //    FontWeights.Bold,
+                            //    tf.Stretch
+                            //));
+                        }
+                    );
+                    index = index + _selection.Length;
                 }
             }
         }
