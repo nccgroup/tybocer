@@ -13,6 +13,7 @@
         xmlns:graph="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
         xmlns:gxl="clr-namespace:GraphX;assembly=GraphX"
         xmlns:model="clr-namespace:CodeNaviWPF.Models"
+        xmlns:viewmodel="clr-namespace:CodeNaviWPF.ViewModels"
         xmlns:utils="clr-namespace:CodeNaviWPF.Utils"
         xmlns:local="clr-namespace:CodeNaviWPF"
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
@@ -337,7 +338,7 @@
             </StackPanel>
         </Expander>
         <zb:Zoombox x:Name="zoom_control" Grid.Row="1" MaxScale="2.0">
-            <model:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
+            <viewmodel:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
     </Grid>
 </Window>

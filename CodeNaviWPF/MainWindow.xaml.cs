@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Forms;
 using CodeNaviWPF.Models;
+using CodeNaviWPF.ViewModels;
 using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
