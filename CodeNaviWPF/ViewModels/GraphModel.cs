@@ -105,10 +105,11 @@ namespace CodeNaviWPF.ViewModels
         }
         #endregion
 
-        private SearchResult SearchFile(FileInfo file_info, String search_term, List<String> extensions_to_skip)
+        private List<SearchResult> SearchFile(FileInfo file_info, string search_term, List<string> extensions_to_skip)
         {
             if (!extensions_to_skip.Contains(file_info.Extension.ToLower()))
             {
+                List<SearchResult> results = new List<SearchResult>();
                 FileStream filestream = new FileStream(file_info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 StreamReader streamreader = new StreamReader(filestream);
                 string line = streamreader.ReadLine();
@@ -118,7 +119,7 @@ namespace CodeNaviWPF.ViewModels
                     count++;
                     if (line.ToLower().Contains(search_term.ToLower()))
                     {
-                        return new SearchResult
+                        results.Add(new SearchResult
                         {
                             RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, file_info.FullName)),
                             FullPath = file_info.FullName,
@@ -126,10 +127,11 @@ namespace CodeNaviWPF.ViewModels
                             Extension = file_info.Extension,
                             LineNumber = count,
                             Line = line.Length > 500 ? line.TrimStart().Substring(0, 500) : line.TrimStart()
-                        };
+                        });
                     }
                     line = streamreader.ReadLine();
                 }
+                return results;
             }
             return null;
         }
@@ -150,8 +152,14 @@ namespace CodeNaviWPF.ViewModels
                 {
                     if (extensions_to_search == null || extensions_to_search.Count == 0 || extensions_to_search.Contains(file_info.Extension.ToLower()))
                     {
-                        SearchResult result = SearchFile(file_info, search_term, extensions_to_skip);
-                        if (result != null) results.Add(result);
+                        List<SearchResult> results_to_add = SearchFile(file_info, search_term, extensions_to_skip);
+                        if (results_to_add != null)
+                        {
+                            foreach (var r in results_to_add)
+                            {
+                                results.Add(r);
+                            }
+                        }
                     }
                 });
 

@@ -551,7 +551,7 @@ namespace CodeNaviWPF
                 }
                 var search_progress = new Progress<int>((int some_int) => ReportProgress(bar));
 
-                await graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
+                return graph_provider.PopulateResultsAsync(selected_text, new_search_results_vertex, search_progress);
                 
                 //bar.Visibility = System.Windows.Visibility.Collapsed;
                 //grid.Visibility = System.Windows.Visibility.Visible;
