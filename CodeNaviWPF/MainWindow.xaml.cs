@@ -447,6 +447,20 @@ namespace CodeNaviWPF
             graph_provider.SaveGraph();
         }
 
+        private void TestEditor_SelectionChanged(object sender, EventArgs e)
+        {
+            TextArea ta = sender as TextArea;
+            List<ICSharpCode.AvalonEdit.Rendering.IVisualLineTransformer> old_list = (from transformer in ta.TextView.LineTransformers
+                                                                                      where transformer.GetType() != typeof(HighlightSelection)
+                                                                                      select transformer).ToList();
+            ta.TextView.LineTransformers.Clear();
+            foreach (var a in old_list)
+            {
+                ta.TextView.LineTransformers.Add(a);
+            }
+            ta.TextView.LineTransformers.Add(new HighlightSelection(ta.Selection.GetText()));
+        }
+
         private void ExpanderRelayout(object sender, RoutedEventArgs e)
         {
             Expander expander = e.Source as Expander;
