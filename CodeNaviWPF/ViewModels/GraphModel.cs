@@ -13,13 +13,10 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.ComponentModel;
-using System.Text;
 using System.IO.Packaging;
 using System.Linq;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
-//using GraphSharp.Controls;
 using GraphX;
 using CodeNaviWPF.Models;
 using CodeNaviWPF.Utils;
@@ -38,8 +35,8 @@ namespace CodeNaviWPF.ViewModels
         public FileBrowser root_vertex;
         public string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
-        private Package package;
         private string save_file = "";
+        private bool using_temp_file = true;
 
         public PocGraph Graph
         {
@@ -65,6 +62,8 @@ namespace CodeNaviWPF.ViewModels
             //LayoutAlgorithmType="KK"
             //LayoutAlgorithmType="LinLog"
             //LayoutAlgorithmType="Tree"
+
+            save_file = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".vizzy";
         }
         
         internal void UpdateRoot(string p)
@@ -163,7 +162,6 @@ namespace CodeNaviWPF.ViewModels
                     }
                 });
 
-                //Parallel.ForEach(directory.EnumerateDirectories(), dir_info =>
                 Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(directory), dir_info =>
                 {
                     progress.Report(1);
@@ -211,55 +209,20 @@ namespace CodeNaviWPF.ViewModels
         }
 
         #region Saving and loading
-        public void SaveGraph(string file_name = null)
+        public void SaveGraph(string file_name=null)
         {
-            if (file_name != null && package != null)
+            if (file_name != null && using_temp_file)
             {
-                //package.Close();
+                if (File.Exists(save_file)) File.Delete(save_file);
+                save_file = file_name;
+                using_temp_file = false;
             }
-
-            if (file_name == null && string.IsNullOrEmpty(save_file))
-            {
-                file_name = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".vizzy";
-                //if (package != null) package.Close();
-            }
-
-            if (file_name == null && !string.IsNullOrEmpty(save_file))
-            {
-                file_name = save_file;
-                //if (package != null) package.Close();
-            }
-
-            package = Package.Open(file_name, FileMode.Create);
             
-            serialize_graph(package);
-            Properties.Settings.Default.PreviousFile = file_name;
-            save_file = file_name;
-            package.Close();
-            package = null;
-            //XmlSerializer graph_serializer = new XmlSerializer(typeof(PocGraph));
-            //BinaryFormatter ctags_serializer = new BinaryFormatter();
-
-            //Uri graphUri = PackUriHelper.CreatePartUri(new Uri("graph", UriKind.Relative));
-
-            //PackagePart graph_part = package.CreatePart(graphUri, System.Net.Mime.MediaTypeNames.Text.Xml);
-
-            //Stream graph_stream = graph_part.GetStream(FileMode.Create);
-            
-            //graph_serializer.Serialize(graph_stream, graph);
-
-            //if (ctags_matches != null)
-            //{
-            //    Uri ctagsUri = PackUriHelper.CreatePartUri(new Uri("ctags", UriKind.Relative));
-            //    PackagePart ctags_part = package.CreatePart(ctagsUri, System.Net.Mime.MediaTypeNames.Application.Octet);
-            //    Stream ctags_stream = ctags_part.GetStream(FileMode.Create);
-            //    ctags_serializer.Serialize(ctags_stream, ctags_matches);
-            //}
-
-            //if (root_vertex.CtagsRun) graph_area.SaveIntoFile(file_name);
+            serialize_graph();
+            Properties.Settings.Default.PreviousFile = save_file;
         }
 
-        private void serialize_graph(Package package)
+        private void serialize_graph()
         {
             Uri sourceVertUri;
             Uri targetVertUri;
@@ -267,128 +230,104 @@ namespace CodeNaviWPF.ViewModels
             PackagePart target_vert_part;
             Stream vert_stream;
             XmlSerializer vert_serializer = new XmlSerializer(typeof(PocVertex));
-            
-            Uri rootVertexUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-"+root_vertex.ID.ToString(), UriKind.Relative));
-            if (!package.PartExists(rootVertexUri))
-            {
-                PackagePart rootPart = package.CreatePart(rootVertexUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
-                using (vert_stream = rootPart.GetStream(FileMode.Create))
-                {
-                    vert_serializer.Serialize(vert_stream, root_vertex);
-                }
-            }
-            //foreach (var vert in graph.Vertices)
-            //{
-            //vertUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-"+vert.ID.ToString(), UriKind.Relative));
-            //vert_part = package.CreatePart(vertUri, System.Net.Mime.MediaTypeNames.Text.Xml);
-            //vert_stream = vert_part.GetStream(FileMode.Create);
-            //vert_serializer.Serialize(vert_stream, vert);
-            //}
 
-            // This isn't the way we should do it.
-            // Ideally these should be saved as relationships.
-            foreach (var edge in graph.Edges)
+            using (Package package = Package.Open(save_file, FileMode.Create))
             {
-                sourceVertUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + edge.Source.ID.ToString(), UriKind.Relative));
-                targetVertUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + edge.Target.ID.ToString(), UriKind.Relative));
 
-                if (!package.PartExists(sourceVertUri))
+                Uri rootVertexUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + root_vertex.ID.ToString(), UriKind.Relative));
+                if (!package.PartExists(rootVertexUri))
                 {
-                    source_vert_part = package.CreatePart(sourceVertUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
-                    using (vert_stream = source_vert_part.GetStream(FileMode.Create))
+                    PackagePart rootPart = package.CreatePart(rootVertexUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
+                    using (vert_stream = rootPart.GetStream(FileMode.Create))
                     {
-                        vert_serializer.Serialize(vert_stream, edge.Source);
+                        vert_serializer.Serialize(vert_stream, root_vertex);
                     }
                 }
-                else
-                {
-                    source_vert_part = package.GetPart(sourceVertUri);
-                }
 
-                if (!package.PartExists(targetVertUri))
+                foreach (var edge in graph.Edges)
                 {
-                    target_vert_part = package.CreatePart(targetVertUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
-                    using (vert_stream = target_vert_part.GetStream(FileMode.Create))
+                    sourceVertUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + edge.Source.ID.ToString(), UriKind.Relative));
+                    targetVertUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + edge.Target.ID.ToString(), UriKind.Relative));
+
+                    if (!package.PartExists(sourceVertUri))
                     {
-                        vert_serializer.Serialize(vert_stream, edge.Target);
+                        source_vert_part = package.CreatePart(sourceVertUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
+                        using (vert_stream = source_vert_part.GetStream(FileMode.Create))
+                        {
+                            vert_serializer.Serialize(vert_stream, edge.Source);
+                        }
                     }
-                }
-                else
-                {
-                    target_vert_part = package.GetPart(targetVertUri);
-                }
+                    else
+                    {
+                        source_vert_part = package.GetPart(sourceVertUri);
+                    }
 
-                var rels = source_vert_part.GetRelationshipsByType(EdgeRelationship).Where(x => x.TargetUri == targetVertUri);
-                if (rels.Count() == 0) source_vert_part.CreateRelationship(targetVertUri, TargetMode.Internal, EdgeRelationship);
+                    if (!package.PartExists(targetVertUri))
+                    {
+                        target_vert_part = package.CreatePart(targetVertUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
+                        using (vert_stream = target_vert_part.GetStream(FileMode.Create))
+                        {
+                            vert_serializer.Serialize(vert_stream, edge.Target);
+                        }
+                    }
+                    else
+                    {
+                        target_vert_part = package.GetPart(targetVertUri);
+                    }
 
-                //edgeUri = PackUriHelper.CreatePartUri(new Uri("edges/edge-" + edge.ID.ToString(), UriKind.Relative));
-                //edge_part = package.CreatePart(edgeUri, System.Net.Mime.MediaTypeNames.Text.Xml);
-                //edge_stream = edge_part.GetStream(FileMode.Create);
-                //edge_serializer.Serialize(edge_stream, edge);
+                    var rels = source_vert_part.GetRelationshipsByType(EdgeRelationship).Where(x => x.TargetUri == targetVertUri);
+                    if (rels.Count() == 0) source_vert_part.CreateRelationship(targetVertUri, TargetMode.Internal, EdgeRelationship);
+
+                }
             }
         }
 
         public void LoadProject(string filename)
         {
-            package = Package.Open(filename, FileMode.OpenOrCreate);
-            Properties.Settings.Default.PreviousFile = filename;
-
-            XmlSerializer vertex_loader = new XmlSerializer(typeof(PocVertex));
-            graph = new PocGraph(true);
-
-            foreach (var p in package.GetParts())
+            using (Package package = Package.Open(filename, FileMode.OpenOrCreate))
             {
-                if (p.ContentType == "text/xml"
-                    && p.Uri.OriginalString.StartsWith("/vertices")
-                    && !p.Uri.OriginalString.EndsWith(".rels")
-                    )
-                {
-                    PocVertex new_vertex = (PocVertex)vertex_loader.Deserialize(p.GetStream(FileMode.Open));
-                    graph.AddVertex(new_vertex);
-                }
-            }
+                Properties.Settings.Default.PreviousFile = filename;
 
-            foreach (var p in package.GetParts())
-            {
-                if (p.ContentType == "text/xml"
-                    && p.Uri.OriginalString.StartsWith("/vertices")
-                    && !p.Uri.OriginalString.EndsWith(".rels")
-                    )
-                {
-                    PocVertex new_vertex = (PocVertex)vertex_loader.Deserialize(p.GetStream(FileMode.Open));
+                XmlSerializer vertex_loader = new XmlSerializer(typeof(PocVertex));
+                graph = new PocGraph(true);
 
-                    PocVertex source = graph.Vertices.Where(x => x.ID == new_vertex.ID).First();
-                    var edges = p.GetRelationshipsByType(EdgeRelationship);
-                    foreach (var edge in edges)
+                foreach (var p in package.GetParts())
+                {
+                    if (p.ContentType == "text/xml"
+                        && p.Uri.OriginalString.StartsWith("/vertices")
+                        && !p.Uri.OriginalString.EndsWith(".rels")
+                        )
                     {
-                        new_vertex = (PocVertex)vertex_loader.Deserialize(package.GetPart(edge.TargetUri).GetStream(FileMode.Open));
-                        PocVertex target = graph.Vertices.Where(x => x.ID == new_vertex.ID).First();
-                        PocEdge new_edge = new PocEdge(source, target);
-                        if (!(source == target)) graph.AddEdge(new_edge);
+                        PocVertex new_vertex = (PocVertex)vertex_loader.Deserialize(p.GetStream(FileMode.Open));
+                        graph.AddVertex(new_vertex);
                     }
                 }
-            }
 
-            //foreach (PocVertex x in graph.Vertices)
-            //{
-            //    if (typeof(x) == typeof(FileBrowser)) root = x;
-            //}
-            root = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
-            item_provider.RootDir = root.FilePath;
-            package.Close();
-            package = null; // Surely not needed.
+                foreach (var p in package.GetParts())
+                {
+                    if (p.ContentType == "text/xml"
+                        && p.Uri.OriginalString.StartsWith("/vertices")
+                        && !p.Uri.OriginalString.EndsWith(".rels")
+                        )
+                    {
+                        PocVertex new_vertex = (PocVertex)vertex_loader.Deserialize(p.GetStream(FileMode.Open));
+
+                        PocVertex source = graph.Vertices.Where(x => x.ID == new_vertex.ID).First();
+                        var edges = p.GetRelationshipsByType(EdgeRelationship);
+                        foreach (var edge in edges)
+                        {
+                            new_vertex = (PocVertex)vertex_loader.Deserialize(package.GetPart(edge.TargetUri).GetStream(FileMode.Open));
+                            PocVertex target = graph.Vertices.Where(x => x.ID == new_vertex.ID).First();
+                            PocEdge new_edge = new PocEdge(source, target);
+                            if (!(source == target)) graph.AddEdge(new_edge);
+                        }
+                    }
+                }
+
+                root = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
+                item_provider.RootDir = root.FilePath;
+            }
             NotifyPropertyChanged("Graph");
-        }
-
-        ~GraphProvider()
-        {
-            try
-            {
-                //package.Close();
-            }
-            catch (System.NullReferenceException) { }
-            catch (System.ObjectDisposedException) { }
-            catch (System.ArgumentException) { }
         }
         #endregion
     }
