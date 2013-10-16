@@ -31,6 +31,9 @@
         <CommandBinding Command="local:Commands.SearchString" Executed="SearchString" />
         <CommandBinding Command="local:Commands.ExpanderRelayout" Executed="ExpanderRelayout" />
         <CommandBinding Command="local:Commands.OnCloseVertex" Executed="OnCloseVertex" />
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenProject" />
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveProject" />
+        <CommandBinding Command="ApplicationCommands.New" Executed="NewProject" />
     </Window.CommandBindings>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="mybooltovisibilityconverter" />

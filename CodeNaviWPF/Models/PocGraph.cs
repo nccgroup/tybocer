@@ -24,6 +24,9 @@ using YAXLib;
 
 namespace CodeNaviWPF.Models
 {
+    [XmlInclude(typeof(FileBrowser))]
+    [XmlInclude(typeof(FileVertex))]
+    [XmlInclude(typeof(SearchResultsVertex))]
     public class PocVertex : VertexBase, INotifyPropertyChanged
     {
         public PocVertex()
@@ -49,10 +52,24 @@ namespace CodeNaviWPF.Models
     public class FileBrowser : PocVertex
     {
         [YAXDontSerialize]
+        [XmlIgnore]
         private ItemProvider ip;
      
         [YAXDontSerialize]
+        [XmlIgnore]
         private List<Item> files;
+
+        [XmlIgnore]
+        private Dictionary<string, List<List<string>>> ctags_matches;
+
+        [XmlIgnore]
+        public Dictionary<string, List<List<string>>> CtagsMatches
+        {
+            get { return ctags_matches; }
+            set { ctags_matches = value; }
+        }
+
+        public bool CtagsRun { get; set; }
         
         private string file_path;
         public string FilePath
@@ -69,12 +86,15 @@ namespace CodeNaviWPF.Models
         }
 
         [YAXDontSerialize]
+        [XmlIgnore]
         public List<Item> Files { get { return files; } }
 
         [YAXDontSerialize]
+        [XmlIgnore]
         private string searchterm;
 
         [YAXDontSerialize]
+        [XmlIgnore]
         public string SearchTerm
         {
             get { return searchterm; }
@@ -113,6 +133,7 @@ namespace CodeNaviWPF.Models
         }
 
         [YAXDontSerialize]
+        [XmlIgnore]
         public TextDocument Document { get; set; }
 
         public List<int> LinesToHighlight;
@@ -190,6 +211,7 @@ namespace CodeNaviWPF.Models
         public string FileName { get; set; }
         public string Extension { get; set; }
         [YAXDontSerialize]
+        [XmlIgnore]
         public string Line { get; set; }
 
         public string EncodedLine

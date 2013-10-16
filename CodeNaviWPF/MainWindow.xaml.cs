@@ -426,7 +426,7 @@ namespace CodeNaviWPF
                 }
                 editor.Width = editor.ActualWidth;
             }
-            SaveGraph();
+            graph_provider.SaveGraph();
         }
 
         private void ExpanderRelayout(object sender, RoutedEventArgs e)
@@ -511,7 +511,7 @@ namespace CodeNaviWPF
             }
 
             await SearchForString(selected_text, (VertexControl)e.Source, extensions);
-            SaveGraph();
+            graph_provider.SaveGraph();
         }
 
         private Task SearchForString(string selected_text, VertexControl from_vertex_control, List<string> extensions_to_search = null)
@@ -591,23 +591,9 @@ namespace CodeNaviWPF
             }
         }
 
-        #region Saving and loading
-        private void SaveGraph()
-        {
-            DirectoryInfo di = new DirectoryInfo(root_dir);
-            //string file_name = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) +
-            //    Path.DirectorySeparatorChar +
-            //    di.Name +
-            //     ".vizzy";
-            string file_name = Path.GetTempFileName();
-            Properties.Settings.Default.PreviousFile = file_name;
-            graph_area.SaveIntoFile(file_name);
-        }
-        #endregion
-
         private void SearchResultCheckedCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            if (!loading) SaveGraph();
+            if (!loading) graph_provider.SaveGraph();
         }
 
         async private void root_Loaded(object sender, RoutedEventArgs e)
@@ -615,24 +601,100 @@ namespace CodeNaviWPF
             if (File.Exists(Properties.Settings.Default.PreviousFile))
             {
                 loading = true;
-                graph_area.LoadFromFile(Properties.Settings.Default.PreviousFile);
-                root_control = graph_area.VertexList.Values.First();
-                root_vertex = graph_area.VertexList.Keys.First();
-                root_dir = ((FileBrowser)root_vertex).FilePath;
-                graph_provider.UpdateRoot(root_dir);
-                SetGraphLayoutParameters();
-                RelayoutGraph(graph_area.VertexList.Last().Value);
-                foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
+                try
                 {
-                    editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
-                    editor.Width = editor.ActualWidth;
+                    graph_area.LoadFromFile(Properties.Settings.Default.PreviousFile);
+                    root_control = graph_area.VertexList.Values.First();
+                    graph_provider.root_vertex = (FileBrowser)graph_area.VertexList.Keys.First();
+                    graph_provider.root_dir = ((FileBrowser)graph_provider.root_vertex).FilePath;
+                    graph_provider.UpdateRoot(graph_provider.root_dir);
+                    SetGraphLayoutParameters();
+                    RelayoutGraph(graph_area.VertexList.Last().Value);
+                    foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
+                    {
+                        editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                        editor.Width = editor.ActualWidth;
+                    }
+
+                    if (!graph_provider.root_vertex.CtagsRun)
+                    {
+                        //root_vertex.CtagsRun = false;
+                        //ctags_running = true;
+                        await UpdateCtags();
+                        graph_provider.root_vertex.CtagsRun = true;
+                    }
+                    UpdateCtagsHighlights();
+                    //ctags_running = false;
                 }
-                ctags_running = true;
-                await UpdateCtags();
-                UpdateCtagsHighlights();
-                ctags_running = false;
+                catch (YAXLib.YAXElementMissingException)
+                {
+                    System.Windows.Forms.MessageBox.Show(
+                        "Had some problem loading previous file. Unlucky.",
+                        "Loading failed", 
+                        System.Windows.Forms.MessageBoxButtons.OK, 
+                        System.Windows.Forms.MessageBoxIcon.Exclamation
+                        );
+                    CreateNewGraph();
+                }
                 loading = false;
             }
+        }
+
+        private void enableCtags_Checked(object sender, RoutedEventArgs e)
+        {
+            if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == null) use_ctags = false;
+            if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == false) use_ctags = false;
+            if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == true) use_ctags = true;
+            UpdateCtagsHighlights();
+        }
+
+        private void OpenProject(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = false;
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                graph_provider.LoadProject(dialog.FileName);
+                graph_area.Graph = graph_provider.Graph;
+                graph_area.GenerateGraph(graph_provider.Graph);
+                graph_area.RelayoutGraph(true);
+                //root_control = graph_area.VertexList.Where(x => x.Key == (PocVertex)graph_provider.root_vertex).First().Value;
+                root_control = graph_area.VertexList.Where(x => x.Key.GetType() == typeof(FileBrowser)).First().Value;
+                root_control.Vertex = graph_provider.root_vertex;
+                //graph_provider.root_dir = dialog.FileName;
+                //graph_provider.UpdateRoot(dialog.SelectedPath);
+                //still_counting = true;
+                //directory_count = await CountDirs(dialog.SelectedPath);
+                //still_counting = false;
+                //graph_provider.root_vertex.CtagsRun = false;
+                ////ctags_running = true;
+                //await UpdateCtags();
+                //UpdateCtagsHighlights();
+                //graph_provider.root_vertex.CtagsRun = true;
+                ////ctags_running = false;
+                //graph_provider.SaveGraph();
+            }
+        }
+
+        private void SaveProject(object sender, ExecutedRoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                graph_provider.SaveGraph(dialog.FileName);
+            }
+        }
+
+        private void NewProject(object sender, ExecutedRoutedEventArgs e)
+        {
+            graph_provider.SaveGraph();
+            CreateNewGraph();
+        }
+
+        private void DataGrid_HandBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 
