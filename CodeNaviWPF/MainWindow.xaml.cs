@@ -698,6 +698,8 @@ namespace CodeNaviWPF
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.Multiselect = false;
+            dialog.Filter = "Vizzy files|*.vizzy";
+
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 graph_provider.LoadProject(dialog.FileName);
@@ -725,10 +727,14 @@ namespace CodeNaviWPF
         private void SaveProject(object sender, ExecutedRoutedEventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
+            dialog.AddExtension = true;
+            dialog.Filter = "Vizzy files|*.vizzy";
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                graph_provider.SaveGraph(dialog.FileName);
+                var file_name = dialog.FileName;
+                if (!file_name.EndsWith(".vizzy")) file_name += ".vizzy";
+                graph_provider.SaveGraph(file_name);
             }
         }
 
