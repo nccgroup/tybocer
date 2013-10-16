@@ -52,7 +52,6 @@ namespace CodeNaviWPF
             InitializeComponent();
             Zoombox.SetViewFinderVisibility(zoom_control, System.Windows.Visibility.Visible);
 
-
             CreateNewGraph();
             zoom_control.CenterContent();
             zoom_control.DragModifiers.Clear();
@@ -64,6 +63,15 @@ namespace CodeNaviWPF
             zoom_control.ZoomModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Alt);
             zoom_control.ZoomModifiers.Add(GraphX.Xceed.Wpf.Toolkit.Core.Input.KeyModifier.Exact);
 
+            PreferencesExpander.Collapsed += delegate
+            {
+                PrefTopRow.Height = new GridLength(1, GridUnitType.Auto);
+            };
+
+            PreferencesExpander.Expanded += delegate
+            {
+                PrefTopRow.Height = new GridLength(1, GridUnitType.Star);
+            };
         }
 
         private void CreateNewGraph()
@@ -523,8 +531,9 @@ namespace CodeNaviWPF
                 VertexControl source_vertex_control = e.Source as VertexControl;
                 if (source_vertex_control == null) return;
                 selected_text = ((FileBrowser)source_vertex_control.DataContext).SearchTerm;
-                System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(source_vertex_control).Last();
-                extensions = textbox.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                //System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildren<System.Windows.Controls.TextBox>(source_vertex_control).Last();
+                //System.Windows.Controls.TextBox textbox = Utils.TreeHelpers.FindVisualChildByName<System.Windows.Controls.TextBox>(typeof(MainWindow), extensionList);
+                extensions = extensionList.Text.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 extensions.ForEach(extension => extension.ToLower());
             }
             else

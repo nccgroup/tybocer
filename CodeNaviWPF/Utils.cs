@@ -81,6 +81,32 @@ namespace CodeNaviWPF.Utils
             return null;
         }
 
+        public static childItem FindVisualChildByName<childItem>(DependencyObject obj, String name)
+        where childItem : DependencyObject
+        {
+            try
+            {
+                ((dynamic)obj).ApplyTemplate();
+            }
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+            {
+            }
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                var fe = child as FrameworkElement;
+                if (child != null && child is childItem && fe.Name == name)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = FindVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
+
         public static T FindVisualParent<T>(DependencyObject element) where T : UIElement
         {
             DependencyObject parent = element;
