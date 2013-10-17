@@ -31,7 +31,6 @@ namespace CodeNaviWPF.ViewModels
 
         private ItemProvider item_provider;
         private PocGraph graph;
-        public FileBrowser root;
         public FileBrowser root_vertex;
         public string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
@@ -51,8 +50,8 @@ namespace CodeNaviWPF.ViewModels
         {
             item_provider = new ItemProvider();
             Graph = new PocGraph(true);
-            root = new FileBrowser("");
-            graph.AddVertex(root);
+            root_vertex = new FileBrowser("");
+            graph.AddVertex(root_vertex);
             //layoutAlgorithmType = "EfficientSugiyama";
             //LayoutAlgorithmType="Circular"
             //LayoutAlgorithmType="CompundFDP"
@@ -68,18 +67,18 @@ namespace CodeNaviWPF.ViewModels
         
         internal void UpdateRoot(string p)
         {
-            root.FilePath = p;
+            root_vertex.FilePath = p;
             item_provider.RootDir = p;
         }
 
         internal FileVertex AddFileView(FileItem f)
         {
-            return AddFileView(f, root);
+            return AddFileView(f, root_vertex);
         }
 
         internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
-            FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root.FilePath);
+            FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root_vertex.FilePath);
             Graph.AddVertex(new_vertex);
             Graph.AddEdge(new PocEdge(from_vertex, new_vertex));
             return new_vertex;
@@ -120,7 +119,7 @@ namespace CodeNaviWPF.ViewModels
                     {
                         results.Add(new SearchResult
                         {
-                            RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root.FilePath, file_info.FullName)),
+                            RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root_vertex.FilePath, file_info.FullName)),
                             FullPath = file_info.FullName,
                             FileName = file_info.Name,
                             Extension = file_info.Extension,
@@ -185,7 +184,7 @@ namespace CodeNaviWPF.ViewModels
 
             BlockingCollection<SearchResult> results = new BlockingCollection<SearchResult>();
 
-            results = SearchDirectory(search_term, results_vertex.ExtensionsToSearch, new DirectoryInfo(root.FilePath), progress);
+            results = SearchDirectory(search_term, results_vertex.ExtensionsToSearch, new DirectoryInfo(root_vertex.FilePath), progress);
 
             results_vertex.Results = results.ToList<SearchResult>();
             results_vertex.SearchRunning = false;
@@ -324,8 +323,8 @@ namespace CodeNaviWPF.ViewModels
                     }
                 }
 
-                root = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
-                item_provider.RootDir = root.FilePath;
+                root_vertex = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
+                item_provider.RootDir = root_vertex.FilePath;
             }
             NotifyPropertyChanged("Graph");
         }
