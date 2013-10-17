@@ -35,12 +35,12 @@
         <CommandBinding Command="ApplicationCommands.Save" Executed="SaveProject" />
         <CommandBinding Command="ApplicationCommands.New" Executed="NewProject" />
     </Window.CommandBindings>
-    
+
     <Window.Resources>
-        
+
         <BooleanToVisibilityConverter x:Key="mybooltovisibilityconverter" />
         <utils:InverseBoolToVisibility x:Key="inverseBoolToVisibility" />
-        
+
         <HierarchicalDataTemplate DataType="{x:Type model:DirectoryItem}"
                                   ItemsSource="{Binding Items}">
             <TextBlock Text="{Binding Path=FileName}" ToolTip="{Binding Path=FullPath}" />
@@ -80,30 +80,31 @@
 
         <DataTemplate x:Key="fileContentView">
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
-                <Expander IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
-                    <Expander.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
-                            <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
-             
-                        </StackPanel>
-                    </Expander.Header>
+                <StackPanel Orientation="Vertical">
+                    <Expander x:Name="FileContentExpander"  IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
+                                <Button Margin="30,0,0,0" Content="Close" Command="local:Commands.OnCloseVertex" />
+
+                            </StackPanel>
+                        </Expander.Header>
 
 
-                    <StackPanel>
-                        <ToolBarTray DockPanel.Dock="Top" IsLocked="True">
-                            <ToolBar>
-                            <Label Target="{Binding ElementName=fontSize}">Zoom</Label>
-                            <Slider x:Name="fontSize" 
+                        <StackPanel>
+                            <ToolBarTray DockPanel.Dock="Top" IsLocked="True">
+                                <ToolBar>
+                                    <Label Target="{Binding ElementName=fontSize}">Zoom</Label>
+                                    <Slider x:Name="fontSize" 
                                     Margin="0,0,0,0" 
                                     Minimum="6" 
                                     Maximum="20" 
                                     Width="100" 
                                     Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
                                     />
-                            </ToolBar>
-                        </ToolBarTray>
-                        <avalonEdit:TextEditor
+                                </ToolBar>
+                            </ToolBarTray>
+                            <avalonEdit:TextEditor
                             x:Name="editor"
                             MinWidth="600"
                             MaxWidth="800" 
@@ -118,25 +119,31 @@
                             FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}"
                             FontSize="{Binding ElementName=fontSize, Path=Value, Mode=OneWay}"
                         >
-                            <!--FontSize="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}"-->
+                                <!--FontSize="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}"-->
 
-                            <avalonEdit:TextEditor.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Search all files..." Command="local:Commands.SearchString" />
-                                    <MenuItem Header="Search restricted extensions..." Command="local:Commands.SearchString" CommandParameter="restricted" />
-                                    <MenuItem Header="Search files of same type..." Command="local:Commands.SearchString" CommandParameter="same_type" />
-                                </ContextMenu>
-                            </avalonEdit:TextEditor.ContextMenu>
-                        </avalonEdit:TextEditor>
-                    </StackPanel>
-                </Expander>
+                                <avalonEdit:TextEditor.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Search all files..." Command="local:Commands.SearchString" />
+                                        <MenuItem Header="Search restricted extensions..." Command="local:Commands.SearchString" CommandParameter="restricted" />
+                                        <MenuItem Header="Search files of same type..." Command="local:Commands.SearchString" CommandParameter="same_type" />
+                                    </ContextMenu>
+                                </avalonEdit:TextEditor.ContextMenu>
+                            </avalonEdit:TextEditor>
+                        </StackPanel>
+                    </Expander>
+                    <Image Height="200" Width="200" Visibility="{Binding ElementName=FileContentExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}">
+                        <Image.Source>
+                            <BitmapImage UriSource="blank_page.png" />
+                        </Image.Source>
+                    </Image>
+                </StackPanel>
             </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="searchResultsView">
             <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="10">
-                <Grid>
-                    <Expander IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
+                <StackPanel>
+                    <Expander x:Name="SearchExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock VerticalAlignment="Center">Search for: <TextBlock Text="{Binding Path=SearchString}" /></TextBlock>
@@ -191,7 +198,12 @@
                             </StackPanel>
                         </Grid>
                     </Expander>
-                </Grid>
+                    <Image Height="200" Width="200" Visibility="{Binding ElementName=SearchExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}">
+                        <Image.Source>
+                            <BitmapImage UriSource="HelloWorld.png" />
+                        </Image.Source>
+                    </Image>
+                </StackPanel>
             </Border>
         </DataTemplate>
 
@@ -248,13 +260,13 @@
 
         </Style>
     </Window.Resources>
-    
+
     <Grid>
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-    
+
         <Grid.Resources>
             <!-- VERTEX CONTROL -->
             <Style TargetType="{x:Type gxl:VertexControl}">
@@ -293,7 +305,7 @@
                 </Style.Triggers>
             </Style>
         </Grid.Resources>
-    
+
         <Grid Width="210" Panel.ZIndex="1000" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" x:Name="PrefTopRow"/>
