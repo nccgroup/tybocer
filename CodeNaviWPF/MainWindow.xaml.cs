@@ -78,6 +78,9 @@ namespace CodeNaviWPF
             };
 
             ct = ts.Token;
+
+            if (File.Exists(Properties.Settings.Default.PreviousFile)) load_project(Properties.Settings.Default.PreviousFile);
+
         }
 
         private void CreateNewGraph()
@@ -718,13 +721,18 @@ namespace CodeNaviWPF
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                graph_provider.LoadProject(dialog.FileName);
-                graph_area.Graph = graph_provider.Graph;
-                graph_area.GenerateGraph(graph_provider.Graph);
-                graph_area.RelayoutGraph(true);
-                root_control = graph_area.VertexList.Where(x => x.Key.GetType() == typeof(FileBrowser)).First().Value;
-                root_control.Vertex = graph_provider.root_vertex;
+                load_project(dialog.FileName);
             }
+        }
+
+        private void load_project(String filename)
+        {
+            graph_provider.LoadProject(filename);
+            graph_area.Graph = graph_provider.Graph;
+            graph_area.GenerateGraph(graph_provider.Graph);
+            graph_area.RelayoutGraph(true);
+            root_control = graph_area.VertexList.Where(x => x.Key.GetType() == typeof(FileBrowser)).First().Value;
+            root_control.Vertex = graph_provider.root_vertex;
         }
 
         private void SaveProject(object sender, ExecutedRoutedEventArgs e)
