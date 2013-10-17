@@ -294,12 +294,12 @@
             </Style>
         </Grid.Resources>
     
-        <Grid Width="200" Panel.ZIndex="1000" HorizontalAlignment="Left">
+        <Grid Width="210" Panel.ZIndex="1000" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" x:Name="PrefTopRow"/>
                 <RowDefinition Height="*" x:Name="PrefBottomRow"/>
             </Grid.RowDefinitions>
-                <Border BorderThickness="3" BorderBrush="BurlyWood" Panel.ZIndex="1000" HorizontalAlignment="Left" Width="200" CornerRadius="4">
+            <Border BorderThickness="3" Margin="5" BorderBrush="BurlyWood" Panel.ZIndex="1000" HorizontalAlignment="Left" Width="200" CornerRadius="4">
                 <Expander IsExpanded="True" Grid.Column="0" Header="Preferences" Padding="5" Background="White" Opacity="1" x:Name="PreferencesExpander">
                     <StackPanel Orientation="Vertical">
 
@@ -349,6 +349,6 @@
         <zb:Zoombox x:Name="zoom_control"  Panel.ZIndex="0" Grid.Column="0" MaxScale="2.0">
             <viewmodel:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
-    
+
     </Grid>
 </Window>
