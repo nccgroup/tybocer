@@ -299,8 +299,8 @@
                 <RowDefinition Height="*" x:Name="PrefTopRow"/>
                 <RowDefinition Height="*" x:Name="PrefBottomRow"/>
             </Grid.RowDefinitions>
-            <Border BorderThickness="3" Margin="5" BorderBrush="BurlyWood" Panel.ZIndex="1000" HorizontalAlignment="Left" Width="200" CornerRadius="4">
-                <Expander IsExpanded="True" Grid.Column="0" Header="Preferences" Padding="5" Background="White" Opacity="1" x:Name="PreferencesExpander">
+            <Border BorderThickness="3" Margin="5" BorderBrush="BurlyWood" Panel.ZIndex="1000" Background="White" Opacity="1" HorizontalAlignment="Left" Width="200" CornerRadius="4">
+                <Expander IsExpanded="True" Grid.Column="0" Header="Preferences" Padding="5" x:Name="PreferencesExpander">
                     <StackPanel Orientation="Vertical">
 
                         <StackPanel>
