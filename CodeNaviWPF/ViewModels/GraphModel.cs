@@ -36,7 +36,7 @@ namespace CodeNaviWPF.ViewModels
         public string root_dir = "";
         private Dictionary<string, List<List<string>>> ctags_matches;
         private string save_file = "";
-        private bool using_temp_file = true;
+        public bool UsingTempFile = true;
 
         public PocGraph Graph
         {
@@ -215,7 +215,7 @@ namespace CodeNaviWPF.ViewModels
             {
                 if (File.Exists(save_file)) File.Delete(save_file);
                 save_file = file_name;
-                using_temp_file = false;
+                UsingTempFile = false;
             }
             
             serialize_graph();

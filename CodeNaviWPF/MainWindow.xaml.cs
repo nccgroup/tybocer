@@ -739,15 +739,22 @@ namespace CodeNaviWPF
 
         private void SaveProject(object sender, ExecutedRoutedEventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.AddExtension = true;
-            dialog.Filter = "Vizzy files|*.vizzy";
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (graph_provider.UsingTempFile)
             {
-                var file_name = dialog.FileName;
-                if (!file_name.EndsWith(".vizzy")) file_name += ".vizzy";
-                graph_provider.SaveGraph(file_name);
+                SaveFileDialog dialog = new SaveFileDialog();
+                dialog.AddExtension = true;
+                dialog.Filter = "Vizzy files|*.vizzy";
+
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var file_name = dialog.FileName;
+                    if (!file_name.EndsWith(".vizzy")) file_name += ".vizzy";
+                    graph_provider.SaveGraph(file_name);
+                }
+            }
+            else
+            {
+                graph_provider.SaveGraph();
             }
         }
 
