@@ -455,10 +455,7 @@ namespace CodeNaviWPF
             {
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.TextArea.SelectionChanged += TestEditor_SelectionChanged;
-                //editor.TextArea.KeyDown += TestEditor_KeyDown;
                 if (graph_provider.root_vertex.CtagsRun) editor.TextArea.TextView.LineTransformers.Add(new UnderlineCtagsMatches(graph_provider.root_vertex.CtagsMatches.Keys.ToList()));
-                //editor.TextArea.TextView.LineTransformers.Add(new EscapeSequenceLineTransformer(ctags_matches.Keys.ToList()));
-                //editor.TextArea.TextView.Loaded += (o, i) => { editor.TextArea.TextView.Redraw(); };
                 if (lines != null)
                 {
                     editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightSearchLineBackgroundRenderer(editor, lines));
@@ -719,21 +716,8 @@ namespace CodeNaviWPF
                 graph_area.Graph = graph_provider.Graph;
                 graph_area.GenerateGraph(graph_provider.Graph);
                 graph_area.RelayoutGraph(true);
-                //root_control = graph_area.VertexList.Where(x => x.Key == (PocVertex)graph_provider.root_vertex).First().Value;
                 root_control = graph_area.VertexList.Where(x => x.Key.GetType() == typeof(FileBrowser)).First().Value;
                 root_control.Vertex = graph_provider.root_vertex;
-                //graph_provider.root_dir = dialog.FileName;
-                //graph_provider.UpdateRoot(dialog.SelectedPath);
-                //still_counting = true;
-                //directory_count = await CountDirs(dialog.SelectedPath);
-                //still_counting = false;
-                //graph_provider.root_vertex.CtagsRun = false;
-                ////ctags_running = true;
-                //await UpdateCtags();
-                //UpdateCtagsHighlights();
-                //graph_provider.root_vertex.CtagsRun = true;
-                ////ctags_running = false;
-                //graph_provider.SaveGraph();
             }
         }
 
