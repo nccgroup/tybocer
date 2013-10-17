@@ -51,7 +51,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileBrowserTemplate">
-            <Border BorderThickness="3" BorderBrush="BurlyWood" CornerRadius="8,8,8,8">
+            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel>
                         <StackPanel.Resources>
