@@ -310,7 +310,7 @@
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Label Target="{Binding ElementName=enableCtags}">Ctags Enabled:</Label>
-                                <CheckBox x:Name="enableCtags" IsChecked="True" IsThreeState="False" Checked="enableCtags_Checked" Unchecked="enableCtags_Checked"/>
+                                <CheckBox x:Name="enableCtags" IsChecked="True" VerticalAlignment="Center" IsThreeState="False" Checked="enableCtags_Checked" Unchecked="enableCtags_Checked"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -330,9 +330,9 @@
                             <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location</Label>
                             <TextBox x:Name="ctagsLocation" TextChanged="CheckForCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
                         </StackPanel>
-                        <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
                             <TextBlock>Minimise edge distance</TextBlock>
-                            <CheckBox x:Name="mini" />
+                            <CheckBox x:Name="mini" VerticalAlignment="Center" IsThreeState="False" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
                             <TextBlock>Layer dist</TextBlock>
