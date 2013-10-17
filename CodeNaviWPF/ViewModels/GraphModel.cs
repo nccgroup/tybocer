@@ -326,6 +326,8 @@ namespace CodeNaviWPF.ViewModels
                 root_vertex = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
                 item_provider.RootDir = root_vertex.FilePath;
             }
+            UsingTempFile = false;
+            save_file = filename;
             NotifyPropertyChanged("Graph");
         }
         #endregion
