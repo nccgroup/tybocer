@@ -234,13 +234,11 @@ namespace CodeNaviWPF.ViewModels
             {
 
                 Uri rootVertexUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + root_vertex.ID.ToString(), UriKind.Relative));
-                if (!package.PartExists(rootVertexUri))
+                PackagePart rootPart = package.CreatePart(rootVertexUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
+
+                using (vert_stream = rootPart.GetStream(FileMode.Create))
                 {
-                    PackagePart rootPart = package.CreatePart(rootVertexUri, System.Net.Mime.MediaTypeNames.Text.Xml, CompressionOption.Maximum);
-                    using (vert_stream = rootPart.GetStream(FileMode.Create))
-                    {
-                        vert_serializer.Serialize(vert_stream, root_vertex);
-                    }
+                    vert_serializer.Serialize(vert_stream, root_vertex);
                 }
 
                 foreach (var edge in graph.Edges)
