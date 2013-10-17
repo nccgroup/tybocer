@@ -85,17 +85,16 @@ namespace CodeNaviWPF
 
         private void CreateNewGraph()
         {
+            graph_area.Children.Clear();
             graph_provider = new GraphProvider();
             graph_area.AsyncAlgorithmCompute = true;
-            graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.ISOM;
             graph_area.RelayoutFinished += OnRelayoutFinished;
-            graph_area.DefaultOverlapRemovalAlgorithm = GraphX.OverlapRemovalAlgorithmTypeEnum.OneWayFSA;
             graph_area.UseNativeObjectArrange = true;
             graph_area.Graph = graph_provider.Graph;
+            SetGraphLayoutParameters();
             graph_area.GenerateGraph(graph_provider.Graph);
             graph_area.RelayoutGraph(true);
 
-            //graph_area.UseNativeObjectArrange = false;
             root_control = graph_area.VertexList.Values.First();
             graph_provider.root_vertex = (FileBrowser)graph_area.VertexList.Keys.First();
             centre_on_me = root_control;
@@ -499,7 +498,8 @@ namespace CodeNaviWPF
                 foreach (PocEdge edge in graph_area.Graph.OutEdges((PocVertex)parent_vertex_control.Vertex))
                 {
                     VertexControl vc = graph_area.GetAllVertexControls().Where(x => x.Vertex == edge.Target).FirstOrDefault();
-                    TreeHelpers.FindVisualChild<Expander>(vc).IsExpanded = expander.IsExpanded;
+                    var new_expander = TreeHelpers.FindVisualChild<Expander>(vc);
+                    if (new_expander != null) new_expander.IsExpanded = expander.IsExpanded;
                 }
             }
             RelayoutGraph(parent_vertex_control);
