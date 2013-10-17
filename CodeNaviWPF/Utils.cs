@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Globalization;
+using System.Threading;
 
 namespace CodeNaviWPF.Utils
 {
@@ -209,16 +210,17 @@ namespace CodeNaviWPF.Utils
 
     public class PathEnumerators
     {
-        public static List<DirectoryInfo> EnumerateAccessibleDirectories(string path, IProgress<int> progress, bool recurse = false)
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(string path, IProgress<int> progress, CancellationToken ct, bool recurse = false)
         {
-            return EnumerateAccessibleDirectories(new DirectoryInfo(path), progress, recurse);
+            return EnumerateAccessibleDirectories(new DirectoryInfo(path), progress, ct, recurse);
         }
+
         public static List<DirectoryInfo> EnumerateAccessibleDirectories(string path, bool recurse = false)
         {
             return EnumerateAccessibleDirectories(new DirectoryInfo(path), recurse);
         }
 
-        public static List<DirectoryInfo> EnumerateAccessibleDirectories(DirectoryInfo directory, IProgress<int> progress, bool recurse = false)
+        public static List<DirectoryInfo> EnumerateAccessibleDirectories(DirectoryInfo directory, IProgress<int> progress, CancellationToken ct, bool recurse = false)
         {
             List<DirectoryInfo> results = new List<DirectoryInfo>();
 
@@ -235,9 +237,14 @@ namespace CodeNaviWPF.Utils
                 {
                     foreach (DirectoryInfo dir in directory.EnumerateDirectories())
                     {
+                        if (ct.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
                         try
                         {
-                            results.AddRange(EnumerateAccessibleDirectories(dir, progress, recurse));
+                            results.AddRange(EnumerateAccessibleDirectories(dir, progress, ct, recurse));
                         }
                         catch (UnauthorizedAccessException)
                         {

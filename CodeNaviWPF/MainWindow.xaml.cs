@@ -26,6 +26,7 @@ using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
 using GraphX.GraphSharp.Algorithms.Layout.Simple.Hierarchical;
+using System.Threading;
 
 namespace CodeNaviWPF
 {
@@ -46,6 +47,9 @@ namespace CodeNaviWPF
         private Dictionary<string, List<List<string>>> ctags_matches;
         private bool loading = false;
         private bool use_ctags = true;
+        private CancellationTokenSource ts = new CancellationTokenSource();
+        private CancellationToken ct;
+        private Task<int> dir_count_task;
 
         public MainWindow()
         {
@@ -72,6 +76,8 @@ namespace CodeNaviWPF
             {
                 PrefTopRow.Height = new GridLength(1, GridUnitType.Star);
             };
+
+            ct = ts.Token;
         }
 
         private void CreateNewGraph()
@@ -253,15 +259,22 @@ namespace CodeNaviWPF
 
         private Task<int> CountDirs(string path)
         {
+            if (dir_count_task != null && dir_count_task.Status.Equals(TaskStatus.Running))
+            {
+                ts.Cancel();
+            }
+
             var count_progress = new Progress<int>(CountDirProgress);
+
+            ct = ts.Token;
 
             lock (directory_count_lock)
             {
-                return Task.Run(() =>
+                dir_count_task = Task.Run(() =>
                 {
-                    return Utils.PathEnumerators.EnumerateAccessibleDirectories(path, count_progress, true).Count();
-                        //return Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).Count();
-                });
+                    return Utils.PathEnumerators.EnumerateAccessibleDirectories(path, count_progress, ct, true).Count();
+                }, ct);
+                return dir_count_task;
             }
         }
 
