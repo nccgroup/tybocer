@@ -25,8 +25,8 @@ using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
-using GraphX.GraphSharp.Algorithms.Layout.Simple.Hierarchical;
 using System.Threading;
+using GraphX.GraphSharp.Algorithms.Layout.Simple.Tree;
 
 namespace CodeNaviWPF
 {
@@ -114,13 +114,19 @@ namespace CodeNaviWPF
 
         private void SetGraphLayoutParameters()
         {
-            graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama;
-            graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
-            ((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
+            graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.Tree;
+            
+            graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.Tree);
+            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexGap = int.Parse(vertdist.Text);
+            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerGap = int.Parse(vertdist.Text);
+            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
+
+            //graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);
+            //((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerDistance = int.Parse(layerdist.Text);
+            //((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).MinimizeEdgeLength = (bool)mini.IsChecked;
+            //((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).PositionMode = 3;
+            //((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexDistance = int.Parse(vertdist.Text);
+            //((EfficientSugiyamaLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
         }
 
         async private void DirPicker_Click(object sender, RoutedEventArgs e)
