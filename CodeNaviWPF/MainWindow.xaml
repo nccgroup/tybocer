@@ -78,10 +78,40 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="ctagsAnchor">
+            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
+                <StackPanel Orientation="Vertical">
+                    <Expander x:Name="CtagsAnchorExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
+                                <Button Margin="10" HorizontalAlignment="Right" Content="Close" Command="local:Commands.OnCloseVertex" />
+                            </StackPanel>
+                        </Expander.Header>
+                    </Expander>
+                    <Image Height="200" 
+                           Width="200" 
+                           Margin="0 15 0 0"
+                           Visibility="Visible">
+                        <Image.Source>
+                            <BitmapImage UriSource="Resources/ctags.png" />
+                        </Image.Source>
+                    </Image>
+                    <TextBlock VerticalAlignment="Center"
+                               Visibility="Visible"
+                               Foreground="Black"
+                               FontSize="36"
+                               Margin="10"
+                               HorizontalAlignment="Center"
+                               Text="{Binding Path=Tag}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="fileContentView">
             <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
                 <StackPanel Orientation="Vertical">
-                    <Expander x:Name="FileContentExpander"  IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
+                    <Expander x:Name="FileContentExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
@@ -229,6 +259,7 @@
             FileBrowserTemplate="{StaticResource fileBrowserTemplate}"
             FileContentView="{StaticResource fileContentView}"
             SearchResultsView="{StaticResource searchResultsView}"
+            CtagsView="{StaticResource ctagsAnchor}"
             />
 
         <!-- EDGE CONTROL -->
@@ -375,7 +406,7 @@
                 </Expander>
             </Border>
         </Grid>
-        <zb:Zoombox x:Name="zoom_control"  Panel.ZIndex="0" Grid.Column="0" MaxScale="2.0">
+        <zb:Zoombox x:Name="zoom_control" Panel.ZIndex="0" Grid.Column="0" MaxScale="2.0">
             <viewmodel:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
 

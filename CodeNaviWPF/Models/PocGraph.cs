@@ -27,6 +27,7 @@ namespace CodeNaviWPF.Models
     [XmlInclude(typeof(FileBrowser))]
     [XmlInclude(typeof(FileVertex))]
     [XmlInclude(typeof(SearchResultsVertex))]
+    [XmlInclude(typeof(CtagsVertex))]
     public class PocVertex : VertexBase, INotifyPropertyChanged
     {
         public PocVertex()
@@ -238,6 +239,22 @@ namespace CodeNaviWPF.Models
         }
 
         #endregion
+    }
+
+    public class CtagsVertex : PocVertex
+    {
+        public string Tag { get; set; }
+     
+        public CtagsVertex()
+        {
+            Tag = "";
+        }
+        
+        public CtagsVertex(string tag)
+            : base()
+        {
+            Tag = tag;
+        }
     }
 
     public class PocEdge : EdgeBase<PocVertex>

@@ -31,11 +31,15 @@ namespace CodeNaviWPF
         public DataTemplate SearchResultsView
         { get; set; }
 
+        public DataTemplate CtagsView
+        { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is FileVertex) return FileContentView;
             if (item is SearchResultsVertex) return SearchResultsView;
             if (item is FileBrowser) return FileBrowserTemplate;
+            if (item is CtagsVertex) return CtagsView;
             return base.SelectTemplate(item, container);
         }
     }

@@ -329,5 +329,13 @@ namespace CodeNaviWPF.ViewModels
             NotifyPropertyChanged("Graph");
         }
         #endregion
+
+        internal CtagsVertex AddCtagsAnchor(string tag, PocVertex source_vertex)
+        {
+            CtagsVertex new_vertex = new CtagsVertex(tag);
+            Graph.AddVertex(new_vertex);
+            Graph.AddEdge(new PocEdge(source_vertex, new_vertex));
+            return new_vertex;
+        }
     }
 }

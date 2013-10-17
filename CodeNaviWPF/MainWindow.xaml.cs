@@ -47,9 +47,12 @@ namespace CodeNaviWPF
         private Dictionary<string, List<List<string>>> ctags_matches;
         private bool loading = false;
         private bool use_ctags = true;
-        private CancellationTokenSource ts = new CancellationTokenSource();
-        private CancellationToken ct;
+        private CancellationTokenSource dir_count_token_source = new CancellationTokenSource();
+        private CancellationToken dir_count_cancellation_token;
         private Task<int> dir_count_task;
+        private CancellationTokenSource ctags_token_source = new CancellationTokenSource();
+        private CancellationToken ctags_cancellation_token;
+        private Task ctags_task;
 
         public MainWindow()
         {
@@ -77,7 +80,8 @@ namespace CodeNaviWPF
                 PrefTopRow.Height = new GridLength(1, GridUnitType.Star);
             };
 
-            ct = ts.Token;
+            dir_count_cancellation_token = dir_count_token_source.Token;
+            ctags_cancellation_token = ctags_token_source.Token;
 
             if (File.Exists(Properties.Settings.Default.PreviousFile)) load_project(Properties.Settings.Default.PreviousFile);
 
@@ -117,7 +121,6 @@ namespace CodeNaviWPF
         private void SetGraphLayoutParameters()
         {
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.Tree;
-            
             graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.Tree);
             ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexGap = int.Parse(vertdist.Text);
             ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerGap = int.Parse(vertdist.Text);
@@ -142,20 +145,16 @@ namespace CodeNaviWPF
                 directory_count = await CountDirs(dialog.SelectedPath);
                 still_counting = false;
                 graph_provider.root_vertex.CtagsRun = false;
-                //ctags_running = true;
                 await UpdateCtags();
                 UpdateCtagsHighlights();
                 graph_provider.root_vertex.CtagsRun = true;
-                //ctags_running = false;
                 graph_provider.SaveGraph();
             }
         }
 
         async private void CheckForCtags(object sender, RoutedEventArgs e)
         {
-            return;
-            System.Windows.Controls.TextBox box = (System.Windows.Controls.TextBox)e.Source;
-            if (File.Exists(box.Text) && graph_provider.root_dir != "")
+            if (File.Exists(ctagsLocation.Text) && graph_provider != null && graph_provider.root_dir != "")
             {
                 await UpdateCtags();
                 UpdateCtagsHighlights();
@@ -185,7 +184,11 @@ namespace CodeNaviWPF
         private Task UpdateCtags()
         {
             if (!use_ctags) return Task.Run(() => { });
-            return Task.Run(() =>
+            if (ctags_task != null && ctags_task.Status.Equals(TaskStatus.Running))
+            {
+                ctags_token_source.Cancel();
+            }
+            ctags_task = Task.Run(() =>
             {
                 try
                 {
@@ -199,6 +202,7 @@ namespace CodeNaviWPF
                             {
                                 foreach (string line in File.ReadLines(file)) // ctags_info.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
                                 {
+                                    if (ctags_cancellation_token.IsCancellationRequested) break;
                                     if (line.StartsWith("!")) continue; // Skip comments lines
 
                                     List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
@@ -213,25 +217,31 @@ namespace CodeNaviWPF
                                     }
                                 }
                                 File.Delete(file);
+                                if (ctags_cancellation_token.IsCancellationRequested) break;
                             }
                         }
                     }
                 }
                 catch (OutOfMemoryException)
                 {
-                    System.Windows.Forms.MessageBox.Show("Ran out of memory while processing ctags. Tags will not be available.", "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                    System.Windows.Forms.MessageBox.Show("Ran out of memory while processing ctags. Tags will not be available.",
+                        "Ctags fail",
+                        System.Windows.Forms.MessageBoxButtons.OK,
+                        System.Windows.Forms.MessageBoxIcon.Exclamation);
                 }
-            });
+            }, ctags_cancellation_token);
+            return ctags_task;
         }
 
         private List<string> RunCtags(string path)
         {
             if (!File.Exists(Properties.Settings.Default.CtagsLocation)) return new List<string>();
-            List<string> temp_files = new List<string>();
-            Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(path, true), dir_info =>
-                {
+            //List<string> temp_files = new List<string>();
+            //Parallel.ForEach(Utils.PathEnumerators.EnumerateAccessibleDirectories(path, true), dir_info =>
+            //    {
                     string results_file = Path.GetTempFileName();
-                    string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz ""{1}""", results_file, dir_info.FullName);
+                    string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz --recurse=yes ""{1}""", results_file, path);
+              //      string args = string.Format(@"-f""{0}"" --fields=afmikKlnsStz ""{1}""", results_file, dir_info.FullName);
                     //string args = string.Format(@"-f""c:\temp\test.tmp{0}"" --fields=afmikKlnsStz *", Utils.IDCounter.Counter);
 
 
@@ -241,7 +251,7 @@ namespace CodeNaviWPF
                         {
                             FileName = Properties.Settings.Default.CtagsLocation,
                             Arguments = args,
-                            WorkingDirectory = dir_info.FullName,
+                            WorkingDirectory = path,
                             RedirectStandardOutput = false,
                             UseShellExecute = false,
                             CreateNoWindow = true,
@@ -258,30 +268,30 @@ namespace CodeNaviWPF
                     {
                         System.Windows.Forms.MessageBox.Show("Ctags ran out of memory.", "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                     }
-                    temp_files.Add(results_file);
-                });
+             //       temp_files.Add(results_file);
+              //  });
             //return output
-            temp_files.RemoveAll(string.IsNullOrEmpty);
-            return temp_files;
+            //temp_files.RemoveAll(string.IsNullOrEmpty);
+            return new List<String>() { results_file };
         }
 
         private Task<int> CountDirs(string path)
         {
             if (dir_count_task != null && dir_count_task.Status.Equals(TaskStatus.Running))
             {
-                ts.Cancel();
+                dir_count_token_source.Cancel();
             }
 
             var count_progress = new Progress<int>(CountDirProgress);
 
-            ct = ts.Token;
+            dir_count_cancellation_token = dir_count_token_source.Token;
 
             lock (directory_count_lock)
             {
                 dir_count_task = Task.Run(() =>
                 {
-                    return Utils.PathEnumerators.EnumerateAccessibleDirectories(path, count_progress, ct, true).Count();
-                }, ct);
+                    return Utils.PathEnumerators.EnumerateAccessibleDirectories(path, count_progress, dir_count_cancellation_token, true).Count();
+                }, dir_count_cancellation_token);
                 return dir_count_task;
             }
         }
@@ -389,6 +399,8 @@ namespace CodeNaviWPF
                                 files_and_lines[match[1]].Add(line_no);
                             }
                         }
+                        VertexControl editor_vertex = TreeHelpers.FindVisualParent<VertexControl>(editor);
+                        VertexControl ctags_vertex = AddCtagsAnchor(word, editor_vertex, (PocVertex)editor_vertex.Vertex);
                         foreach (string file in files_and_lines.Keys)
                         {
                             FileItem fi = new FileItem
@@ -398,10 +410,9 @@ namespace CodeNaviWPF
                                 Extension = Path.GetExtension(file),
                                 RelPath = file,
                             };
-                            VertexControl vc = TreeHelpers.FindVisualParent<VertexControl>(editor);
-                            if (!(Path.GetFullPath(((FileVertex)vc.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
+                            if (!(Path.GetFullPath(((FileVertex)editor_vertex.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
                             {
-                                AddFileView(fi, vc, (FileVertex)vc.Vertex, files_and_lines[file]);
+                                AddFileView(fi, ctags_vertex, (CtagsVertex)ctags_vertex.Vertex, files_and_lines[file]);
                             }
                         }
                     }
@@ -430,6 +441,20 @@ namespace CodeNaviWPF
         }
 
         #endregion
+
+        private VertexControl AddCtagsAnchor(String tag, VertexControl source, PocVertex source_vertex)
+        {
+            CtagsVertex new_vertex = graph_provider.AddCtagsAnchor(tag, source_vertex);
+            VertexControl new_vertex_control = new VertexControl(new_vertex) { DataContext = new_vertex };
+            graph_area.AddVertex(new_vertex, new_vertex_control);
+            PocEdge new_edge = new PocEdge(source_vertex, new_vertex);
+            graph_area.InsertEdge(new_edge, new EdgeControl(source, new_vertex_control, new_edge));
+            graph_area.RelayoutGraph(true);
+            graph_area.UpdateLayout();
+            centre_on_me = new_vertex_control;
+
+            return new_vertex_control;
+        }
 
         private void AddFileView(FileItem file_item, VertexControl source, PocVertex source_vertex, int line)
         {
@@ -662,12 +687,12 @@ namespace CodeNaviWPF
 
         async private void root_Loaded(object sender, RoutedEventArgs e)
         {
-            return;
             if (File.Exists(Properties.Settings.Default.PreviousFile))
             {
                 loading = true;
                 try
                 {
+                    /*
                     graph_area.LoadFromFile(Properties.Settings.Default.PreviousFile);
                     root_control = graph_area.VertexList.Values.First();
                     graph_provider.root_vertex = (FileBrowser)graph_area.VertexList.Keys.First();
@@ -690,6 +715,7 @@ namespace CodeNaviWPF
                     }
                     UpdateCtagsHighlights();
                     //ctags_running = false;
+                     */
                 }
                 catch (YAXLib.YAXElementMissingException)
                 {
