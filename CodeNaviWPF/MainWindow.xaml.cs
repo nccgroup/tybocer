@@ -361,17 +361,19 @@ namespace CodeNaviWPF
             if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualParent<ICSharpCode.AvalonEdit.TextEditor>((DependencyObject)sender);
-
+                var file_path = ((FileVertex)TreeHelpers.FindVisualParent<VertexControl>((DependencyObject)editor).Vertex).FilePath;
+                
                 // Ctrl+Click Go to definition
                 var position = editor.GetPositionFromPoint(e.GetPosition(editor));
                 if (position != null)
                 {
+                    var clicked_line_no = position.Value.Line;
                     var offset = editor.Document.GetOffset(position.Value.Location);
                     var start = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
                     if (start < 0) return;
                     var end = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
                     var word = editor.Document.GetText(start, end - start);
-                    System.Diagnostics.Debug.Print(word);
+                    //System.Diagnostics.Debug.Print(word);
 
                     if (graph_provider.root_vertex.CtagsRun && graph_provider.root_vertex.CtagsMatches.ContainsKey(word))
                     {
@@ -389,30 +391,37 @@ namespace CodeNaviWPF
                                     line_no = int.Parse(field.Split(new char[] { ':' })[1]);
                                 }
                             }
-                            if (files_and_lines.ContainsKey(match[1]))
+                            var file_path_to_add = match[1];
+                            if (file_path_to_add != file_path)
                             {
-                                files_and_lines[match[1]].Add(line_no);
-                            }
-                            else
-                            {
-                                files_and_lines[match[1]] = new List<int>();
-                                files_and_lines[match[1]].Add(line_no);
+                                if (files_and_lines.ContainsKey(file_path_to_add))
+                                {
+                                    files_and_lines[match[1]].Add(line_no);
+                                }
+                                else
+                                {
+                                    files_and_lines[file_path_to_add] = new List<int>();
+                                    files_and_lines[file_path_to_add].Add(line_no);
+                                }
                             }
                         }
-                        VertexControl editor_vertex = TreeHelpers.FindVisualParent<VertexControl>(editor);
-                        VertexControl ctags_vertex = AddCtagsAnchor(word, editor_vertex, (PocVertex)editor_vertex.Vertex);
-                        foreach (string file in files_and_lines.Keys)
+                        if (files_and_lines.Count() > 0)
                         {
-                            FileItem fi = new FileItem
+                            VertexControl editor_vertex = TreeHelpers.FindVisualParent<VertexControl>(editor);
+                            VertexControl ctags_vertex = AddCtagsAnchor(word, editor_vertex, (PocVertex)editor_vertex.Vertex);
+                            foreach (string file in files_and_lines.Keys)
                             {
-                                FileName = Path.GetFileName(file),
-                                FullPath = Path.Combine(graph_provider.root_dir, file),
-                                Extension = Path.GetExtension(file),
-                                RelPath = file,
-                            };
-                            if (!(Path.GetFullPath(((FileVertex)editor_vertex.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
-                            {
-                                AddFileView(fi, ctags_vertex, (CtagsVertex)ctags_vertex.Vertex, files_and_lines[file]);
+                                FileItem fi = new FileItem
+                                {
+                                    FileName = Path.GetFileName(file),
+                                    FullPath = Path.Combine(graph_provider.root_dir, file),
+                                    Extension = Path.GetExtension(file),
+                                    RelPath = file,
+                                };
+                                if (!(Path.GetFullPath(((FileVertex)editor_vertex.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
+                                {
+                                    AddFileView(fi, ctags_vertex, (CtagsVertex)ctags_vertex.Vertex, files_and_lines[file]);
+                                }
                             }
                         }
                     }
@@ -685,49 +694,13 @@ namespace CodeNaviWPF
             if (!loading) graph_provider.SaveGraph();
         }
 
-        async private void root_Loaded(object sender, RoutedEventArgs e)
+        private void root_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(Properties.Settings.Default.PreviousFile))
+            UpdateCtagsHighlights();
+            foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
             {
-                loading = true;
-                try
-                {
-                    /*
-                    graph_area.LoadFromFile(Properties.Settings.Default.PreviousFile);
-                    root_control = graph_area.VertexList.Values.First();
-                    graph_provider.root_vertex = (FileBrowser)graph_area.VertexList.Keys.First();
-                    graph_provider.root_dir = ((FileBrowser)graph_provider.root_vertex).FilePath;
-                    graph_provider.UpdateRoot(graph_provider.root_dir);
-                    SetGraphLayoutParameters();
-                    RelayoutGraph(graph_area.VertexList.Last().Value);
-                    foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
-                    {
-                        editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
-                        editor.Width = editor.ActualWidth;
-                    }
-
-                    if (!graph_provider.root_vertex.CtagsRun)
-                    {
-                        //root_vertex.CtagsRun = false;
-                        //ctags_running = true;
-                        await UpdateCtags();
-                        graph_provider.root_vertex.CtagsRun = true;
-                    }
-                    UpdateCtagsHighlights();
-                    //ctags_running = false;
-                     */
-                }
-                catch (YAXLib.YAXElementMissingException)
-                {
-                    System.Windows.Forms.MessageBox.Show(
-                        "Had some problem loading previous file. Unlucky.",
-                        "Loading failed", 
-                        System.Windows.Forms.MessageBoxButtons.OK, 
-                        System.Windows.Forms.MessageBoxIcon.Exclamation
-                        );
-                    CreateNewGraph();
-                }
-                loading = false;
+                editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                editor.Width = editor.ActualWidth;
             }
         }
 

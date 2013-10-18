@@ -21,6 +21,8 @@ using GraphX;
 using CodeNaviWPF.Utils;
 using System.Xml.Serialization;
 using YAXLib;
+using System.Text;
+using System.Linq;
 
 namespace CodeNaviWPF.Models
 {
@@ -69,6 +71,47 @@ namespace CodeNaviWPF.Models
             get { return ctags_matches; }
             set { ctags_matches = value; }
         }
+
+        [XmlElement("CtagsMatches")]
+        public String ctags_as_string
+        {
+            get {
+                var sb = new StringBuilder();
+                foreach (var key in CtagsMatches.Keys)
+                {
+                    foreach (var fieldlist in CtagsMatches[key])
+                    {
+                        sb.AppendLine(String.Join("\t", fieldlist));
+                    }
+                }
+                return sb.ToString();
+            }
+        
+            set
+            {
+                string new_value = value as string;
+                using (StringReader sr = new StringReader(value))
+                {
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.StartsWith("!")) continue; // Skip comments lines
+
+                        List<string> fields = line.Split(new string[] { "\t" }, StringSplitOptions.None).ToList();
+                        try
+                        {
+                            CtagsMatches[fields[0]].Add(fields);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            CtagsMatches.Add(fields[0], new List<List<string>>());
+                            CtagsMatches[fields[0]].Add(fields);
+                        }
+                    }
+                }
+            }
+        }
+        
 
         public bool CtagsRun { get; set; }
         
