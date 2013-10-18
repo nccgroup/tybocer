@@ -763,7 +763,17 @@ namespace CodeNaviWPF
 
         private void SaveProject(object sender, ExecutedRoutedEventArgs e)
         {
-            if (graph_provider.UsingTempFile)
+            save_project();
+        }
+
+        private void SaveProjectAs(object sender, ExecutedRoutedEventArgs e)
+        {
+            save_project(true);
+        }
+
+        private void save_project(bool saveas=false)
+        {
+            if (graph_provider.UsingTempFile || saveas)
             {
                 SaveFileDialog dialog = new SaveFileDialog();
                 dialog.AddExtension = true;
@@ -780,7 +790,7 @@ namespace CodeNaviWPF
             {
                 graph_provider.SaveGraph();
             }
-        }
+}
 
         private void NewProject(object sender, ExecutedRoutedEventArgs e)
         {
@@ -799,5 +809,6 @@ namespace CodeNaviWPF
         public static readonly RoutedUICommand SearchString = new RoutedUICommand("Search String", "SearchString", typeof(MainWindow));
         public static readonly RoutedUICommand ExpanderRelayout = new RoutedUICommand("Relayout Graph", "ExpanderRelayout", typeof(MainWindow));
         public static readonly RoutedUICommand OnCloseVertex = new RoutedUICommand("Close Vertex", "OnCloseVertex", typeof(MainWindow));
+        public static readonly RoutedUICommand SaveAs = new RoutedUICommand("Save Project As", "SaveProjectAs", typeof(MainWindow)) { InputGestures = { new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift) } };
     }
 }

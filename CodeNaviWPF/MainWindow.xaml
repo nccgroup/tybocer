@@ -33,6 +33,7 @@
         <CommandBinding Command="local:Commands.OnCloseVertex" Executed="OnCloseVertex" />
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenProject" />
         <CommandBinding Command="ApplicationCommands.Save" Executed="SaveProject" />
+        <CommandBinding Command="local:Commands.SaveAs" Executed="SaveProjectAs" />
         <CommandBinding Command="ApplicationCommands.New" Executed="NewProject" />
     </Window.CommandBindings>
 
