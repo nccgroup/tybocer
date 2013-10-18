@@ -319,6 +319,11 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
 
         <Grid.Resources>
             <!-- VERTEX CONTROL -->
@@ -413,9 +418,26 @@
                 </Expander>
             </Border>
         </Grid>
-        <zb:Zoombox x:Name="zoom_control" Panel.ZIndex="0" Grid.Column="0" MaxScale="2.0">
+        <zb:Zoombox x:Name="zoom_control" Panel.ZIndex="0" Grid.Column="0" Grid.Row="0" MaxScale="2.0">
             <viewmodel:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
-
+        <Border BorderThickness="3" Grid.Row="1" Grid.Column="0" Margin="1" BorderBrush="SlateGray" Background="White" Opacity="1" CornerRadius="4 4 0 0">
+            <Expander IsExpanded="False">
+                <Expander.Header>
+                    <TextBlock Text="Notes" />
+                </Expander.Header>
+                <avalonEdit:TextEditor
+                x:Name="NotesEditor"
+                Margin="10"
+                Document="{Binding Path=Document}" 
+                IsReadOnly="False"
+                Height="300"
+                Tag="{Binding ElementName=root}"
+                SyntaxHighlighting=""
+                FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}"
+                FontSize="{Binding ElementName=fontSize, Path=Value, Mode=OneWay}"
+                />
+            </Expander>
+        </Border>
     </Grid>
 </Window>
