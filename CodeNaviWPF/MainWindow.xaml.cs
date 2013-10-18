@@ -122,8 +122,8 @@ namespace CodeNaviWPF
         {
             graph_area.DefaultLayoutAlgorithm = GraphX.LayoutAlgorithmTypeEnum.Tree;
             graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.Tree);
-            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexGap = int.Parse(vertdist.Text);
-            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerGap = int.Parse(vertdist.Text);
+            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).VertexGap = 100; // int.Parse(vertdist.Text);
+            ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).LayerGap = 100; // int.Parse(vertdist.Text);
             ((SimpleTreeLayoutParameters)graph_area.DefaultLayoutAlgorithmParams).WidthPerHeight = 1000;
 
             //graph_area.DefaultLayoutAlgorithmParams = graph_area.AlgorithmFactory.CreateLayoutParameters(GraphX.LayoutAlgorithmTypeEnum.EfficientSugiyama);

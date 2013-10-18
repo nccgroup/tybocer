@@ -93,7 +93,9 @@
                     <Image Height="200" 
                            Width="200" 
                            Margin="0 15 0 0"
-                           Visibility="Visible">
+                           Visibility="Visible"
+                           Opacity="1"
+                           >
                         <Image.Source>
                             <BitmapImage UriSource="Resources/ctags.png" />
                         </Image.Source>
@@ -162,6 +164,7 @@
                     <Image Height="200" 
                            Width="200" 
                            Margin="0 15 0 0"
+                           Opacity="1"
                            Visibility="{Binding ElementName=FileContentExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}">
                         <Image.Source>
                             <BitmapImage UriSource="Resources/document.png" />
@@ -237,7 +240,8 @@
                         </Grid>
                     </Expander>
                     <Image Height="200" 
-                           Width="200" 
+                           Width="200"
+                           Opacity="1"
                            Margin="0 10 0 0"
                            Visibility="{Binding ElementName=SearchExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}">
                         <Image.Source>
@@ -391,6 +395,7 @@
                             <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location</Label>
                             <TextBox x:Name="ctagsLocation" TextChanged="CheckForCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
                         </StackPanel>
+                        <!--
                         <StackPanel Orientation="Horizontal">
                             <TextBlock>Minimise edge distance</TextBlock>
                             <CheckBox x:Name="mini" VerticalAlignment="Center" IsThreeState="False" />
@@ -403,6 +408,7 @@
                             <TextBlock>Vert dist</TextBlock>
                             <TextBox x:Name="vertdist" Text="100" />
                         </StackPanel>
+                        -->
                     </StackPanel>
                 </Expander>
             </Border>
