@@ -52,16 +52,16 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileBrowserTemplate">
-            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
+            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8" Padding="5">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel>
                         <StackPanel.Resources>
                             <utils:StringToBool x:Key="mystringtoboolconverter" />
                         </StackPanel.Resources>
-                        <Button Name="DirPicker" Content="Choose root directory" Click="DirPicker_Click"/>
-                        <StackPanel Orientation="Horizontal">
+                        <Button Name="DirPicker" Padding="5" Margin="0 0 0 5" Content="Choose root directory" Click="DirPicker_Click"/>
+                        <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
                             <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
-                            <Button Name="RunSearch" 
+                            <Button Margin="5 0 0 0" Name="RunSearch" 
                                 IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
                                 Command="local:Commands.SearchString" Content="Search" 
                                 />
@@ -359,7 +359,7 @@
             </Style>
         </Grid.Resources>
 
-        <Grid Width="210" Panel.ZIndex="1000" HorizontalAlignment="Left">
+        <Grid Width="210" Panel.ZIndex="1000" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" x:Name="PrefTopRow"/>
                 <RowDefinition Height="*" x:Name="PrefBottomRow"/>
