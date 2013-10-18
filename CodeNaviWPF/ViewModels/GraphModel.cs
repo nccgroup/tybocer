@@ -210,9 +210,9 @@ namespace CodeNaviWPF.ViewModels
         #region Saving and loading
         public void SaveGraph(string file_name=null)
         {
-            if (file_name != null && UsingTempFile)
+            if ((file_name != null && UsingTempFile) || (file_name != null && file_name != save_file))
             {
-                if (File.Exists(save_file)) File.Delete(save_file);
+                if (File.Exists(save_file) && UsingTempFile) File.Delete(save_file);
                 save_file = file_name;
                 UsingTempFile = false;
             }
