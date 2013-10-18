@@ -217,7 +217,6 @@ namespace CodeNaviWPF
                                     }
                                 }
                                 File.Delete(file);
-                                if (ctags_cancellation_token.IsCancellationRequested) break;
                             }
                         }
                     }
@@ -728,10 +727,12 @@ namespace CodeNaviWPF
         {
             graph_provider.LoadProject(filename);
             graph_area.Graph = graph_provider.Graph;
+            SetGraphLayoutParameters();
             graph_area.GenerateGraph(graph_provider.Graph);
             graph_area.RelayoutGraph(true);
             root_control = graph_area.VertexList.Where(x => x.Key.GetType() == typeof(FileBrowser)).First().Value;
             root_control.Vertex = graph_provider.root_vertex;
+            RelayoutGraph(root_control);
         }
 
         private void SaveProject(object sender, ExecutedRoutedEventArgs e)
