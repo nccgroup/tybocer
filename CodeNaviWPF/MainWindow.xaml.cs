@@ -300,6 +300,7 @@ namespace CodeNaviWPF
                 if (file_item != null)
                 {
                     AddFileView(file_item, root_control, graph_provider.root_vertex);
+                    graph_provider.SaveGraph();
                 }
             }
         }
@@ -331,6 +332,7 @@ namespace CodeNaviWPF
             RemoveEdge(in_edge);
             graph_area.RelayoutGraph(true);
             graph_area.UpdateLayout();
+            graph_provider.SaveGraph();
             recentre = true;
             centre_on_me = graph_area.VertexList.Where(x => x.Key == in_edge.Source).First().Value;
         }
@@ -343,6 +345,7 @@ namespace CodeNaviWPF
 
             VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(sender as DataGridRow);
             AddFileView(fi, sv, (PocVertex)sv.Vertex, result.LineNumber);
+            graph_provider.SaveGraph();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -418,6 +421,7 @@ namespace CodeNaviWPF
                                     AddFileView(fi, ctags_vertex, (CtagsVertex)ctags_vertex.Vertex, files_and_lines[file]);
                                 }
                             }
+                            graph_provider.SaveGraph();
                         }
                     }
                 }
@@ -500,7 +504,6 @@ namespace CodeNaviWPF
                 }
                 editor.Width = editor.ActualWidth;
             }
-            graph_provider.SaveGraph();
         }
 
         private void TestEditor_SelectionChanged(object sender, EventArgs e)
