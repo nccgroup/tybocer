@@ -777,6 +777,25 @@ namespace CodeNaviWPF
         {
             e.Handled = true;
         }
+
+        private void ExpandExpander(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                var vc = Utils.TreeHelpers.FindVisualParent<VertexControl>((DependencyObject)e.OriginalSource);
+                var expander = Utils.TreeHelpers.FindVisualChild<Expander>(vc);
+                expander.IsExpanded = true;
+            }
+
+        }
+
+        private void NotesEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
+            {
+                NotesExpander.IsExpanded = false;
+            }
+        }
     }
 
     public static class Commands

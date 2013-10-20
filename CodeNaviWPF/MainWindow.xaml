@@ -52,7 +52,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileBrowserTemplate">
-            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8" Padding="5">
+            <Border BorderThickness="2" BorderBrush="SlateGray" CornerRadius="8" Padding="5">
                 <StackPanel Orientation="Horizontal">
                     <StackPanel>
                         <StackPanel.Resources>
@@ -80,19 +80,20 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ctagsAnchor">
-            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
+            <Border BorderThickness="2" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
                 <StackPanel Orientation="Vertical">
                     <Expander x:Name="CtagsAnchorExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
-                                <Button Margin="10" HorizontalAlignment="Right" Content="Close" Command="local:Commands.OnCloseVertex" />
+                                <Button Margin="50 5 0 0" Padding="5" HorizontalAlignment="Right" Content="Close" Command="local:Commands.OnCloseVertex" />
                             </StackPanel>
                         </Expander.Header>
                     </Expander>
+                    
                     <Image Height="200" 
                            Width="200" 
-                           Margin="0 15 0 0"
+                           Margin="0 5 0 0"
                            Visibility="Visible"
                            Opacity="1"
                            >
@@ -112,7 +113,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="fileContentView">
-            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8">
+            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="8,8,8,8" Background="White" Opacity="1" MouseDown="ExpandExpander">
                 <StackPanel Orientation="Vertical">
                     <Expander x:Name="FileContentExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
@@ -134,7 +135,8 @@
                                     />
                                 </ToolBar>
                             </ToolBarTray>
-                            <avalonEdit:TextEditor
+                            <Border BorderThickness="1" BorderBrush="DarkSlateGray" Margin="5" Padding="1">
+                                <avalonEdit:TextEditor
                             x:Name="editor"
                             MinWidth="600"
                             MaxWidth="800" 
@@ -149,23 +151,25 @@
                             FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}"
                             FontSize="{Binding ElementName=fontSize, Path=Value, Mode=OneWay}"
                         >
-                                <!--FontSize="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}"-->
+                                    <!--FontSize="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}"-->
 
-                                <avalonEdit:TextEditor.ContextMenu>
-                                    <ContextMenu>
-                                        <MenuItem Header="Search all files..." Command="local:Commands.SearchString" />
-                                        <MenuItem Header="Search restricted extensions..." Command="local:Commands.SearchString" CommandParameter="restricted" />
-                                        <MenuItem Header="Search files of same type..." Command="local:Commands.SearchString" CommandParameter="same_type" />
-                                    </ContextMenu>
-                                </avalonEdit:TextEditor.ContextMenu>
-                            </avalonEdit:TextEditor>
+                                    <avalonEdit:TextEditor.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Search all files..." Command="local:Commands.SearchString" />
+                                            <MenuItem Header="Search restricted extensions..." Command="local:Commands.SearchString" CommandParameter="restricted" />
+                                            <MenuItem Header="Search files of same type..." Command="local:Commands.SearchString" CommandParameter="same_type" />
+                                        </ContextMenu>
+                                    </avalonEdit:TextEditor.ContextMenu>
+                                </avalonEdit:TextEditor>
+                            </Border>
                         </StackPanel>
                     </Expander>
                     <Image Height="200" 
                            Width="200" 
-                           Margin="0 15 0 0"
+                           Margin="0 5 0 0"
                            Opacity="1"
-                           Visibility="{Binding ElementName=FileContentExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}">
+                           Visibility="{Binding ElementName=FileContentExpander, Path=IsExpanded, Converter={StaticResource ResourceKey=inverseBoolToVisibility}}"
+                           >
                         <Image.Source>
                             <BitmapImage UriSource="Resources/document.png" />
                         </Image.Source>
@@ -182,7 +186,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="searchResultsView">
-            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="10">
+            <Border BorderThickness="3" BorderBrush="SlateGray" CornerRadius="10" Background="White" Opacity="1" MouseDown="ExpandExpander">
                 <StackPanel>
                     <Expander x:Name="SearchExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
@@ -319,7 +323,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
@@ -366,13 +370,20 @@
 
         <Grid Width="210" Panel.ZIndex="1000" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" x:Name="PrefTopRow"/>
+                <RowDefinition Height="auto" x:Name="PrefTopRow"/>
                 <RowDefinition Height="*" x:Name="PrefBottomRow"/>
             </Grid.RowDefinitions>
-            <Border BorderThickness="3" Margin="5" BorderBrush="SlateGray" Panel.ZIndex="1000" Background="White" Opacity="1" HorizontalAlignment="Left" Width="200" CornerRadius="4">
-                <Expander IsExpanded="True" Grid.Column="0" Header="Preferences" Padding="5" x:Name="PreferencesExpander">
+            <Border BorderThickness="2" 
+                    Margin="5" 
+                    BorderBrush="SlateGray" 
+                    Panel.ZIndex="1000" 
+                    Background="White" 
+                    Opacity="1" 
+                    HorizontalAlignment="Left" 
+                    Width="200" 
+                    CornerRadius="4">
+                <Expander IsExpanded="True" Grid.Column="0" Header="Preferences" Padding="2" x:Name="PreferencesExpander">
                     <StackPanel Orientation="Vertical">
-
                         <StackPanel>
                             <StackPanel Orientation="Vertical">
                                 <Label Target="{Binding ElementName=extensionlist}">Extensions to search:</Label>
@@ -422,14 +433,17 @@
             <viewmodel:PocGraphLayout x:Name="graph_area" DefaultLayoutAlgorithm="KK" AsyncAlgorithmCompute="True" />
         </zb:Zoombox>
         <Border BorderThickness="3" Grid.Row="1" Grid.Column="0" Margin="1" BorderBrush="SlateGray" Background="White" Opacity="1" CornerRadius="4 4 0 0">
-            <Expander IsExpanded="False">
+            <Expander IsExpanded="False" x:Name="NotesExpander">
                 <Expander.Header>
-                    <TextBlock Text="Notes" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Notes" />
+                        <TextBlock Margin="30 0 0 0" Text="{Binding Path=SaveFile}" />
+                    </StackPanel>
                 </Expander.Header>
                 <avalonEdit:TextEditor
                 x:Name="NotesEditor"
                 Margin="10"
-                Document="{Binding Path=Document}" 
+                Document="{Binding Path=Graph.Document}" 
                 IsReadOnly="False"
                 Height="300"
                 Tag="{Binding ElementName=root}"
