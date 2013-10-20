@@ -700,7 +700,7 @@ namespace CodeNaviWPF
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.Width = editor.ActualWidth;
             }
-            NotesEditor.DataContext = graph_provider.Graph;
+            NotesExpander.DataContext = graph_provider;
         }
 
         async private void enableCtags_Checked(object sender, RoutedEventArgs e)

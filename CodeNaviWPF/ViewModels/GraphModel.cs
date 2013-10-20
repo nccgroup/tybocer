@@ -33,10 +33,15 @@ namespace CodeNaviWPF.ViewModels
         private PocGraph graph;
         public FileBrowser root_vertex;
         public string root_dir = "";
-        private Dictionary<string, List<List<string>>> ctags_matches;
-        private string save_file = "";
         public bool UsingTempFile = true;
+        private string save_file;
 
+        public string SaveFile
+        {
+            get { return save_file; }
+            set { save_file = value; }
+        }
+        
         public PocGraph Graph
         {
             get { return graph; }
@@ -62,7 +67,7 @@ namespace CodeNaviWPF.ViewModels
             //LayoutAlgorithmType="LinLog"
             //LayoutAlgorithmType="Tree"
 
-            save_file = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".vizzy";
+            SaveFile = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".vizzy";
         }
         
         internal void UpdateRoot(string p)
@@ -210,15 +215,15 @@ namespace CodeNaviWPF.ViewModels
         #region Saving and loading
         public void SaveGraph(string file_name=null)
         {
-            if ((file_name != null && UsingTempFile) || (file_name != null && file_name != save_file))
+            if ((file_name != null && UsingTempFile) || (file_name != null && file_name != SaveFile))
             {
-                if (File.Exists(save_file) && UsingTempFile) File.Delete(save_file);
-                save_file = file_name;
+                if (File.Exists(SaveFile) && UsingTempFile) File.Delete(SaveFile);
+                SaveFile = file_name;
                 UsingTempFile = false;
             }
             
             serialize_graph();
-            Properties.Settings.Default.PreviousFile = save_file;
+            Properties.Settings.Default.PreviousFile = SaveFile;
         }
 
         private void serialize_graph()
@@ -230,7 +235,7 @@ namespace CodeNaviWPF.ViewModels
             Stream vert_stream;
             XmlSerializer vert_serializer = new XmlSerializer(typeof(PocVertex));
 
-            using (Package package = Package.Open(save_file, FileMode.Create))
+            using (Package package = Package.Open(SaveFile, FileMode.Create))
             {
 
                 Uri rootVertexUri = PackUriHelper.CreatePartUri(new Uri("vertices/vertex-" + root_vertex.ID.ToString(), UriKind.Relative));
@@ -344,10 +349,10 @@ namespace CodeNaviWPF.ViewModels
 
                 root_vertex = (FileBrowser)graph.Vertices.Where(x => (x as FileBrowser) != null).First();
                 item_provider.RootDir = root_vertex.FilePath;
-
+                root_dir = root_vertex.FilePath;
             }
             UsingTempFile = false;
-            save_file = filename;
+            SaveFile = filename;
             NotifyPropertyChanged("Graph");
         }
         #endregion
