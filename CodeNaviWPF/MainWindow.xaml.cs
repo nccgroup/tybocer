@@ -188,7 +188,7 @@ namespace CodeNaviWPF
             {
                 try
                 {
-                    if (graph_provider.root_dir != "")
+                    if (graph_provider != null && graph_provider.root_dir != "")
                     {
                         lock (ctags_info_lock)
                         {
@@ -390,7 +390,7 @@ namespace CodeNaviWPF
                                 }
                             }
                             var file_path_to_add = match[1];
-                            if (file_path_to_add != file_path)
+                            if ((file_path_to_add != file_path) || ((file_path_to_add == file_path) && (line_no != clicked_line_no)))
                             {
                                 if (files_and_lines.ContainsKey(file_path_to_add))
                                 {
@@ -416,10 +416,10 @@ namespace CodeNaviWPF
                                     Extension = Path.GetExtension(file),
                                     RelPath = file,
                                 };
-                                if (!(Path.GetFullPath(((FileVertex)editor_vertex.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
-                                {
+                                //if (!(Path.GetFullPath(((FileVertex)editor_vertex.Vertex).FilePath) == Path.GetFullPath(fi.FullPath) && !files_and_lines[file].Contains(position.Value.Line)))
+                                //{
                                     AddFileView(fi, ctags_vertex, (CtagsVertex)ctags_vertex.Vertex, files_and_lines[file]);
-                                }
+                                //}
                             }
                             graph_provider.SaveGraph();
                         }
