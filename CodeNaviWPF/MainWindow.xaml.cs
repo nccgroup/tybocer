@@ -39,12 +39,8 @@ namespace CodeNaviWPF
         private int directory_count = 0;
         private object directory_count_lock = new object();
         private bool still_counting;
-        private string ctags_info = null;
-        private string ctags_tags_file = null;
         private List<string> ctags_tags_files = new List<string>();
         private object ctags_info_lock = new object();
-        private bool ctags_running;
-        private Dictionary<string, List<List<string>>> ctags_matches;
         private bool loading = false;
         private bool use_ctags = true;
         private CancellationTokenSource dir_count_token_source = new CancellationTokenSource();
@@ -704,11 +700,12 @@ namespace CodeNaviWPF
             NotesEditor.DataContext = graph_provider.Graph;
         }
 
-        private void enableCtags_Checked(object sender, RoutedEventArgs e)
+        async private void enableCtags_Checked(object sender, RoutedEventArgs e)
         {
             if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == null) use_ctags = false;
             if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == false) use_ctags = false;
             if (((System.Windows.Controls.CheckBox)e.Source).IsChecked == true) use_ctags = true;
+            if (use_ctags) await UpdateCtags();
             UpdateCtagsHighlights();
         }
 
