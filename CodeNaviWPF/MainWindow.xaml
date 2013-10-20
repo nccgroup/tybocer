@@ -447,6 +447,7 @@
                 IsReadOnly="False"
                 Height="300"
                 Tag="{Binding ElementName=root}"
+                KeyDown="NotesEditor_KeyDown"
                 SyntaxHighlighting=""
                 FontFamily="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Name, Mode=OneWay}"
                 FontSize="{Binding ElementName=fontSize, Path=Value, Mode=OneWay}"
