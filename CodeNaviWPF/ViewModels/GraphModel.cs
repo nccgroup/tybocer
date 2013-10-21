@@ -280,20 +280,7 @@ namespace CodeNaviWPF.ViewModels
                     var rels = source_vert_part.GetRelationshipsByType(EdgeRelationship).Where(x => x.TargetUri == targetVertUri);
                     if (rels.Count() == 0) source_vert_part.CreateRelationship(targetVertUri, TargetMode.Internal, EdgeRelationship);
 
-                    Uri notesUri = PackUriHelper.CreatePartUri(new Uri("media/notes.txt", UriKind.Relative));
-                    PackagePart notesPart;
-                    if (!package.PartExists(notesUri))
-                    {
-                        notesPart = package.CreatePart(notesUri, System.Net.Mime.MediaTypeNames.Text.Plain, CompressionOption.Maximum);
-                    }
-                    else
-                    {
-                        notesPart = package.GetPart(notesUri);
-                    }
-                    using (var notes_stream = new StreamWriter(notesPart.GetStream(FileMode.Create), System.Text.Encoding.UTF8))
-                    {
-                        notes_stream.Write( graph.Document.Text);
-                    }
+                    SaveNotes(package);
                 }
             }
         }
@@ -338,11 +325,11 @@ namespace CodeNaviWPF.ViewModels
                             if (!(source == target)) graph.AddEdge(new_edge);
                         }
                     }
-                    else if (p.Uri.OriginalString == "/media/notes.txt")
+                    else if (p.Uri.OriginalString == "/notes/notes.txt")
                     {
                         using (var sr = new StreamReader(p.GetStream()))
                         {
-                            graph.Document.Text = sr.ReadToEnd();
+                            graph.Notes.Text = sr.ReadToEnd();
                         }
                     }
                 }
@@ -351,6 +338,7 @@ namespace CodeNaviWPF.ViewModels
                 item_provider.RootDir = root_vertex.FilePath;
                 root_dir = root_vertex.FilePath;
             }
+
             UsingTempFile = false;
             SaveFile = filename;
             NotifyPropertyChanged("Graph");
@@ -363,6 +351,31 @@ namespace CodeNaviWPF.ViewModels
             Graph.AddVertex(new_vertex);
             Graph.AddEdge(new PocEdge(source_vertex, new_vertex));
             return new_vertex;
+        }
+        internal void SaveNotes()
+        {
+            using (Package package = Package.Open(SaveFile, FileMode.Open))
+            {
+                SaveNotes(package);
+            }
+        }
+
+        private void SaveNotes(Package package)
+        {
+            Uri notesUri = PackUriHelper.CreatePartUri(new Uri("notes/notes.txt", UriKind.Relative));
+            PackagePart notesPart;
+            if (!package.PartExists(notesUri))
+            {
+                notesPart = package.CreatePart(notesUri, System.Net.Mime.MediaTypeNames.Text.Plain, CompressionOption.Maximum);
+            }
+            else
+            {
+                notesPart = package.GetPart(notesUri);
+            }
+            using (var notes_stream = new StreamWriter(notesPart.GetStream(FileMode.Create), System.Text.Encoding.UTF8))
+            {
+                notes_stream.Write(graph.Notes.Text);
+            }
         }
     }
 }

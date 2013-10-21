@@ -27,6 +27,11 @@ using GraphX.Xceed.Wpf.Toolkit.Zoombox;
 using CodeNaviWPF.Utils;
 using System.Threading;
 using GraphX.GraphSharp.Algorithms.Layout.Simple.Tree;
+using System.Text.RegularExpressions;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Rendering;
+using ICSharpCode.AvalonEdit.Document;
+using System.Windows.Documents;
 
 namespace CodeNaviWPF
 {
@@ -49,6 +54,7 @@ namespace CodeNaviWPF
         private CancellationTokenSource ctags_token_source = new CancellationTokenSource();
         private CancellationToken ctags_cancellation_token;
         private Task ctags_task;
+        private string notes_link_regex = @"(?<vertex_id>\d+):(?<file_name>.+):\(Line (?<line_no>\d+), Col \d+\):(?<no_lines>\d+)";
 
         public MainWindow()
         {
@@ -79,8 +85,10 @@ namespace CodeNaviWPF
             dir_count_cancellation_token = dir_count_token_source.Token;
             ctags_cancellation_token = ctags_token_source.Token;
 
-            if (File.Exists(Properties.Settings.Default.PreviousFile)) load_project(Properties.Settings.Default.PreviousFile);
+            NotesEditor.TextArea.TextView.MouseDown += NotesEditor_MouseDown;
+            NotesEditor.TextArea.TextView.LineTransformers.Add(new NotesLinkUnderliner());
 
+            if (File.Exists(Properties.Settings.Default.PreviousFile)) load_project(Properties.Settings.Default.PreviousFile);
         }
 
         private void CreateNewGraph()
@@ -352,6 +360,7 @@ namespace CodeNaviWPF
         {
             base.OnClosed(e);
             Properties.Settings.Default.Save();
+            graph_provider.SaveGraph(); // Need this here to save all the notes anchors.
         }
 
         private void TestEditor_MouseDown(object sender, MouseButtonEventArgs e)
@@ -445,6 +454,27 @@ namespace CodeNaviWPF
                 PocVertex source_vertex = (PocVertex)sv.Vertex;
                 selected_text = textarea.Selection.GetText();
                 await SearchForString(selected_text, sv);
+            }
+            else if (e.Key == System.Windows.Input.Key.N && !((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)) // Not doing ctrl-n for new project
+            {
+                string selected_text = "";
+                string link_text = "";
+                TextArea textarea = e.OriginalSource as TextArea;
+                var texteditor = Utils.TreeHelpers.FindVisualParent<TextEditor>(textarea);
+                VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(textarea);
+                FileVertex source_vertex = (FileVertex)sv.Vertex;
+                selected_text = textarea.Selection.GetText();
+                var no_lines = textarea.Selection.EndPosition.Line - textarea.Selection.StartPosition.Line + 1;
+
+                link_text = source_vertex.ID.ToString() + ":" + source_vertex.FileName + ":" + textarea.Selection.StartPosition.Location.ToString() + ":" + no_lines.ToString();
+                NotesEditor.TextArea.Document.Text += "\n\n";
+                NotesEditor.TextArea.Document.Text += link_text + "\n";
+                NotesEditor.TextArea.Document.Text += selected_text;
+                NotesEditor.TextArea.Document.Text += "\n\n";
+
+                NotesEditor.ScrollToEnd();
+
+                graph_provider.SaveNotes();
             }
         }
 
@@ -794,6 +824,48 @@ namespace CodeNaviWPF
             if (e.Key == Key.Enter && ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
             {
                 NotesExpander.IsExpanded = false;
+                graph_provider.SaveNotes();
+            }
+        }
+
+        private void NotesEditor_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                // Ctrl+Click Go to notes
+                var position = NotesEditor.GetPositionFromPoint(e.GetPosition(NotesEditor.TextArea.TextView));
+                if (position != null)
+                {
+                    // Get the line clicked.
+                    var clicked_line_no = position.Value.Line;
+                    var line_offset = NotesEditor.Document.GetLineByNumber(clicked_line_no);
+                    var line = NotesEditor.Document.GetText(line_offset.Offset, line_offset.Length);
+
+                    // Check if there is a link in the line: check with regex
+                    if (Regex.IsMatch(line, notes_link_regex))
+                    {
+                        // Check if click is within link (if there is one).
+                        // Parse link and move to vertex.
+                        var match_object = Regex.Match(line, notes_link_regex);
+                        var vert_id = int.Parse(match_object.Groups["vertex_id"].Value);
+                        var file_name = match_object.Groups["file_name"].Value;
+                        var line_no = int.Parse(match_object.Groups["line_no"].Value);
+                        var no_lines = int.Parse(match_object.Groups["no_lines"].Value);
+
+                        var vertex = graph_provider.GetVertexById(vert_id);
+                        VertexControl vc = graph_area.GetAllVertexControls().Where(x => x.Vertex == vertex).FirstOrDefault();
+
+                        TextEditor te = TreeHelpers.FindVisualChild<TextEditor>((DependencyObject)vc);
+                        te.TextArea.TextView.BackgroundRenderers.Add(new HighlightNotesSnippetBackgroundRenderer(te, line_no, no_lines));
+
+                        te.ScrollToLine(line_no);
+                        CenterOnVertex(vc);                        
+                    }
+
+                    // TODO: Add link highlighter to the editor.
+
+                }
+                e.Handled = true;
             }
         }
     }

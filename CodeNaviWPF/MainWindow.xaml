@@ -443,7 +443,7 @@
                 <avalonEdit:TextEditor
                 x:Name="NotesEditor"
                 Margin="10"
-                Document="{Binding Path=Graph.Document}" 
+                Document="{Binding Path=Graph.Notes}" 
                 IsReadOnly="False"
                 Height="300"
                 Tag="{Binding ElementName=root}"

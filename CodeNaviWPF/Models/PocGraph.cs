@@ -315,17 +315,23 @@ namespace CodeNaviWPF.Models
 
     public class PocGraph : BidirectionalGraph<PocVertex, PocEdge>
     {
-        public TextDocument Document { get; set; }
-
+        public TextDocument Notes { get; set; }
+        
         public PocGraph()
         {
-            Document = new TextDocument();
+            Notes = new TextDocument();
         }
 
         public PocGraph(bool allowParallelEdges)
-            : base(allowParallelEdges) { Document = new TextDocument(); }
+            : base(allowParallelEdges)
+        {
+            Notes = new TextDocument(); 
+        }
 
         public PocGraph(bool allowParallelEdges, int vertexCapacity)
-            : base(allowParallelEdges, vertexCapacity) { Document = new TextDocument(); }
+            : base(allowParallelEdges, vertexCapacity)
+        {
+            Notes = new TextDocument(); 
+        }
     }    
 }

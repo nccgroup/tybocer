@@ -23,6 +23,44 @@ using System.Collections.Generic;
 
 namespace CodeNaviWPF
 {
+    public class HighlightNotesSnippetBackgroundRenderer : IBackgroundRenderer
+    {
+        private TextEditor _editor;
+        private int start_line;
+        private int no_lines;
+
+        public HighlightNotesSnippetBackgroundRenderer(TextEditor editor, int start_line, int no_lines)
+        {
+            _editor = editor;
+            this.start_line = start_line;
+            this.no_lines = no_lines;
+        }
+
+        public KnownLayer Layer
+        {
+            get { return KnownLayer.Background; }
+        }
+
+        public void Draw(TextView textView, DrawingContext drawingContext)
+        {
+            if (_editor.Document == null)
+                return;
+
+            for (int i=start_line; i<start_line+no_lines-1; i++)
+            {
+                if (!(i > 0)) return;
+                textView.EnsureVisualLines();
+                var currentLine = _editor.Document.GetLineByNumber(i);
+                foreach (var rect in BackgroundGeometryBuilder.GetRectsForSegment(textView, currentLine))
+                {
+                    drawingContext.DrawRectangle(
+                        new SolidColorBrush(Color.FromArgb(0x20, 0, 0xFF, 0)), null,
+                        new Rect(rect.Location, new Size(textView.ActualWidth, rect.Height)));
+                }
+            }
+        }
+    }
+
     public class HighlightSearchLineBackgroundRenderer : IBackgroundRenderer
     {
         private TextEditor _editor;
@@ -134,6 +172,33 @@ namespace CodeNaviWPF
                         }
                     );
                 }
+            }
+        }
+    }
+
+    public class NotesLinkUnderliner : DocumentColorizingTransformer
+    {
+        private string notes_link_regex = @"(?<vertex_id>\d+):(?<file_name>.+):\(Line (?<line_no>\d+), Col \d+\):(?<no_lines>\d+)";
+
+        public NotesLinkUnderliner() { }
+
+        protected override void ColorizeLine(DocumentLine line)
+        {
+            int lineStartOffset = line.Offset;
+            string text = CurrentContext.Document.GetText(line);
+            var match = Regex.Match(text, notes_link_regex);
+            if (match != null)
+            {
+                int index;
+                index = match.Index;
+                base.ChangeLinePart(
+                    lineStartOffset + index, // startOffset
+                    lineStartOffset + index + match.Length, // endOffset
+                    (VisualLineElement element) =>
+                    {
+                        element.TextRunProperties.SetTextDecorations(TextDecorations.Underline);
+                    }
+                );
             }
         }
     }
