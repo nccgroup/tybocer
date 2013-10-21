@@ -352,6 +352,18 @@ namespace CodeNaviWPF.ViewModels
             Graph.AddEdge(new PocEdge(source_vertex, new_vertex));
             return new_vertex;
         }
+
+        internal PocVertex GetVertexById(string id)
+        {
+            return GetVertexById(int.Parse(id));
+        }
+
+        internal PocVertex GetVertexById(int id)
+        {
+            PocVertex result = graph.Vertices.Where(x => x.ID == id).First();
+            return result;
+        }
+
         internal void SaveNotes()
         {
             using (Package package = Package.Open(SaveFile, FileMode.Open))
