@@ -149,7 +149,14 @@ namespace CodeNaviWPF
                 directory_count = await CountDirs(dialog.SelectedPath);
                 still_counting = false;
                 graph_provider.root_vertex.CtagsRun = false;
-                await UpdateCtags();
+                try
+                {
+                    await UpdateCtags();
+                }
+                catch (System.Threading.Tasks.TaskCanceledException)
+                {
+                    // We want to cancel the task, so we'll ignore this here.
+                }
                 UpdateCtagsHighlights();
                 graph_provider.root_vertex.CtagsRun = true;
                 graph_provider.SaveGraph();
@@ -169,18 +176,21 @@ namespace CodeNaviWPF
         {
             foreach (TextArea ta in Utils.TreeHelpers.FindVisualChildren<TextArea>(this))
             {
-                List<ICSharpCode.AvalonEdit.Rendering.IVisualLineTransformer> old_list = (from transformer in ta.TextView.LineTransformers
-                                                                                         where transformer.GetType() != typeof(UnderlineCtagsMatches)
-                                                                                         select transformer).ToList();
-                ta.TextView.LineTransformers.Clear();
-                foreach (var a in old_list)
+                if (ta != NotesEditor.TextArea)
                 {
-                    ta.TextView.LineTransformers.Add(a);
-                }
-                //ta.TextView.LineTransformers
-                if (use_ctags)
-                {
-                    ta.TextView.LineTransformers.Add(new UnderlineCtagsMatches(graph_provider.root_vertex.CtagsMatches.Keys.ToList()));
+                    List<IVisualLineTransformer> old_list = (from transformer in ta.TextView.LineTransformers
+                                                                                              where transformer.GetType() != typeof(UnderlineCtagsMatches)
+                                                                                              select transformer).ToList();
+                    ta.TextView.LineTransformers.Clear();
+                    foreach (var a in old_list)
+                    {
+                        ta.TextView.LineTransformers.Add(a);
+                    }
+                    //ta.TextView.LineTransformers
+                    if (use_ctags)
+                    {
+                        ta.TextView.LineTransformers.Add(new UnderlineCtagsMatches(graph_provider.root_vertex.CtagsMatches.Keys.ToList()));
+                    }
                 }
             }
         }
@@ -367,7 +377,7 @@ namespace CodeNaviWPF
         {
             if (e.ChangedButton == MouseButton.Left && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualParent<ICSharpCode.AvalonEdit.TextEditor>((DependencyObject)sender);
+                TextEditor editor = TreeHelpers.FindVisualParent<TextEditor>((DependencyObject)sender);
                 var file_path = ((FileVertex)TreeHelpers.FindVisualParent<VertexControl>((DependencyObject)editor).Vertex).FilePath;
                 
                 // Ctrl+Click Go to definition
@@ -376,9 +386,9 @@ namespace CodeNaviWPF
                 {
                     var clicked_line_no = position.Value.Line;
                     var offset = editor.Document.GetOffset(position.Value.Location);
-                    var start = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Backward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
+                    var start = TextUtilities.GetNextCaretPosition(editor.Document, offset, LogicalDirection.Backward, CaretPositioningMode.WordBorder);
                     if (start < 0) return;
-                    var end = ICSharpCode.AvalonEdit.Document.TextUtilities.GetNextCaretPosition(editor.Document, offset, System.Windows.Documents.LogicalDirection.Forward, ICSharpCode.AvalonEdit.Document.CaretPositioningMode.WordBorder);
+                    var end = TextUtilities.GetNextCaretPosition(editor.Document, offset, LogicalDirection.Forward, CaretPositioningMode.WordBorder);
                     var word = editor.Document.GetText(start, end - start);
                     //System.Diagnostics.Debug.Print(word);
 
@@ -522,7 +532,7 @@ namespace CodeNaviWPF
             graph_area.UpdateLayout();
             centre_on_me = new_vertex_control;
             ICSharpCode.AvalonEdit.TextEditor editor = TreeHelpers.FindVisualChild<ICSharpCode.AvalonEdit.TextEditor>(new_vertex_control);
-            if (editor != null)
+            if (editor != null && editor != NotesEditor)
             {
                 editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
                 editor.TextArea.SelectionChanged += TestEditor_SelectionChanged;
@@ -727,8 +737,11 @@ namespace CodeNaviWPF
             UpdateCtagsHighlights();
             foreach (ICSharpCode.AvalonEdit.TextEditor editor in Utils.TreeHelpers.FindVisualChildren<ICSharpCode.AvalonEdit.TextEditor>(this))
             {
-                editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
-                editor.Width = editor.ActualWidth;
+                if (editor != NotesEditor)
+                {
+                    editor.TextArea.TextView.MouseDown += TestEditor_MouseDown;
+                    editor.Width = editor.ActualWidth;
+                }
             }
             NotesExpander.DataContext = graph_provider;
         }
