@@ -61,7 +61,11 @@
                         </StackPanel.Resources>
                         <Button Name="DirPicker" Padding="5" Margin="0 0 0 5" Content="Choose root directory" Click="DirPicker_Click"/>
                         <StackPanel Orientation="Horizontal" Margin="0 0 0 5">
-                            <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm}"/>
+                            <TextBox Width="300" Name="SearchTerm" Text="{Binding Path=SearchTerm, UpdateSourceTrigger=PropertyChanged}" >
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="local:Commands.SearchString"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
                             <Button Margin="5 0 0 0" Name="RunSearch" 
                                 IsEnabled="{Binding Path=FilePath, Converter={StaticResource ResourceKey=mystringtoboolconverter}}"
                                 Command="local:Commands.SearchString" Content="Search" 
