@@ -1,13 +1,16 @@
 ﻿DONE Redraw issue when highlighted line is on first screen.
 DONE Underlining of ctags words (google for other options):
 Grepify profiles
-Loading of saved file
-Icons for nodes
-Note taking
+DONE Loading of saved file
+DONE Icons for nodes
+DONE Note taking
 Apply correct syntax highlighting to files.
 Highlight open instances of same file.
 Modifier key for opening search results from same file i.e. only open single file browser instance but highlight all lines.
 Modifier key for highlighting definitions in same file i.e. only open single file browser instance but highlight all lines.
 Zoom in on mouse, out on centre approach.
-Race condition on ctags libs. If big dir selected first and then smaller second then ctags will complete on smaller dir and then get clobbered by larger dir results. Might be fixed by new locking statements
+DONE - Race condition on ctags libs. If big dir selected first and then smaller second then ctags will complete on smaller dir and then get clobbered by larger dir results. Might be fixed by new locking statements
 Have search threads be cancelled if the search node is closed. Perhaps keep the Task in the Vertex's data.
+Add better picker for file extensions - base lists off CTAGs
+Add better picker for ctags location - move to preferences dialog as well.
+Save projects when opening projects.
