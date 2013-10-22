@@ -832,6 +832,14 @@ namespace CodeNaviWPF
 
         }
 
+        private void MoveToRoot(object sender, ExecutedRoutedEventArgs e)
+        {
+            CenterOnVertex(root_control);
+            var sb = TreeHelpers.FindVisualChildByName<System.Windows.Controls.TextBox>(root_control, "SearchTerm");
+            sb.Focus();
+        }
+
+
         private void NotesEditor_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Enter && ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control))
@@ -889,5 +897,6 @@ namespace CodeNaviWPF
         public static readonly RoutedUICommand ExpanderRelayout = new RoutedUICommand("Relayout Graph", "ExpanderRelayout", typeof(MainWindow));
         public static readonly RoutedUICommand OnCloseVertex = new RoutedUICommand("Close Vertex", "OnCloseVertex", typeof(MainWindow));
         public static readonly RoutedUICommand SaveAs = new RoutedUICommand("Save Project As", "SaveProjectAs", typeof(MainWindow)) { InputGestures = { new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift) } };
+        public static readonly RoutedUICommand Home = new RoutedUICommand("Move to home", "MoveToRoot", typeof(MainWindow)) { InputGestures = { new KeyGesture(Key.H, ModifierKeys.Control) } };
     }
 }
