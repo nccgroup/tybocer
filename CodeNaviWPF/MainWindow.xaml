@@ -19,7 +19,7 @@
         xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:zb="clr-namespace:GraphX.Xceed.Wpf.Toolkit.Zoombox;assembly=GraphX"
         xmlns:props="clr-namespace:CodeNaviWPF.Properties"
-        Title="GraphView" 
+        Title="Tybocer" 
         Height="900" 
         Width="1500"
         WindowStartupLocation="CenterScreen"
