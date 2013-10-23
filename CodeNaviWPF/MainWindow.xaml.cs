@@ -167,7 +167,14 @@ namespace CodeNaviWPF
         {
             if (File.Exists(ctagsLocation.Text) && graph_provider != null && graph_provider.root_dir != "")
             {
-                await UpdateCtags();
+                try
+                {
+                    await UpdateCtags();
+                }
+                catch (System.Threading.Tasks.TaskCanceledException)
+                {
+                    // We want to cancel the task, so we'll ignore this here.
+                }
                 UpdateCtagsHighlights();
             }
         }
@@ -270,7 +277,15 @@ namespace CodeNaviWPF
                             CreateNoWindow = true,
                         }
                     };
-                    process.Start();
+                    try
+                    {
+                        process.Start();
+                    }
+                    catch (System.ComponentModel.Win32Exception)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Ctags failed to run.\n\nAttempted to run: "+Properties.Settings.Default.CtagsLocation+" "+args, "Ctags fail", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
+                        return new List<String>();
+                    }
                     //string output = "";
                     try
                     {
@@ -887,6 +902,29 @@ namespace CodeNaviWPF
 
                 }
                 e.Handled = true;
+            }
+        }
+
+        async private void CtagsLocationSelect_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (File.Exists(dialog.FileName))
+                {
+                    Properties.Settings.Default.CtagsLocation = dialog.FileName;
+                }
+                try
+                {
+                    await UpdateCtags();
+                }
+                catch (System.Threading.Tasks.TaskCanceledException)
+                {
+                    // We want to cancel the task, so we'll ignore this here.
+                }
+                UpdateCtagsHighlights();
+                graph_provider.root_vertex.CtagsRun = true;
+                graph_provider.SaveGraph();
             }
         }
     }

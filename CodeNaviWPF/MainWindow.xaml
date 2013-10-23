@@ -413,8 +413,9 @@
                             <TextBox x:Name="editorFont" Text="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont, Mode=TwoWay}" />
                         </StackPanel>
                         <StackPanel Orientation="Vertical">
-                            <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location</Label>
+                            <Label Target="{Binding ElementName=ctagsLocation}">Ctags Location:</Label>
                             <TextBox x:Name="ctagsLocation" TextChanged="CheckForCtags" Text="{Binding Source={x:Static props:Settings.Default}, Path=CtagsLocation, Mode=TwoWay}" />
+                            <Button x:Name="CtagsLocationSelect" Click="CtagsLocationSelect_Click">Change...</Button>
                         </StackPanel>
                         <!--
                         <StackPanel Orientation="Horizontal">
