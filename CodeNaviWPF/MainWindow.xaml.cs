@@ -489,9 +489,20 @@ namespace CodeNaviWPF
                 VertexControl sv = TreeHelpers.FindVisualParent<VertexControl>(textarea);
                 FileVertex source_vertex = (FileVertex)sv.Vertex;
                 selected_text = textarea.Selection.GetText();
-                var no_lines = textarea.Selection.EndPosition.Line - textarea.Selection.StartPosition.Line + 1;
+                var no_lines = 0;
+                var start_line = "";
+                if (textarea.Selection.EndPosition.Line < textarea.Selection.StartPosition.Line)
+                {
+                    no_lines = textarea.Selection.StartPosition.Line - textarea.Selection.EndPosition.Line + 1;
+                    start_line = textarea.Selection.EndPosition.Location.ToString();
+                }
+                else
+                {
+                    no_lines = textarea.Selection.EndPosition.Line - textarea.Selection.StartPosition.Line + 1;
+                    start_line = textarea.Selection.StartPosition.Location.ToString();
+                }
 
-                link_text = source_vertex.ID.ToString() + ":" + source_vertex.FileName + ":" + textarea.Selection.StartPosition.Location.ToString() + ":" + no_lines.ToString();
+                link_text = source_vertex.ID.ToString() + ":" + source_vertex.FileName + ":" + start_line + ":" + no_lines.ToString();
                 NotesEditor.TextArea.Document.Text += "\n\n";
                 NotesEditor.TextArea.Document.Text += link_text + "\n";
                 NotesEditor.TextArea.Document.Text += selected_text;
