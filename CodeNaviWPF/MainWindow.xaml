@@ -90,7 +90,6 @@
                     <Expander x:Name="CtagsAnchorExpander" IsExpanded="True" Expanded="ExpanderRelayout" Collapsed="ExpanderRelayout">
                         <Expander.Header>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock VerticalAlignment="Center">File: <TextBlock Text="{Binding Path=FileName}" /></TextBlock>
                                 <Button Margin="50 5 0 0" Padding="5" HorizontalAlignment="Right" Content="Close" Command="local:Commands.OnCloseVertex" />
                             </StackPanel>
                         </Expander.Header>
@@ -128,16 +127,17 @@
                             </StackPanel>
                         </Expander.Header>
                         <StackPanel>
-                            <ToolBarTray DockPanel.Dock="Top" IsLocked="True">
-                                <ToolBar>
+                            <ToolBarTray DockPanel.Dock="Top" IsLocked="True" Background="White">
+                                <ToolBar Background="White">
                                     <Label Target="{Binding ElementName=fontSize}">Zoom</Label>
                                     <Slider x:Name="fontSize" 
-                                    Margin="0,0,0,0" 
-                                    Minimum="6" 
-                                    Maximum="20" 
-                                    Width="100" 
-                                    Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
-                                    />
+                                            Background="White"
+                                            Margin="0,0,0,0" 
+                                            Minimum="6" 
+                                            Maximum="20" 
+                                            Width="100" 
+                                            Value="{Binding Source={x:Static props:Settings.Default}, Path=EditorFont.Size, Mode=OneWay}" 
+                                            />
                                 </ToolBar>
                             </ToolBarTray>
                             <Border BorderThickness="1" BorderBrush="DarkSlateGray" Margin="5" Padding="1">
