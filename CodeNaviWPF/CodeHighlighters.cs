@@ -46,7 +46,7 @@ namespace CodeNaviWPF
             if (_editor.Document == null)
                 return;
 
-            for (int i=start_line; i<start_line+no_lines-1; i++)
+            for (int i=start_line; i<start_line+no_lines; i++)
             {
                 if (!(i > 0)) return;
                 textView.EnsureVisualLines();
