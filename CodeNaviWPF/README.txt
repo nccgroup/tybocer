@@ -1,4 +1,13 @@
 ﻿# Tybocer
+
+Released as open source by NCC Group Plc - http://www.nccgroup.com/
+
+Developed by Felix Ingram, felix dot ingram at nccgroup dot com
+
+http://www.github.com/nccgroup/tybocer
+
+Released under the AGPL. See LICENSE for more information
+
 ## Overview
 Tybocer is a new [citation needed] view on code review. When presented with a new piece of code to review it is useful to search through for common terms, or to hunt down specific definitions of particular functions.
 
