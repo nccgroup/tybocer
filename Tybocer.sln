@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeNaviWPF", "CodeNaviWPF\CodeNaviWPF.csproj", "{5D51658C-24B4-4A17-87F5-F3C76770C93E}"
+# Visual Studio Express 2012 for Windows Desktop
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tybocer", "CodeNaviWPF\Tybocer.csproj", "{5D51658C-24B4-4A17-87F5-F3C76770C93E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
