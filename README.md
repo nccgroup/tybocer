@@ -63,3 +63,10 @@ Projects can be opened using ctrl-O and new projects can be created with ctrl-N.
 Notes can be made using the notes window at the bottom of the main window and will be saved as part of the project file. (The window can be dismissed using ctrl-enter).
 
 Selected text in the file view can be added to the notes window by selecting the text and pressing "n". The text will be added to the bottom of the notes window along with a link to node where it originated. Ctrl-clicking on the link will zoom the graph to the associated node (if it still exists) and the file view will be scrolled to the appropriate text (which will then be highlighted).
+
+# Libraries used
+* [GraphX](https://graphx.codeplex.com/) - Updated version of [Graph#](https://graphsharp.codeplex.com/)
+* [QuickGraph](https://quickgraph.codeplex.com/license) - Used to represent the actual graph
+* [AvalonEdit](https://github.com/icsharpcode/SharpDevelop/wiki/AvalonEdit) - WPF Text Editor
+* [YaxLib](https://yaxlib.codeplex.com/) - .Net XML serializing library
+
