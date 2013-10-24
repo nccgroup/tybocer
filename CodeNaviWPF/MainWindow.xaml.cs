@@ -906,11 +906,12 @@ namespace CodeNaviWPF
                         te.TextArea.TextView.BackgroundRenderers.Add(new HighlightNotesSnippetBackgroundRenderer(te, line_no, no_lines));
 
                         te.ScrollToLine(line_no);
+
+                        Expander ex = TreeHelpers.FindVisualParent<Expander>(te);
+                        if (!ex.IsExpanded) ex.IsExpanded = true;
+
                         CenterOnVertex(vc);                        
                     }
-
-                    // TODO: Add link highlighter to the editor.
-
                 }
                 e.Handled = true;
             }
