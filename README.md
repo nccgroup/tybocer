@@ -17,21 +17,21 @@ Tybocer allows users to search through code in a similar fashion to NCCCodeNavi,
 
 The key difference is that Tybocer records a user's progress through the code in the form of a tree:
 
-![Main View](https://raw.github.com/nccgroup/tybocer/gh-pages/TybocerView.png)
+![Main View](https://raw.github.com/nccgroup/tybocer/gh-pages/CodeNaviWPF/Docs/TybocerView.png)
 
 # Usage
 
 ## Setup
 Tybocer opens with a single root node. The preferences window:
 
-![Preferences view](https://raw.github.com/nccgroup/tybocer/gh-pages/TybocerPreferencesWindow.png)
+![Preferences view](https://raw.github.com/nccgroup/tybocer/gh-pages/CodeNaviWPF/Docs/TybocerPreferencesWindow.png)
 
 allows users to configure the location of ctags on their machine. Ctags will run when a new folder is selected to review (and when the "ctags enabled" box is ticked). There is also a default set of extensions to ignore, and of directories that will not be searched (useful for avoiding source control metadata).
 
 ## Viewing files
 Once the tool is configured, users should select a new directory to review. The tree view presents an explorer-like window on the code, and files can be double-clicked to open a new file viewer:
 
-![File browser view](https://raw.github.com/nccgroup/tybocer/gh-pages/TybocerFileBrowser.png)
+![File browser view](https://raw.github.com/nccgroup/tybocer/gh-pages/CodeNaviWPF/Docs/TybocerFileBrowser.png)
 
 Users can alt-drag a zoom box to zoom to a particular area on the graph. The mouse wheel can be used to zoom the graph in and out; alt-click can be used to zoom the graph all the way back out. There is a maximum zoom level configured, so dragging a small box on the centre of a file view is a convenient way to make a file view 'full screen'. The zoom slider can be used to adjust the size of the text.
 
@@ -42,7 +42,7 @@ Searches will be performed on all files except those in the excluded extensions 
 
 From a file view users can select a word and right-click to get a context menu of options:
 
-![Context menu](https://raw.github.com/nccgroup/tybocer/gh-pages/TybocerRightClick.png)
+![Context menu](https://raw.github.com/nccgroup/tybocer/gh-pages/CodeNaviWPF/Docs/TybocerRightClick.png)
 
 In addition to searching across all or restricted files, it is also possible to search across files of the same type.
 
