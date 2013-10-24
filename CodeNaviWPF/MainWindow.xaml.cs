@@ -933,18 +933,18 @@ namespace CodeNaviWPF
                 if (File.Exists(dialog.FileName))
                 {
                     Properties.Settings.Default.CtagsLocation = dialog.FileName;
+                    try
+                    {
+                        await UpdateCtags();
+                    }
+                    catch (System.Threading.Tasks.TaskCanceledException)
+                    {
+                        // We want to cancel the task, so we'll ignore this here.
+                    }
+                    UpdateCtagsHighlights();
+                    graph_provider.root_vertex.CtagsRun = true;
+                    graph_provider.SaveGraph();
                 }
-                try
-                {
-                    await UpdateCtags();
-                }
-                catch (System.Threading.Tasks.TaskCanceledException)
-                {
-                    // We want to cancel the task, so we'll ignore this here.
-                }
-                UpdateCtagsHighlights();
-                graph_provider.root_vertex.CtagsRun = true;
-                graph_provider.SaveGraph();
             }
         }
     }
