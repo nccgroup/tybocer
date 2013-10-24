@@ -924,6 +924,10 @@ namespace CodeNaviWPF
         async private void CtagsLocationSelect_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Title = "Select Ctags Executable";
+            dialog.Multiselect = false;
+            dialog.Filter = "Exec files|*.exe";
+
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (File.Exists(dialog.FileName))
