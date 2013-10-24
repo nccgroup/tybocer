@@ -457,6 +457,10 @@ namespace CodeNaviWPF
                             }
                             graph_provider.SaveGraph();
                         }
+                        if (files_and_lines.Count() == 0)
+                        {
+                            editor.TextArea.TextView.BackgroundRenderers.Add(new HighlightNotesSnippetBackgroundRenderer(editor, clicked_line_no, 1));
+                        }
                     }
                 }
                 e.Handled = true;
