@@ -1,5 +1,7 @@
 ﻿# Tybocer
 
+Installers available from the [releases](https://github.com/nccgroup/tybocer/releases) page.
+
 Released as open source by NCC Group Plc - http://www.nccgroup.com/
 
 Developed by Felix Ingram, felix dot ingram at nccgroup dot com
