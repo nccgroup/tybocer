@@ -21,7 +21,7 @@ using ICSharpCode.AvalonEdit.Document;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace CodeNaviWPF
+namespace Tybocer
 {
     public class HighlightNotesSnippetBackgroundRenderer : IBackgroundRenderer
     {

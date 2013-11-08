@@ -21,7 +21,7 @@ using System.Windows.Data;
 using System.Globalization;
 using System.Threading;
 
-namespace CodeNaviWPF.Utils
+namespace Tybocer.Utils
 {
     class IDCounter
     {

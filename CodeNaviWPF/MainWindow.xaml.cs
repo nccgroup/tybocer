@@ -19,12 +19,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Forms;
-using CodeNaviWPF.Models;
-using CodeNaviWPF.ViewModels;
+using Tybocer.Models;
+using Tybocer.ViewModels;
 using ICSharpCode.AvalonEdit.Editing;
 using GraphX;
 using GraphX.Xceed.Wpf.Toolkit.Zoombox;
-using CodeNaviWPF.Utils;
+using Tybocer.Utils;
 using System.Threading;
 using GraphX.GraphSharp.Algorithms.Layout.Simple.Tree;
 using System.Text.RegularExpressions;
@@ -33,7 +33,7 @@ using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Document;
 using System.Windows.Documents;
 
-namespace CodeNaviWPF
+namespace Tybocer
 {
     public partial class MainWindow : Window
     {

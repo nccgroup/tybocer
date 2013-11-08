@@ -15,7 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace CodeNaviWPF
+namespace Tybocer
 {
     /// <summary>
     /// Interaction logic for App.xaml

@@ -18,13 +18,13 @@ using System;
 using QuickGraph;
 using ICSharpCode.AvalonEdit.Document;
 using GraphX;
-using CodeNaviWPF.Utils;
+using Tybocer.Utils;
 using System.Xml.Serialization;
 using YAXLib;
 using System.Text;
 using System.Linq;
 
-namespace CodeNaviWPF.Models
+namespace Tybocer.Models
 {
     [XmlInclude(typeof(FileBrowser))]
     [XmlInclude(typeof(FileVertex))]

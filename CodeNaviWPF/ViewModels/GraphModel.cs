@@ -18,10 +18,10 @@ using System.Linq;
 using System.IO;
 using System.Xml.Serialization;
 using GraphX;
-using CodeNaviWPF.Models;
-using CodeNaviWPF.Utils;
+using Tybocer.Models;
+using Tybocer.Utils;
 
-namespace CodeNaviWPF.ViewModels
+namespace Tybocer.ViewModels
 {
     public class PocGraphLayout : GraphArea<PocVertex, PocEdge, PocGraph> { }
 

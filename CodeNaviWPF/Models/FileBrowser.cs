@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace CodeNaviWPF.Models
+namespace Tybocer.Models
 {
 
     public class Item

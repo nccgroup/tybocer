@@ -16,9 +16,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows;
 using System.Windows.Controls;
-using CodeNaviWPF.Models;
+using Tybocer.Models;
 
-namespace CodeNaviWPF
+namespace Tybocer
 {
     public class VertexTemplateSelector : DataTemplateSelector
     {
