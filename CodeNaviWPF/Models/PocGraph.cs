@@ -173,8 +173,10 @@ namespace Tybocer.Models
             set
             {
                 _filepath = value;
-                StreamReader sr = new StreamReader(value);
-                Document.Text = sr.ReadToEnd();
+                using (StreamReader sr = new StreamReader(value))
+                {
+                    Document.Text = sr.ReadToEnd();
+                }
             }
         }
 
@@ -191,15 +193,32 @@ namespace Tybocer.Models
             Document = new TextDocument();
         }
 
-        public FileVertex(string filename, string path, string root) : base()
+        private static TextDocument get_document(string path)
+        {
+            var document = new TextDocument();
+            using (StreamReader sr = new StreamReader(path))
+            {
+                document.Text = sr.ReadToEnd();
+            }
+            return document;
+        }
+
+        public FileVertex(string filename, string path, string root)
+            : this(filename, path, root, FileVertex.get_document(path))
+        {
+
+        }
+
+        public FileVertex(string filename, string path, string root, TextDocument document) : base()
         {
             base.ID = Utils.IDCounter.Counter;
-            Document = new TextDocument();
+            //Document = new TextDocument();
+            Document = document;
             FileName = FilePathUtils.GetRelativePath(root, path);
             FilePath = path;
             LinesToHighlight = new List<int>();
-            StreamReader sr = new StreamReader(path);
-            Document.Text = sr.ReadToEnd();
+            //StreamReader sr = new StreamReader(path);
+            //Document.Text = sr.ReadToEnd();
         }
     }
 

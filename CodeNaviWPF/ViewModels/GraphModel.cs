@@ -69,7 +69,7 @@ namespace Tybocer.ViewModels
 
             SaveFile = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".vizzy";
         }
-        
+
         internal void UpdateRoot(string p)
         {
             root_vertex.FilePath = p;
@@ -83,7 +83,16 @@ namespace Tybocer.ViewModels
 
         internal FileVertex AddFileView(FileItem f, PocVertex from_vertex)
         {
-            FileVertex new_vertex = new FileVertex(f.FileName, f.FullPath, root_vertex.FilePath);
+            FileVertex new_vertex;
+            FileVertex existing_file_view = (FileVertex)Graph.Vertices.Where(x => x as FileVertex != null && ((FileVertex)x).FileName == f.RelPath).FirstOrDefault();
+            if (existing_file_view != null)
+            {
+                new_vertex = new FileVertex(f.FileName, f.FullPath, root_vertex.FilePath, existing_file_view.Document);
+            }
+            else
+            {
+                new_vertex = new FileVertex(f.FileName, f.FullPath, root_vertex.FilePath);
+            }
             Graph.AddVertex(new_vertex);
             Graph.AddEdge(new PocEdge(from_vertex, new_vertex));
             return new_vertex;
@@ -114,25 +123,27 @@ namespace Tybocer.ViewModels
             {
                 List<SearchResult> results = new List<SearchResult>();
                 FileStream filestream = new FileStream(file_info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                StreamReader streamreader = new StreamReader(filestream);
-                string line = streamreader.ReadLine();
-                int count = 0;
-                while (line != null)
+                using (StreamReader streamreader = new StreamReader(filestream))
                 {
-                    count++;
-                    if (line.ToLower().Contains(search_term.ToLower()))
+                    string line = streamreader.ReadLine();
+                    int count = 0;
+                    while (line != null)
                     {
-                        results.Add(new SearchResult
+                        count++;
+                        if (line.ToLower().Contains(search_term.ToLower()))
                         {
-                            RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root_vertex.FilePath, file_info.FullName)),
-                            FullPath = file_info.FullName,
-                            FileName = file_info.Name,
-                            Extension = file_info.Extension,
-                            LineNumber = count,
-                            Line = line.Length > 500 ? line.TrimStart().Substring(0, 500) : line.TrimStart()
-                        });
+                            results.Add(new SearchResult
+                            {
+                                RelPath = Path.GetDirectoryName(FilePathUtils.GetRelativePath(root_vertex.FilePath, file_info.FullName)),
+                                FullPath = file_info.FullName,
+                                FileName = file_info.Name,
+                                Extension = file_info.Extension,
+                                LineNumber = count,
+                                Line = line.Length > 500 ? line.TrimStart().Substring(0, 500) : line.TrimStart()
+                            });
+                        }
+                        line = streamreader.ReadLine();
                     }
-                    line = streamreader.ReadLine();
                 }
                 return results;
             }
